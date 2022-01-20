@@ -193,7 +193,7 @@ pDOM jmp updates =
     --    - which update an object is part of
     --    - all object history
     --    - object definitions that are no longer reachable
-f    --  - fails on
+    --  - fails on
     --    - malformed xref entries
     --    - mixture of xref table and xref streams [PW?]
     --  - should detect
