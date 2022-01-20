@@ -177,7 +177,7 @@ data Type2Ref =
     }
 
 
----- creating the DOM from xref table ----------------------------------------
+---- creating the DOM from the list of updates ---------------------------
 
 pDOM :: (Offset -> P ()) -> [(XRefRaw, TrailerDict)] -> P DOM
 pDOM jmp updates =
@@ -252,17 +252,6 @@ pDOM jmp updates =
   return domFinal
 
 
--- | pTopLevelDef_UnDecStm off - parse TopLevelDef at 'off' but if a stream,
---     we parse the dictionary but we don't yet decode and get the bytestring.
---   NOTE
---     - this needs to be a primitive parser if want to be efficient:
---       - parses top level values but if a stream, just record the offset
---         of 'stream' keyword
---     - only the first two constructors of TopLevelDef' will be returned.
-pTopLevelDef_UnDecStm :: Offset -> P TopLevelDef_UnDecStm
-pTopLevelDef_UnDecStm off = stub
-
-
 -- | extractStreamData - since we now know all Lengths:
 --   - 1st, with the file offset, read into a bytestring
 --   - 2nd, if an ObjStm, decodes/validates the stream
@@ -299,6 +288,11 @@ derefType2Ref dom' (Type2Ref oi j) =
   return $ TLD_Value v
 
 
+getObjStm :: TopLevelDef' ByteString -> P ObjStm
+getObjStm (TLD_ObjStm x) = return x
+getObjStm _              = error "expected ObjStm"
+
+---- unimplemented utility functions -----------------------------------------
 
 derefValue :: Map ObjId (TopLevelDef' a :+: b) -> PdfValue -> P PdfValue
 derefValue map (V_Ref i g) = stub "lookup ..." 
@@ -307,17 +301,21 @@ derefValue _   x           = return x
 derefTLD :: Map ObjId (TopLevelDef' a :+: b) -> ObjId -> P (TopLevelDef' a)
 derefTLD m oi = stub "derefTLD"
 
-getObjStm :: TopLevelDef' ByteString -> P ObjStm
-getObjStm (TLD_ObjStm x) = return x
-getObjStm _              = error "expected ObjStm"
-
 
 ---- unimplemented, lower level parser functions -----------------------------
 
-pObjStm :: Dict -> ByteString -> P ObjStm
-pObjStm = stub
-  -- Dead code!
-  
+-- | pTopLevelDef_UnDecStm off - parse TopLevelDef at 'off' but if a stream,
+--     we parse the dictionary but we don't yet decode and get the bytestring.
+--   NOTE
+--     - this needs to be a primitive parser if want to be efficient:
+--       - parses top level values but if a stream, just record the offset
+--         of 'stream' keyword.
+--       - this allows us to parse top-levels without requiring a DOM to lookup objects in
+--     - only the first two constructors of TopLevelDef' will be returned.
+
+pTopLevelDef_UnDecStm :: Offset -> P TopLevelDef_UnDecStm
+pTopLevelDef_UnDecStm off = stub
+
 
 -- XRef functions
 pAllUpdates offset = stub
