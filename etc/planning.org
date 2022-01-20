@@ -1,0 +1,282 @@
+* TODO Administrative/Plans/Org
+** NOTE Effort: 2wks
+** TODO [#A] submit Trust Chain paper to Langsec
+SCHEDULED: <2022-01-17 Mon> DEADLINE: <2022-02-07 Mon -30d>
+** DONE contact Peter
+
+Hi Peter,
+
+Bill and I have been chatting, and we're thinking trying to submit a paper on the PDF Trust Chain for Langsec 2022 http://langsec.org/spw22/.
+The deadline is Feb 7, 2021 (3 weeks from now).
+I'm not sure how much time and level of contribution you're open for ... but I was thinking we three could get together to see where we're all at, would you be available for a meeting this week?
+What about this Wed. 3PM PST (the time we usually use for the Trust Chain mtg)?
+
+** DONE [#A] first draft of outline 
+DEADLINE: <2022-01-19 Wed>
+** APPT meeting <2022-01-19 Wed 15:00-16:00>
+
+- overleaf
+- share
+  - spec.hs
+  - outline
+- considering a gitlab-ext repo for _
+  - overleaf creates repo
+- any task allocations
+
+** NOTE 2022-01-19 mtg notes
+
+- BTW,
+  Extends
+- PW: pragmatism vs formalisms of model
+- PW: ICC table at front
+  - anything with abs/relative offsets
+    - mpeg?
+  - WH: discuss ICC
+- Bill: "tone down Haskell" - any functional/monadic    
+- wiki pages : ICC : Q&A??
+  - https://wiki.pdfa.org/pages/viewpage.action?pageId=51839560
+- https://pdf-issues.pdfa.org/32000-2-2020/clause07.html#H7.5.7
+  
+** TODO [#A] get format, outline into the document
+SCHEDULED: <2022-01-22 Sat>
+
+- and spec.hs!
+  
+** TODO overleaf
+- setup with github?
+** TODO get initial template into document
+* TODO our spec (spec.hs)
+** NOTE [#A] overview of pDOM
+
+#+begin_src haskell
+
+    updates :: [(XRefRaw, TrailerDict)]
+
+  {- combine updates into single, good map -}
+     -- if things all out of order!
+     -- if indirect length is in later update
+
+    xref :: ObjInd `Map` (Offset :+: Type2Ref)
+
+  {- for trad offsets: parse the top level defns, stop at "stream" -}
+
+    domPass1 :: ObjId `Map` (TopLevelDef_UnDecStm :+: Type2Ref)
+
+  {- for all Streams: decode the streams -}
+
+    domPass2 :: ObjId `Map` (TopLevelDef :+: Type2Ref)
+
+  {- lookup (and parse) compressed objects: -}
+
+    domFinal :: ObjId `Map` TopLevelDef
+
+#+end_src
+
+** TODO [#A] regarding spec: file:spec.hs
+
+- TODO enumerate 'constraints' (so you can refer to in spec)
+  - no length stored in ObjStm
+    - really a constraint about Length fields in streams!
+
+- NOTE    
+  - no effort to attempt trivial efficiency gains, e.g.,
+    - "first" do streams w/ direct lengths, and later
+    - do streams w/ indirect lengths
+  - where do we have over-eagerness?
+    - or, when an error could occur, to over-strictnes
+    - use =validate= to       
+  - we could be more efficient by splitting into two maps.
+    - error messages simpler with one map
+  - this is a spec
+    - could evaluate sooner, but dangerous
+    - how to evaluate implem?
+      - if spec shows *all* errors
+        - implem must show some?
+        - ???
+
+- Q. can spec.hs be *more* declarative?
+  - laziness gets you a lot, makes more declarative
+    - TODO :: think about how this works
+  - no avoiding the dependencies and places of failure
+  - currently
+    - hiding std parsing
+    - laziness
+    - type-directed, gives clarity
+      - and tells us sooner/easier when a problem!
+          
+- desiderata
+  - get various behaviours from one implem
+    - e.g., the above =validate=
+    - strict/lazy maps:
+      - And encode errors in value of Map
+           
+  - you would like to get small variances/modifications with small changes
+  - you should be able to get *all* errors at each place of parallelism
+    - e.g., the map
+  - E.g.,
+    - add =validate b= and if "--validate" flag set, we =assert(b)=
+
+** TODO spec (N) compared to a more Dynamic (D) spec/implementation
+
+- implementation /N/ (New, typed, static, unrecursive)
+  - see file:spec.hs
+  - Q. how much of spec/*.ddl needs to change?
+
+- implementation /D/ (Dynamic)
+  - same as spec.hs, until pDOM
+  - harder to ensure efficiency??
+    - need/require updates?
+  - similar to existing code/implementation:
+    - you have =derefId= command
+      - very lazy & you only access/read what is needed
+      - it calls itself recursively!
+        - TODO :: add check for infinite loop
+      - e.g., if a "dependent on DOM parser" (stream with indirect), 
+        then immediately look that up and parse that, then return
+      
+  - NOTE, /D/ compared to implementation /N/     
+    - it *IS* nicely lazy if you don't want to =derefId= all obj ids
+      - doesn't parse unused ObjStms
+      - TODO :: ...?
+    - more efficient than /N/ (?)
+      - each object goes from unparsed to fully parsed
+      - directly follows references without needing to recurse over ObjId Map
+      - but ... every derefId needs to check evaled/not
+    - con :: as currently done in pdf-hs-driver, allows bad PDFs
+      - not detecting length in ObjStm unless *required*
+      - we might have a recursive situation that is "well-defined"
+      - help to have a =derefLength= / =derefFromUncompressed=
+        - more complicated than just this, because this won't catch error if we
+          luck out and the length is already decoded.
+    - con :: no parallel execution, no parallel error messages
+    - con :: imperative
+    - con :: no way to create a validator from. ?
+            
+  - TODO :: write sketch of code, esp. w/o daedalus hacks.
+    - could you do this part exclusively in Hs?
+    
+- reasons for /N/ over /D/
+  - want to parse everything and be done
+  - want to *efficiently* parse all objects
+  - want to know (sooner) that all objects parse and pre-Dom works.
+  - want to be assured that the code terminates 
+  - elegance/simplicity in all objects being in same state of "evaluation"
+                                  
+** TODO [#B] regarding spec: themes
+
+- redundancies:
+  - in presence of *any* redundancy
+    - [due to design or to new versions of standard]
+    - if we want to be very lazy
+      - we want to do things *one* way (easier)
+    - if we want to be safe
+      - we do things both ways and verify the same
+    - if we want to be exuberant/robust
+      - try all ways until one is successful
+    - so, is there a way to *capture* these redundancies?
+      : validateRedundancy p1 p2 -- where these may use ... already parsed
+    
+- how lazy/dynamic to be?
+  - "Allow" can just mean "Ignore" here
+  - E.g.,
+    - Allow broken xref tables that are 'dead' after a
+      bunch of updates?
+      - how broken?
+    - allow broken xref entries if
+      - updated
+      - the object id is unused
+        - is unused in final version
+    - ETC, ETC!
+
+- adaptibility/etc
+  - have a validate/not flag
+  - change the laziness
+  - print first / print *all* errors
+      
+* TODO [#A] exploring topic/thesis/slant
+SCHEDULED: <2022-01-17 Mon>
+*** topics what we want to address in any of the below approaches
+
+- concept of cavities
+  - polyglots leverage!
+    
+- we can show shadow attacks as being an instance of a more general
+  issue/vulnerability
+  - these being ...
+    
+- concept of trust chain can be relevant even to monolithic sw
+  - show examples of low-level problems undermining high-level constructs
+    - PDF, ICC, <find others>
+      
+- Examples    
+  - ICC
+    - effectively the same thing, has index table
+      - implementations don't enforce "4 byte alignment" [?]
+    - "enforce no gaps" [in ICC spec, but not implemented]
+    - in OS!
+  - PDF
+    - detail of these in PDF
+  - Examples of others _
+
+*** (A) potential paper topics
+
+1. Principles for Securing Data Formats (generalizing/principles/_)
+   - E.g., PDF, ICC, and <TBD>
+   - Principles/Generalizations
+     - cavities
+     - ambiguities
+     - trust chain (dependencies for safety)
+   - Specific attacks
+     - shadow attacks
+     - polyglots
+     - ...  
+    
+2. The concept of trust chain for monolithic software
+   - helps one to focus on 
+     - most important vulnerabilities
+     - a limited part of codebase
+   - PDF a good example, thus the prime example for this paper
+
+3. A taxonomy of low level PDF vulnerabilities
+   - [i.e., an experience report for this work]
+   - bill
+     - problms: why nasty
+     - why not yacc/bison
+     - clear that we terminate (even with )
+     - daedalus
+       - parameterized rules & maps
+     - _
+   - ?
+                  
+4. real-world parsing (conceptual overview of PDF challenges)
+   - [title: "parsing vs PARSING"]
+   - PDF vs simpler formats
+   - not just "sequence/choice/bind" but
+     - parallelism
+     - set-input-at
+     - parse result of parse
+     - redundant "parsing methods" [word for?] {A,B} giving many choices:
+       : A, B, A `thenTry` B, B `thenTry` A, parseBothCheckIdentical A B
+       - parse A, process with B
+         
+     - significant/complex computation required "in the midst" of basic
+       computation (_)
+     - ? : the recursive object stream thing: where there are circular
+       dependencies among objects in same type.
+
+   - NOTE, both
+     - more complex than typical data formats
+     - more complex, in some ways, than Programming Language parsing
+
+*** (B) potential paper topics
+
+1. Categorizing parsers 
+   - [more theoretical]
+   - PL concepts
+     - lattice of parser definedness
+     - projections
+   - useful for ...
+    
+2. cavities, a concept for understanding PDFs (and _)
+   - 
+
