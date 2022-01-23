@@ -1,4 +1,4 @@
-\documentclass[conference,10pt]{IEEEtran}
+\documentclass[conference,11pt]{IEEEtran}
 % Re-allow e.g. the \thanks command.
 \IEEEoverridecommandlockouts
 
@@ -106,9 +106,10 @@
 % ------------------------------------------------------------------------------
 \section{Introduction \note{1.5pp}}
 \label{sec:intro}
-\subsection{PDF and its challenges}
-\subsection{PDF Vulnerabilities}
 
+\subsection{PDF and its challenges}
+
+\subsection{PDF Vulnerabilities}
 
 \emph{General Vulnerabilities} \todo{...}
 
@@ -121,7 +122,9 @@
       
 \section{Trust Chain for Parsers? \note{1.5pp}}
 \label{sec:trustchain}
+
 \subsection{What do we mean by Trust Chain / Trust Chain in General}
+
 \subsection{The PDF Parser Trust Chain}
 
 \begin{lstlisting}
@@ -144,6 +147,7 @@
 \end{lstlisting}
 
 \subsection{polyglots arising from cavities and ...}
+
 \subsection{DoS}
 \begin{lstlisting}
 - [potential recursion many places]
@@ -162,17 +166,19 @@
 There are three major approaches we are using to improve the security of the
 Pre-DOM components of PDF parsing:
 \begin{itemize}
-   \item Understanding and clarifying the standard. 
-f     \todo{examples}
-     
-   \item Writing a formal specification (see \cref{sec:specifying}).
+ \item Understanding and clarifying the standard.
+  
+   \todo{examples}
+   \cite{pdfspec} \todo{update the citation}    
+ \item Writing a formal specification (see \cref{sec:specifying}).
 
-   \item Developing Tools
+ \item Developing Tools
 \end{itemize}
 
 % ------------------------------------------------------------------------------
 \section{Specifying pre-DOM Components \note{4pp}}
 \label{sec:specifying}
+
 \subsection{Motivating Specification}
 \begin{lstlisting}
 - [terms: complies with standard, compatible with]
@@ -184,30 +190,30 @@ f     \todo{examples}
     - lots of opportunities
       - elaborate?
 \end{lstlisting}
+
 \subsection{The PDF constructs involved}
-      \todo{Hmmm: how much detail to go into?
-            How will reader understand next section if we say nothing?
-           }
+\todo{Hmmm: how much detail to go into?
+      How will reader understand next section if we say nothing?
+}
+
 \subsection{Specifying pre-DOM components}
-      
-      \begin{lstlisting}
-      - presented
-        - going into PDF details, as needed
-      - note
-        - 
-      \end{lstlisting}
+\begin{lstlisting}
+- presented
+- going into PDF details, as needed (this section or separate section?)
+\end{lstlisting}
 
 % ------------------------------------------------------------------------------
 \section{Conclusion \note{1.5pp}}
-   \label{sec:conclusion}
+\label{sec:conclusion}
+
 \subsection{Contributions}
-      \todo{summarized}
+\todo{summarized}
       
 \subsection{Related Work}
-      \todo{Daedalus, of course! ...}
+\todo{Daedalus, of course! ...}
       
 \subsection{Future Work}
-      \todo{}
+\todo{...}
 
 
 % ------------------------------------------------------------------------------
