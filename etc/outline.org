@@ -115,7 +115,8 @@ analysis and categorization of cavities
   - A taxonomy of low level PDF vulnerabilities
   - Vulnerabilities in the PDF Trust Chain
     - Shoring up ...
-
+  - Strengthening Weak Links in the PDF Trust Chain
+    
 - thesis/abstract
 
   In order to describe PDF vulnerabilities,
@@ -128,7 +129,7 @@ analysis and categorization of cavities
 
 ** Meta
 
-- Add estimated pages
+- Add estimated pages to outline
 - shoot for 12 pages (in ieee format)
   
 - figuring out how much detail to go into, e.g., xref
@@ -138,7 +139,7 @@ analysis and categorization of cavities
     - cavities, trust-chain,
     - redundant-data [highlight]
       - E.g., Size
-        - we don't want to null-out obj. nums > Size
+        - we don't want to invisibly null-out obj. nums > Size
     - file-offsets in format
     - schizophrenia / polyglot
     - english standards : limitations
@@ -173,13 +174,14 @@ analysis and categorization of cavities
         "well-defined"
               
 4. [How we are] Shoring up the Trust Chain [Pre-Dom Components]
+   - [vulnerable/low links]
+   - [strengthening the 
    - Understanding and clarifying the standard
      - examples
    - Writing a formal specification (see section 5)
-     - 
    - Developing Tools
 
-5. Specifying pre-dom processing
+5. Specifying pre-dom processing/components
    1. Motivations [?]
       - [terms: complies with standard, compatible with]
       - an implementation

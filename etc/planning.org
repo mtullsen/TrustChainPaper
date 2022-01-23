@@ -2,17 +2,6 @@
 ** NOTE Effort: 2wks
 ** TODO [#A] submit Trust Chain paper to Langsec
 SCHEDULED: <2022-01-17 Mon> DEADLINE: <2022-02-07 Mon -30d>
-** DONE contact Peter
-
-Hi Peter,
-
-Bill and I have been chatting, and we're thinking trying to submit a paper on the PDF Trust Chain for Langsec 2022 http://langsec.org/spw22/.
-The deadline is Feb 7, 2021 (3 weeks from now).
-I'm not sure how much time and level of contribution you're open for ... but I was thinking we three could get together to see where we're all at, would you be available for a meeting this week?
-What about this Wed. 3PM PST (the time we usually use for the Trust Chain mtg)?
-
-** DONE [#A] first draft of outline 
-DEADLINE: <2022-01-19 Wed>
 ** APPT meeting <2022-01-19 Wed 15:00-16:00>
 
 - overleaf
@@ -38,13 +27,16 @@ DEADLINE: <2022-01-19 Wed>
 - https://pdf-issues.pdfa.org/32000-2-2020/clause07.html#H7.5.7
   
 ** TODO [#A] get format, outline into the document
-SCHEDULED: <2022-01-22 Sat>
+SCHEDULED: <2022-01-21 Fri>
 
-- and spec.hs!
+- [ ] revise outline
+- [ ] to latex
+- [ ] add "raw/unformatted" material
+  \npy{} - not prose yet
   
-** TODO overleaf
-- setup with github?
-** TODO get initial template into document
+** TODO [#A] send a version to walt w for review
+SCHEDULED: <2022-02-01 Tue>
+
 * TODO our spec (spec.hs)
 ** NOTE [#A] overview of pDOM
 
@@ -58,7 +50,7 @@ SCHEDULED: <2022-01-22 Sat>
 
     xref :: ObjInd `Map` (Offset :+: Type2Ref)
 
-  {- for trad offsets: parse the top level defns, stop at "stream" -}
+  {- for trad offsets: parse the top level defns, stop at "stream" keyword -}
 
     domPass1 :: ObjId `Map` (TopLevelDef_UnDecStm :+: Type2Ref)
 
@@ -66,7 +58,7 @@ SCHEDULED: <2022-01-22 Sat>
 
     domPass2 :: ObjId `Map` (TopLevelDef :+: Type2Ref)
 
-  {- lookup (and parse) compressed objects: -}
+  {- lookup (and parse) compressed objects (that are referenced in xref) -}
 
     domFinal :: ObjId `Map` TopLevelDef
 
@@ -193,9 +185,8 @@ SCHEDULED: <2022-01-22 Sat>
   - change the laziness
   - print first / print *all* errors
       
-* TODO [#A] exploring topic/thesis/slant
-SCHEDULED: <2022-01-17 Mon>
-*** topics what we want to address in any of the below approaches
+* TODO [#B] exploring topic/thesis/slant
+*** topics / what we want to address in any of the below approaches
 
 - concept of cavities
   - polyglots leverage!
