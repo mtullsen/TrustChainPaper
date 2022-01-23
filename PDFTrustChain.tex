@@ -1,4 +1,4 @@
-\documentclass[conference,12pt]{IEEEtran}
+\documentclass[conference,10pt]{IEEEtran}
 % Re-allow e.g. the \thanks command.
 \IEEEoverridecommandlockouts
 
@@ -79,41 +79,138 @@
   
 \end{abstract}
 
+\section{[Meta-Notes for Authors]}
+\begin{lstlisting}
+- shoot for 12 pages (in ieee format)
+- challenge: figuring out how much detail to go into,
+  e.g., xref
+- the idiom
+  - details (e.g., in PDF)
+  - general principles
+    - E.g., such as
+      - cavities
+      - trust-chain 
+      - redundant-data [highlight]
+        - E.g., Size, we don't want to *invisibly*
+          null-out obj. nums > Size
+      - file-offsets in format
+      - schizophrenia / polyglot
+      - limitations of informal (english) standards
+   - at least 1 other example of the principle
+    - ICC, etc.
+- notations/conventions
+  - using this code (lstlisting) environment to capture
+    text in outline form that has not been fleshed out!
+\end{lstlisting}
 
-\section{Introduction}
-
-%\subsection{The problem of secure data formats}
-
-... Further complicating the story is the emergence of \emph{de facto standards}: ``dominant implementations of these formats extend the [published] standards by deliberately accepting non-compliant inputs without any indication to the users that the document contains malformations silently presumed benign''\footnote{SafeDocs Broad Agency Announcement.}: what now \emph{is} the de facto standard?  And how benign is it?
-
-\subsection{Blah}
-
-\subsection{Summary \note{1p}}
-
-% In \cref{sec:learning} we discuss some of the approaches we are taking to un% derstanding and learning de facto formats:
-% \begin{itemize}
-%     \item Labeling and categorizing data sets used for grammar inference usi% ng extant parsers.  Corpora of samples of a given data format tend to includ% e both positive and negative examples of the format.  These examples often d% o not come with labels indicating how strictly they adhere to the target lan% guage.  By leveraging extant parsers, we generate sets of labels for each ex% ample in a corpora to build a feature space allowing this classification to % be performed.
-%     \item Detection of sublanguages within formats. Many formats make use of%  sublanguages to improve their expressive power; this power naturally comes % at the cost of increased complexity of the format at large. In solving the p% roblem of inferring the structure of an entire format, it is worthwhile to d% etect, isolate, and possibly operate on strings in these sublanguages.
-%     \item Grammar inference via reinforcement learning. Modern grammar infer% ence tools are predominately focused on identifying structures in natural la% nguages \cite{dyer2016rnng,kim2019compound,drozdov2019latentTreeInduction,co% hen2010jdageem} or on data formats more simple than PDF \cite{zhu2010increme% ntal,fisher2008dirt,fisher2011pads}.  We consider a novel algorithm for infe% rring data structures in {\em Visibly Pushdown Languages} (VPLs) \cite{alur2f% 004vpl} by combining reinforcement learning with bottom-up merge parsing.
-% \end{itemize}
+% ------------------------------------------------------------------------------
+\section{Introduction \note{1.5pp}}
+\label{sec:intro}
+\subsection{PDF and its challenges}
+\subsection{PDF Vulnerabilities}
 
 
-\section{Summary}
+\emph{General Vulnerabilities} \todo{...}
+
+\emph{Pre-Dom Vulnerabilities} \todo{...}
+\todo{these the most important (see \cref{sec:predom-vulnerabilities})}
 
 
-\subsection{Our Contributions}
+% ------------------------------------------------------------------------------
+\subsection{Summary of Paper}
+      
+\section{Trust Chain for Parsers? \note{1.5pp}}
+\label{sec:trustchain}
+\subsection{What do we mean by Trust Chain / Trust Chain in General}
+\subsection{The PDF Parser Trust Chain}
+
+\begin{lstlisting}
+- pre-dom processing
+- NOTE: [vulnerable/low links]
+\end{lstlisting}
+
+% ------------------------------------------------------------------------------
+\section{Pre-DOM Vulnerabilities \note{2.5pp}}
+\label{sec:predom-vulnerabilities}
+
+\subsection{shadow attacks}
+\todo{notion of cavities [belongs?]}
+
+\subsection{schizophrenia arising from ...}
+\begin{lstlisting}
+  - parser differentials
+    - e.g., ignoring xref tables
+  - recovering parsers !!
+\end{lstlisting}
+
+\subsection{polyglots arising from cavities and ...}
+\subsection{DoS}
+\begin{lstlisting}
+- [potential recursion many places]
+- format may not be well-defined because the recursion is not
+    "well-defined"
+\end{lstlisting}
+
+\subsection{Other?}
+
+% ------------------------------------------------------------------------------
+\section{Securing the Pre-DOM Components \note{1pp}}
+\label{sec:securing}
+
+\todo{the low/first components are most vulnerable...}
+     
+There are three major approaches we are using to improve the security of the
+Pre-DOM components of PDF parsing:
+\begin{itemize}
+   \item Understanding and clarifying the standard. 
+f     \todo{examples}
+     
+   \item Writing a formal specification (see \cref{sec:specifying}).
+
+   \item Developing Tools
+\end{itemize}
+
+% ------------------------------------------------------------------------------
+\section{Specifying pre-DOM Components \note{4pp}}
+\label{sec:specifying}
+\subsection{Motivating Specification}
+\begin{lstlisting}
+- [terms: complies with standard, compatible with]
+- an implementation
+  - should follow the standard
+  - should safely support less than standard
+  - should carefully support more than the standard
+  - should not "inf. loop"
+    - lots of opportunities
+      - elaborate?
+\end{lstlisting}
+\subsection{The PDF constructs involved}
+      \todo{Hmmm: how much detail to go into?
+            How will reader understand next section if we say nothing?
+           }
+\subsection{Specifying pre-DOM components}
+      
+      \begin{lstlisting}
+      - presented
+        - going into PDF details, as needed
+      - note
+        - 
+      \end{lstlisting}
+
+% ------------------------------------------------------------------------------
+\section{Conclusion \note{1.5pp}}
+   \label{sec:conclusion}
+\subsection{Contributions}
+      \todo{summarized}
+      
 \subsection{Related Work}
+      \todo{Daedalus, of course! ...}
+      
 \subsection{Future Work}
-\todo{fix:}
-\begin{enumerate}
-    \item UI for sublanguage segments identified
-    \item Roll sublanguage segments as tokens/base actions into grammar inference algorithm.
-    \item Tie it all together - build a suite of UI tools for investigating folders containing data samples from a single grammar.
-    \item Inferring a proper grammar from the learned parser.
-    \item Demonstrate that format inference tools ease creation of lenses and other transformations for safe subsettings.
-\end{enumerate}
+      \todo{}
 
 
+% ------------------------------------------------------------------------------
 \section*{Acknowledgements}
 
 This research was supported by the SafeDocs program under \todo{HR0011-19-C-0073}.
