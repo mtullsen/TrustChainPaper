@@ -127,40 +127,52 @@ analysis and categorization of cavities
     and describe methods we are using to ensure correctness of these
     components
 
-** Meta
+** Outline
 
-- Add estimated pages to outline
+1. [Meta-Notes for Authors]
+\begin{environment}
 - shoot for 12 pages (in ieee format)
-  
-- figuring out how much detail to go into, e.g., xref
+- challenge: figuring out how much detail to go into, e.g., xref
 - the idiom
   - details (e.g., in PDF)
   - general principles
-    - cavities, trust-chain,
-    - redundant-data [highlight]
-      - E.g., Size
-        - we don't want to invisibly null-out obj. nums > Size
-    - file-offsets in format
-    - schizophrenia / polyglot
-    - english standards : limitations
-  - at least 1 other example of the principle
-    - ICC, etc
-
-** Outline
-
-1. Introduction
-   1. PDF, and particular challenges of PDF
-   2. [Motivation:] Vulnerabilities with PDF
-   3. Pre-Dom Vulnerabilities
-      - ..., refer to Section 3
-   4. Summary of Paper
+    - E.g., such as
+      - cavities
+      - trust-chain 
+      - redundant-data [highlight]
+        - E.g., Size
+        - we don't want to *invisibly* null-out obj. nums > Size
+      - file-offsets in format
+      - schizophrenia / polyglot
+      - limitations of informal (english) standards
+   - at least 1 other example of the principle
+    - ICC, etc.
+- notations/conventions
+  - using the verbatim environment to capture text in outline form that has not
+    been fleshed out!
+\end{environment}
+   
+1. Introduction \note{1.5pp}
+\label{sec:intro}
+   1. PDF and its challenges
+   2. PDF Vulnerabilities
+      \begin{verbatim}
+      - General Vulnerabilities
+      - Pre-Dom Vulnerabilities!
+        \todo{these the most important (see \cref{sec:predom-vulnerabilities})}
+      \end{verbatim}
+   3. Summary of Paper
       
-2. Trust Chain for Parsers?
+2. Trust Chain for Parsers? \note{1.5pp}
+\label{sec:trustchain}
    1. What do we mean by Trust Chain / Trust Chain in General
-   2. The Trust chain in PDF parsing
+   2. The PDF Parser Trust Chain
       - pre-dom processing
+      - NOTE: [vulnerable/low links]
     
-3. Pre-DOM Vulnerabilities
+3. Pre-DOM Vulnerabilities \note{2.5pp}
+\label{sec:predom-vulnerabilities}
+
    1. shadow attacks
       - notion of cavities [belongs?]
    2. schizophrenia arising from *
@@ -172,17 +184,28 @@ analysis and categorization of cavities
       - [potential recursion many places]
       - format may not be well-defined because the recursion is not
         "well-defined"
-              
-4. [How we are] Shoring up the Trust Chain [Pre-Dom Components]
-   - [vulnerable/low links]
-   - [strengthening the 
-   - Understanding and clarifying the standard
-     - examples
-   - Writing a formal specification (see section 5)
-   - Developing Tools
+   5. Other?
 
-5. Specifying pre-dom processing/components
-   1. Motivations [?]
+4. Securing the Pre-DOM Components \note{1pp}
+\label{sec:securing}
+
+\todo{the low/first components are most vulnerable...}
+     
+There are three major approaches we are using to improve the security of the
+Pre-DOM components of PDF parsing:
+\begin{itemize}
+   \item Understanding and clarifying the standard. 
+f     \todo{examples}
+     
+   \item Writing a formal specification (see \cref{sec:specifying}).
+
+   \item Developing Tools
+\end{itemize}
+
+5. Specifying pre-DOM Components \note{4pp}
+\label{sec:specifying}
+   1. Motivating Specification
+      \begin{verbatim}
       - [terms: complies with standard, compatible with]
       - an implementation
         - should follow the standard
@@ -191,19 +214,27 @@ analysis and categorization of cavities
         - should not "inf. loop"
           - lots of opportunities
             - elaborate?
-          
-   2. Our specification of pre-dom processing
+      \end{verbatim}
+   2. The PDF constructs involved
+      \todo{Hmmm: how much detail to go into?
+            How will reader understand next section if we say nothing?
+           }
+   3. Specifying pre-DOM components
+      \begin{verbatim}
       - presented
         - going into PDF details, as needed
       - note
         - 
+      \end{verbatim}
 
-6. Conclusion
+6. Conclusion \note{1.5pp}
+   \label{sec:conclusion}
    1. Contributions
-      <summarized>
+      \todo{summarized}
       
    2. Related Work
-      - Daedalus, of course!
+      \todo{Daedalus, of course! ...}
       
    3. Future Work
-
+      \todo{}
+      

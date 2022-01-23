@@ -35,7 +35,18 @@
 % inlined bib file
 \usepackage{filecontents}
 
-\newcommand{\Todo}[1]{\textbf{\textcolor{red}{[#1]}}}
+% SYSTEM OF ANNOTATIONS:
+\newcommand{\info}[1]{\textbf{\textcolor{blue}{[[#1]]}}}
+\newcommand{\note}[1]{\noteYes{#1}}  
+\newcommand{\noteNo}[1]{}  % way to remove all notes.
+\newcommand{\noteYes}[1]{\textbf{\textcolor{orange}{[[#1]]}}}
+\newcommand{\todo}[1]{\note{TODO: #1}}
+\newcommand{\todoa}[1]{\todo{[\#A]: #1}}
+\newcommand{\todob}[1]{\todo{[\#B]: #1}}
+\newcommand{\todoc}[1]{\todo{[\#C]: #1}}
+\newcommand{\old}[1]{\textbf{\textcolor{red}{[[OLD: #1]]}}}
+
+
 \newcommand{\paragraphsection}[1]{\vspace{7pt}\noindent{\textit{#1}}}
   % use this for "Initial Results" or for sections at the lowest level.
   % TODO: is the formatting sufficiently smaller than level 2 sections?
@@ -64,7 +75,7 @@
 \begin{abstract}
 %-------------------------------------------------------------------------------
 
-\Todo{..}
+\todo{WRITE ABSTRACT...}
   
 \end{abstract}
 
@@ -77,7 +88,7 @@
 
 \subsection{Blah}
 
-\subsection{Summary}
+\subsection{Summary \note{1p}}
 
 % In \cref{sec:learning} we discuss some of the approaches we are taking to un% derstanding and learning de facto formats:
 % \begin{itemize}
@@ -93,7 +104,7 @@
 \subsection{Our Contributions}
 \subsection{Related Work}
 \subsection{Future Work}
-\Todo{fix:}
+\todo{fix:}
 \begin{enumerate}
     \item UI for sublanguage segments identified
     \item Roll sublanguage segments as tokens/base actions into grammar inference algorithm.
@@ -105,7 +116,7 @@
 
 \section*{Acknowledgements}
 
-This research was supported by the SafeDocs program under \Todo{HR0011-19-C-0073}.
+This research was supported by the SafeDocs program under \todo{HR0011-19-C-0073}.
 
 
 \bibliographystyle{plain}
