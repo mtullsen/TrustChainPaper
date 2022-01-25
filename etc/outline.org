@@ -28,13 +28,13 @@
 
 <use these graphics?>
 
-** Breaking the DOM-abstraction: (1) simple schizophrenia
+** TODO Breaking the DOM-abstraction: (1) simple schizophrenia
 <see slide>
 
-** Breaking the DOM-abstraction: (2) shadow attacks
+** TODO Breaking the DOM-abstraction: (2) shadow attacks
 <see slide>
 
-** Shadow Attacks
+** TODO Shadow Attacks
 
 Contrary to the Ruhr University Bochum paper:
  - not a vulnerability in PDF specification, but ...
@@ -44,7 +44,7 @@ Note
 - Incremental updates, previously hidden from user, must now be exposed
 - PDF allows dead bytes, dead objects, etc.: key to shadow attacks
 
-** Shoring up the Foundations
+** TODO Shoring up the Foundations
   
 - Mitigations for shadow attacks:
   - Before signing
@@ -108,7 +108,7 @@ support linearized files (to improve cavity detection)
 more consistency checks: e.g, for hybrid xref files
 analysis and categorization of cavities
 
-* TODO outline
+* DONE outline
 ** Title/Topic
 
 - ideas

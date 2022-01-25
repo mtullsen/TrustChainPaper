@@ -26,12 +26,12 @@ SCHEDULED: <2022-01-17 Mon> DEADLINE: <2022-02-07 Mon -30d>
   - https://wiki.pdfa.org/pages/viewpage.action?pageId=51839560
 - https://pdf-issues.pdfa.org/32000-2-2020/clause07.html#H7.5.7
   
-** TODO [#A] get format, outline into the document
+** DONE [#A] get format, outline into the document
 SCHEDULED: <2022-01-21 Fri>
 
-- [ ] revise outline
-- [ ] to latex
-- [ ] add "raw/unformatted" material
+- [x] revise outline
+- [x] to latex
+- [x] add "raw/unformatted" material
   \npy{} - not prose yet
   
 ** TODO [#A] send a version to walt w for review

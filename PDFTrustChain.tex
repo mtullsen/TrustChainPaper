@@ -1,4 +1,4 @@
-\documentclass[conference,11pt]{IEEEtran}
+\documentclass[conference,12pt]{IEEEtran}
 % Re-allow e.g. the \thanks command.
 \IEEEoverridecommandlockouts
 
@@ -29,6 +29,10 @@
   }
 \newcommand{\lstcd}[1]{\lstinline[basicstyle=\ttfamily\small]{#1}}
 
+% this style is used for long/verbatim notes (not text) in the paper
+\lstdefinestyle{meta}
+  {basicstyle=\tiny\ttfamily\color{magenta}}
+
 \usepackage{hyperref}
 \usepackage[capitalise]{cleveref}
   % i.e., you use '\cref{x}' rather than "Figure \ref{x}"
@@ -36,15 +40,15 @@
 \usepackage{filecontents}
 
 % SYSTEM OF ANNOTATIONS:
-\newcommand{\info}[1]{\textbf{\textcolor{blue}{[[#1]]}}}
+\newcommand{\info}[1]{\textcolor{blue}{[[#1]]}}
 \newcommand{\note}[1]{\noteYes{#1}}  
 \newcommand{\noteNo}[1]{}  % way to remove all notes.
-\newcommand{\noteYes}[1]{\textbf{\textcolor{orange}{[[#1]]}}}
+\newcommand{\noteYes}[1]{\textcolor{red}{[[#1]]}}
 \newcommand{\todo}[1]{\note{TODO: #1}}
 \newcommand{\todoa}[1]{\todo{[\#A]: #1}}
 \newcommand{\todob}[1]{\todo{[\#B]: #1}}
 \newcommand{\todoc}[1]{\todo{[\#C]: #1}}
-\newcommand{\old}[1]{\textbf{\textcolor{red}{[[OLD: #1]]}}}
+\newcommand{\old}[1]{\textcolor{orange}{[[OLD: #1]]}}
 
 
 \newcommand{\paragraphsection}[1]{\vspace{7pt}\noindent{\textit{#1}}}
@@ -72,7 +76,7 @@
 \maketitle
 
 %-------------------------------------------------------------------------------
-\begin{abstract}
+f\begin{abstract}
 %-------------------------------------------------------------------------------
 
 \todo{WRITE ABSTRACT...}
@@ -80,10 +84,17 @@
 \end{abstract}
 
 \section{[Meta-Notes for Authors]}
-\begin{lstlisting}
-- shoot for 12 pages (in ieee format)
-- challenge: figuring out how much detail to go into,
-  e.g., xref
+
+\begin{lstlisting}[style=meta]
+CONVENTION:
+ - using this lstlisting[style=meta] environment to capture
+   text in outline form that has not been fleshed out / turned into prose.
+\end{lstlisting}
+
+\begin{lstlisting}[style=meta]
+META NOTES:  
+- shoot for 12 pages
+- challenge: figuring out how much detail to go into, e.g., xref
 - the idiom
   - details (e.g., in PDF)
   - general principles
@@ -98,9 +109,6 @@
       - limitations of informal (english) standards
    - at least 1 other example of the principle
     - ICC, etc.
-- notations/conventions
-  - using this code (lstlisting) environment to capture
-    text in outline form that has not been fleshed out!
 \end{lstlisting}
 
 % ------------------------------------------------------------------------------
@@ -109,17 +117,53 @@
 
 \subsection{PDF and its challenges}
 
+\begin{lstlisting}[style=meta]
+- Creation of DOM ("document object model")
+  - list of object definitions
+  - ... containing object references
+  - designated root object
+- Cross-reference (xref) table
+  - table with byte offset for each object
+- Cross-reference streams (added in PDF 1.5) [7 pp. in spec]
+  - compressed, complicated, space-efficient, ...
+  - allows for hybrid files with both traditional xref tables and new xref streams
+- Incremental updates
+  - by only appending to PDF file we can add, update, delete objects
+- Linearized PDF (efficient incremental access)
+\end{lstlisting}
+
+\begin{lstlisting}[style=meta]
+- We must accurately create the DOM (a DAG, no cycles allowed)
+  - ... while abstracting over xref tables, xref streams, hybrid files, incremental updates, linearization
+  - ... while recovering from errors
+  - ... while doing xref table reconstruction
+
+- This is the source of errors, ambiguities, even vulnerabilities!
+\end{lstlisting}
+
 \subsection{PDF Vulnerabilities}
 
 \emph{General Vulnerabilities} \todo{...}
 
 \emph{Pre-Dom Vulnerabilities} \todo{...}
+
+\begin{lstlisting}[style=meta]
+- Schizophrenic files
+- Polyglot files
+- Shadow attacks: possible because of ability to sign dead objects and cavities
+- Stegographic attacks (similar to Shadow)
+- Multiple places for hidden/unused/malicious data in PDF
+  - non-obvious places, unnoticed when "simply parsing"
+  - e.g., shadow-attacks
+  - dead bytes, dead objects, dead updates, dead linearization sections, etc.
+\end{lstlisting}
+
 \todo{these the most important (see \cref{sec:predom-vulnerabilities})}
 
 
-% ------------------------------------------------------------------------------
 \subsection{Summary of Paper}
       
+% ------------------------------------------------------------------------------
 \section{Trust Chain for Parsers? \note{1.5pp}}
 \label{sec:trustchain}
 
@@ -127,7 +171,20 @@
 
 \subsection{The PDF Parser Trust Chain}
 
-\begin{lstlisting}
+The PDF "trust chain": higher levels of abstraction depend upon lower levels.
+These structures are not necessarily concrete values--e.g. parsed xref table--but they do exist `conceptually'.
+See \cref{fig:pdf-trust-chain} for a diagram \todo{...}.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/trustchain-diagram.png}
+    \todo{revamp diagram}
+    \caption{The PDF Trust Chain diagramed.}
+    \label{fig:pdf-trust-chain}
+\end{figure}
+
+
+\begin{lstlisting}[style=meta]
 - pre-dom processing
 - NOTE: [vulnerable/low links]
 \end{lstlisting}
@@ -140,7 +197,7 @@
 \todo{notion of cavities [belongs?]}
 
 \subsection{schizophrenia arising from ...}
-\begin{lstlisting}
+\begin{lstlisting}[style=meta]
   - parser differentials
     - e.g., ignoring xref tables
   - recovering parsers !!
@@ -148,8 +205,9 @@
 
 \subsection{polyglots arising from cavities and ...}
 
-\subsection{DoS}
-\begin{lstlisting}
+\subsection{Denial of Service (DOS)}
+
+\begin{lstlisting}[style=meta]
 - [potential recursion many places]
 - format may not be well-defined because the recursion is not
     "well-defined"
@@ -179,8 +237,8 @@ Pre-DOM components of PDF parsing:
 \section{Specifying pre-DOM Components \note{4pp}}
 \label{sec:specifying}
 
-\subsection{Motivating Specification}
-\begin{lstlisting}
+\subsection{[Motivating Specification]}
+\begin{lstlisting}[style=meta]
 - [terms: complies with standard, compatible with]
 - an implementation
   - should follow the standard
@@ -191,13 +249,28 @@ Pre-DOM components of PDF parsing:
       - elaborate?
 \end{lstlisting}
 
-\subsection{The PDF constructs involved}
+
+\begin{lstlisting}[style=meta]
+- Lack of formality in standard. Thus, implementations:
+  - are more effort
+  - over implement, under implement, wrongly implement
+- No definition of acceptable, reasonable error recovery
+- Less than ideal design that reflects 27 years of an evolving standard
+- Pre-DOM processing
+  - is where many parsing errors & recovery occur
+  - is non-trivial
+  - involves multiple interdependent features
+  - involves multiple redundant features
+    - schizophrenic if these features aren't mutually consistent
+\end{lstlisting}
+
+\subsection{The pre-DOM constructs}
 \todo{Hmmm: how much detail to go into?
       How will reader understand next section if we say nothing?
 }
 
 \subsection{Specifying pre-DOM components}
-\begin{lstlisting}
+\begin{lstlisting}[style=meta]
 - presented
 - going into PDF details, as needed (this section or separate section?)
 \end{lstlisting}
@@ -208,6 +281,25 @@ Pre-DOM components of PDF parsing:
 
 \subsection{Contributions}
 \todo{summarized}
+
+\todo{prosify the following bullet points, split into done/future.}
+
+PDF pre-DOM parsing and semantics:
+Clarified aspects of PDF with respect to incremental updates, minor parsing details
+Submitted a problem in the definition of cross reference streams (Sec 7.5.8) to
+ISO via Peter Wyatt.
+Write a proposed implementation/specification for dealing with parsing (DOM-dependent) object streams
+Develop formal definitions for pre-DOM parsing/computation
+
+Tool for inspecting and checking PDF at the pre-DOM level:
+Created tool for exploring the DOM Antecedent structures as well as validating them (more than a PDF reader necessarily does).  Based on Galois's TA2 PDF parser, this tool can
+parse and validate each incremental update separately
+display "incremental updates," "incremental xref tables," parsed objects, and cavities (bytes that are not used)
+validate that object definitions do not overlap (in their source bytes)
+Add more features
+support linearized files (to improve cavity detection)
+more consistency checks: e.g, for hybrid xref files
+analysis and categorization of cavities
       
 \subsection{Related Work}
 \todo{Daedalus, of course! ...}
