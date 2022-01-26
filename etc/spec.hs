@@ -3,6 +3,7 @@ module Spec where
 
 import           Control.Monad
 import           Data.Char
+import           Data.Foldable(foldlM)
 import qualified Data.Map as M
 import           Data.Map(Map)
 
@@ -70,9 +71,11 @@ type SubSectionRaw = (ObjId,Len,Offset)
                       -- the xref entries are not parsed yet
                       -- the Offset is the file offset of first xref entry
                       -- we assume valid PDF, with length(xrefEntry) = 20
-                      -- TODO: add Free xref entries
 
+-- Alternative when we allow 19-21 byte xref entries
 
+-- TODO Map ObjId (Offset :+: Type2Ref
+          
 ---- parsing -----------------------------------------------------------------
 
 pPDF =
@@ -93,8 +96,11 @@ pPDF =
   --  - we know the end of xref table
   -- but the above is predicated on
   --  - enforcing full standard compliance with 20 byte (only) xref entries.
-  --    - currently 19,21 byte xref entries seem to be considered NCBUR!
-
+  --    - currently 19,21 byte xref entries are considered NCBUR!
+  -- if we were to allow 19-21 byte xref entries:
+  --   - we would be nothing essential would 
+  --   - nothing essential would 
+  
   validateXrefRaw xrefRaw
     -- - this ensures no duplicate objectIds
     -- - we could, but don't need to (yet)
@@ -183,50 +189,26 @@ pDOM :: (Offset -> P ()) -> [(XRefRaw, TrailerDict)] -> P DOM
 pDOM jmp updates =
   do
   -- combine all the updates to get a single map to offsets:
-  --  - i.e., merge multiple xref tables into one
   xrefs <- combineAllXrefTables updates
            :: P (Map ObjId (Offset :+: Type2Ref))
 
-    --  - parses xref entries
-    --  - merges all inc. updates into a single mapping.
-    --  - we've lost information:
-    --    - which update an object is part of
-    --    - all object history
-    --    - object definitions that are no longer reachable
-    --  - fails on
-    --    - malformed xref entries
-    --    - mixture of xref table and xref streams [PW?]
-    --  - should detect
-    --    - trailer dicts that aren't consistent between updates
-    --    - incremental updates that are "weird/nonsensical"
-    --      - free-ing dead objects
-    --      - unconventional use of generation numbers
-    --  - we know ALL the object ids in PDF
-                
-    --  - IF updates are defined by xref STREAMS
-    --    - no problem: as we can fully parse xref stream (w/ dict) as
-    --      there is no dependence of xref STREAMS on DOM
-    --      - NOTE: clarificaton to PDF working group regarding this.
-    --    - we'll have Type2Ref's in addition to Offset's
-    --       
-    --  - NOTE 
-    --    - when the latter, the ObjectId -> Offset must be available
-    --        - in current or previous (or next!) xref stream
-    --          - BTW, pervasive design issue: must partial updates be valid?
+  -- at this point
+  --  - we know ALL the object ids in PDF
 
+  -- parse all uncompressed objects (but leave streams undecoded):
   domPass1 <- mapM
                 (mMapLeft pTopLevelDef_UnDecStm)
                 xrefs
               :: P (Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref))
 
   -- at this point
-  --   - might know the PDF version, if Root object is not in an ObjStm.
-  -- and we can NOW (but not before this)
+  --   - might know the PDF version, if Root object is not in an ObjStm
+  -- we are only NOW able to
   --   - verify/read toplevel stream data
   --     - b/c now indirect /Length and ... is defined in domPass1
   --   - decode ObjStm streams (if 1.5+)
 
-  -- extract stream data into ByteStrings, also pre-processes ObjStm streams
+  -- decode streams into ByteStrings, also pre-processes ObjStm streams
   domPass2 <- mapM
                 (mMapLeft (extractStreamData domPass1))
                 domPass1
@@ -235,7 +217,7 @@ pDOM jmp updates =
   -- at this point
   --  - can compute body cavities
   --  - ObjStm's have been pre-processed
-  --    - but objects inside not parsed
+  --    - but objects inside them not parsed
 
   domFinal <- mapM
                (return `either` derefType2Ref domPass2)
@@ -243,13 +225,56 @@ pDOM jmp updates =
               :: P (Map ObjId TopLevelDef)
 
   -- at this point
-  --  - every object referenced via xref has been parsed, but
+  --  - every object referenced via xref has been parsed
+  --  - However,
   --    - extraneous object defs in body are never parsed
   --    - unreferenced objects (per xref) in ObjStm's are never parsed
-  --  - we positively know the PDF version (only now!)
+  --  - we positively know the PDF version (only now)
   --    - catalog dictionary might have been in an ObjStm
+  --    - Q. is this intentional? this precludes lots of checks.
 
   return domFinal
+
+-- | combineAllXrefTables updates - 
+--   - for each update
+--     - parses each xref subsection into a list of xref entries
+--   - merges all the xref tables into a single mapping
+--     - when no errors/inconsistencies
+
+combineAllXrefTables
+  :: [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
+combineAllXrefTables updates =
+  do
+  updates' <- mapM pUpdate updates  
+  indices' <- mapM (createIndex . fst) updates' 
+  index    <- foldlM mergeIndices M.empty indices'
+  return index
+
+  -- NOTE
+  --  - we've lost information:
+  --    - which update an object is part of
+  --    - object history
+  --    - object definitions that are no longer reachable
+  --  - fails on
+  --    - malformed xref entries
+  --    - mixture of xref table and xref streams [PW?]
+  --  - should detect (or fail) on
+  --    - trailer dicts that aren't consistent between updates
+  --    - incremental updates that are "weird/nonsensical"
+  --      - free-ing dead objects
+  --      - unconventional use of generation numbers
+              
+  --  - IF updates are defined by xref STREAMS
+  --    - no problem: as we can fully parse xref stream (w/ dict) as
+  --      there is no dependence of xref STREAMS on DOM
+  --      - NOTE: clarificaton to PDF working group regarding this.
+  --    - we'll have Type2Ref's in addition to Offset's
+  --       
+  --  - NOTE 
+  --    - when the latter, the ObjectId -> Offset must be available
+  --        - in current or previous (or next!) xref stream
+  --          - BTW, pervasive design issue: must partial updates be valid?
+
 
 
 -- | extractStreamData - since we now know all Lengths:
@@ -292,6 +317,22 @@ getObjStm :: TopLevelDef' ByteString -> P ObjStm
 getObjStm (TLD_ObjStm x) = return x
 getObjStm _              = error "expected ObjStm"
 
+---- unimplemented functions for XRef parsing/manipulation -------------------
+
+data XRef    -- TBD
+
+pUpdate      :: (XRefRaw, TrailerDict) -> P (XRef, TrailerDict)
+pUpdate      = stub
+
+createIndex  :: XRef -> P (Map ObjId (Offset :+: Type2Ref))
+createIndex  = stub
+
+mergeIndices :: Map ObjId (Offset :+: Type2Ref)
+             -> Map ObjId (Offset :+: Type2Ref)
+             -> P (Map ObjId (Offset :+: Type2Ref))
+mergeIndices = stub
+
+
 ---- unimplemented utility functions -----------------------------------------
 
 derefValue :: Map ObjId (TopLevelDef' a :+: b) -> PdfValue -> P PdfValue
@@ -321,8 +362,6 @@ pTopLevelDef_UnDecStm off = stub
 pAllUpdates offset = stub
 
 pXrefRaw = stub
-
-combineAllXrefTables = stub
 
 validateXrefRaw = stub
 

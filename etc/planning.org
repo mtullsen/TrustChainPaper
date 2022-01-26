@@ -1,5 +1,8 @@
 * TODO Administrative/Plans/Org
 ** NOTE Effort: 2wks
+** TODO [#A] focused 6h+ on paper                                       :E6:
+SCHEDULED: <2022-01-26 Wed>
+
 ** TODO [#A] submit Trust Chain paper to Langsec
 SCHEDULED: <2022-01-17 Mon> DEADLINE: <2022-02-07 Mon -30d>
 ** APPT meeting <2022-01-19 Wed 15:00-16:00>
