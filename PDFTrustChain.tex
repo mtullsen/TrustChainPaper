@@ -76,7 +76,7 @@
 \maketitle
 
 %-------------------------------------------------------------------------------
-f\begin{abstract}
+\begin{abstract}
 %-------------------------------------------------------------------------------
 
 \todo{WRITE ABSTRACT...}
@@ -128,8 +128,9 @@ META NOTES:
   - compressed, complicated, space-efficient, ...
   - allows for hybrid files with both traditional xref tables and new xref streams
 - Incremental updates
-  - by only appending to PDF file we can add, update, delete objects
-- Linearized PDF (efficient incremental access)
+  - by only appending to PDF file we can add, update, delete, restore objects
+- Linearized PDF (efficient incremental access) a.k.a. "Fast web view"
+  - "differential by design"!
 \end{lstlisting}
 
 \begin{lstlisting}[style=meta]
@@ -151,7 +152,7 @@ META NOTES:
 - Schizophrenic files
 - Polyglot files
 - Shadow attacks: possible because of ability to sign dead objects and cavities
-- Stegographic attacks (similar to Shadow)
+- Steganographic attacks (similar to Shadow)
 - Multiple places for hidden/unused/malicious data in PDF
   - non-obvious places, unnoticed when "simply parsing"
   - e.g., shadow-attacks
@@ -178,7 +179,7 @@ See \cref{fig:pdf-trust-chain} for a diagram \todo{...}.
 \begin{figure}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/trustchain-diagram.png}
-    \todo{revamp diagram}
+    \todo{revamp diagram - please add "phase" initiate processing = seek to EOF, locate startxref keyword, etc.}
     \caption{The PDF Trust Chain diagramed.}
     \label{fig:pdf-trust-chain}
 \end{figure}
@@ -198,12 +199,14 @@ See \cref{fig:pdf-trust-chain} for a diagram \todo{...}.
 
 \subsection{schizophrenia arising from ...}
 \begin{lstlisting}[style=meta]
+  - writer errors
   - parser differentials
     - e.g., ignoring xref tables
   - recovering parsers !!
+  - blind faith in incremental updates (Shadow Attacks)
 \end{lstlisting}
 
-\subsection{polyglots arising from cavities and ...}
+\subsection{polyglots arising from cavities and permissive implementations and ...}
 
 \subsection{Denial of Service (DOS)}
 
@@ -231,6 +234,8 @@ Pre-DOM components of PDF parsing:
  \item Writing a formal specification (see \cref{sec:specifying}).
 
  \item Developing Tools
+ 
+ \item Extant data analysis
 \end{itemize}
 
 % ------------------------------------------------------------------------------
@@ -243,9 +248,10 @@ Pre-DOM components of PDF parsing:
 - an implementation
   - should follow the standard
   - should safely support less than standard
+  - pragmatically support some common extant data malformations
   - should carefully support more than the standard
   - should not "inf. loop"
-    - lots of opportunities
+    - lots of opportunities - failure to notice digitally signed PDFs that have been tampered! 
       - elaborate?
 \end{lstlisting}
 
@@ -254,12 +260,16 @@ Pre-DOM components of PDF parsing:
 - Lack of formality in standard. Thus, implementations:
   - are more effort
   - over implement, under implement, wrongly implement
+  - backwards and forwards compatibility
+  - "backwards parsing"
+  - some requirements will not be checked by PDF readers ("writer only" file requirements) 
+  - patch existing vs implement from scratch
 - No definition of acceptable, reasonable error recovery
 - Less than ideal design that reflects 27 years of an evolving standard
 - Pre-DOM processing
   - is where many parsing errors & recovery occur
   - is non-trivial
-  - involves multiple interdependent features
+  - involves multiple interdependent features and subtle dialects
   - involves multiple redundant features
     - schizophrenic if these features aren't mutually consistent
 \end{lstlisting}
@@ -311,11 +321,13 @@ analysis and categorization of cavities
 % ------------------------------------------------------------------------------
 \section*{Acknowledgements}
 
-This research was supported by the SafeDocs program under \todo{HR0011-19-C-0073}.
+This research was supported by the SafeDocs program under \todo{HR0011-19-C-0073} and HR001119C0079.
 
 
 \bibliographystyle{plain}
 \bibliography{old}
 % \bibliography{new}
+\todo{Other possible refs: ISO 32000-2:2020, pdf-insecurity.org publications, https://itextpdf.com/en/blog/technical-notes/investigating-pdf-shadow-attacks-depth-pdf-security-using-itext-part-3, K. Koptyra and M. R. Ogiela, “Distributed Steganography in PDF Files - Secrets Hidden in Modified Pages,” Entropy, vol. 22, no. 6, p. 600, May 2020, doi: 10.3390/e22060600.
+}
 
 \end{document}
