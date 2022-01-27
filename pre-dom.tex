@@ -1,0 +1,46 @@
+% ------------------------------------------------------------------------------
+\section{Specifying the DOM's Foundations \note{4pp}}
+\label{sec:specifying}
+
+\subsection{[Motivating Specification]}
+% REMEMBER: [terms: complies with standard, compatible with]
+
+\begin{lstlisting}[style=meta]
+- an implementation
+  - should follow the standard
+  - should safely support less than standard
+  - pragmatically support some common extant data malformations
+  - should carefully support more than the standard
+  - should not "inf. loop"
+    - lots of opportunities - failure to notice digitally signed PDFs that have been tampered! 
+      - elaborate?
+\end{lstlisting}
+
+\begin{lstlisting}[style=meta]
+- Lack of formality in standard. Thus, implementations:
+  - are more effort
+  - over implement, under implement, wrongly implement
+  - backwards and forwards compatibility
+  - "backwards parsing"
+  - some requirements will not be checked by PDF readers ("writer only" file requirements) 
+  - patch existing vs implement from scratch
+- No definition of acceptable, reasonable error recovery
+- Less than ideal design that reflects 27 years of an evolving standard
+- Pre-DOM processing
+  - is where many parsing errors & recovery occur
+  - is non-trivial
+  - involves multiple interdependent features and subtle dialects
+  - involves multiple redundant features
+    - schizophrenic if these features aren't mutually consistent
+\end{lstlisting}
+
+\subsection{The pre-DOM constructs}
+\todo{Hmmm: how much detail to go into?
+      How will reader understand next section if we say nothing?
+}
+
+\subsection{Specifying pre-DOM components}
+\begin{lstlisting}[style=meta]
+- presented
+- going into PDF details, as needed (this section or separate section?)
+\end{lstlisting}

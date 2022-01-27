@@ -1,0 +1,47 @@
+% ------------------------------------------------------------------------------
+\section{Securing the Pre-DOM Components \note{1pp}}
+\label{sec:securing}
+
+There are four primary approaches we are taking to improve the security of the
+Pre-DOM components of PDF parsing:
+\begin{enumerate}
+\item
+  \emph{Develop tools for inspection and validation of pre-DOM structures.}
+  We have developed a tool that ..., this tool validates more of the structure
+  than ... .  Using it we can find dead objects and cavities.
+  This tool is open source and can be found as part of the Daedalus
+  project \cite{daedalus-url}.
+ 
+\item
+  \emph{Understand and clarify the PDF standard.}
+  In the process of doing the above, we have pushed the bounds
+  of our PDF knowledge and have discovered multiple places in which
+  the PDF specification is ambiguous or could be made more clear.
+  We have also found instances in which the specification
+  does not correctly specify a well-defined parseable format:
+  \todo{examples being ...}
+  ... or in which the intentions of the committee was not made clear in
+  the spec.
+  
+\item
+  \emph{Write a formal specification for pre-DOM processing.}
+  Wanting to formally capture what we have learned in 2 ...
+  The ISO Standard PDF 2.0 Specification \cite{isotc171sc2wg8ISO32000220202020}
+  is English, not ``formal'',
+  unclear in places, \todo{...}
+  (see \cref{sec:specifying}).
+  
+\item
+  \emph{Analyze Extant Data}
+  \todo{...}
+  
+\end{enumerate}
+
+In this paper we won't go into further details of our tool (1).
+The work done with respect to (4) is discussed further
+in \cite{icarus1,icarus2}.
+  % I.e., the papers from Galois & other TA1 groups.
+The lessons learned in (2)
+have been captured in our specification (3) as much as possible.
+Thus, the remainder of our paper will be going into much greater detail of
+our specification.

@@ -1,0 +1,47 @@
+% ------------------------------------------------------------------------------
+\section{Conclusion \note{1.5pp}}
+\label{sec:conclusion}
+
+\subsection{Contributions}
+
+As we discussed in \cref{sec:securing} we have ...
+
+\todo{prosify the following bullet points, split into done/future.}
+
+PDF pre-DOM parsing and semantics:
+Clarified aspects of PDF with respect to incremental updates, minor parsing details
+Submitted a problem in the definition of cross reference streams
+(\cite{isotc171sc2wg8ISO32000220202020} Sec 7.5.8) to
+ISO via Peter Wyatt.
+
+Write a proposed implementation/specification for dealing with parsing (DOM-dependent) object streams
+Develop formal definitions for pre-DOM parsing/computation
+
+Tool for inspecting and checking PDF at the pre-DOM level:
+Created tool for exploring the DOM Antecedent structures as well as validating
+them (more than a PDF reader necessarily does).
+
+Based on Galois's \todo{TA2} PDF parser, this tool can
+parse and validate each incremental update separately
+display "incremental updates," "incremental xref tables," parsed objects, and cavities (bytes that are not used)
+validate that object definitions do not overlap (in their source bytes)
+      
+\subsection{Related Work}
+
+\todo{pdf-hsdriver} 
+\todo{Daedalus}
+\todo{shadow attacks}
+
+\subsection{Applications to Other Formats}
+
+\todo{...}
+
+\subsection{Future Work}
+\todo{...}
+
+Add more features to our tool and specification:
+\begin{lstlisting}[style=meta]
+- support linearized files (to improve cavity detection)
+- more consistency checks: e.g, for hybrid xref files
+- analysis and categorization of cavities
+\end{lstlisting}
