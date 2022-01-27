@@ -1,6 +1,33 @@
 % ------------------------------------------------------------------------------
 \section{Introduction \note{1.5pp}}
 \label{sec:intro}
+% background: easy stuff
+The task of parsing may be viewed as receiving a document in an
+unstructured, or serialized, form, and building its structured
+representation, equipped with an argument that the structured
+representation is a faithful representation of the given document.
+%
+For formats defined in conventional data-description languages that
+correspond closely to well-understood classes of the Chomsky hierarchy
+(i.e., context-free grammars, with regular expressions as a critical
+special case), trustworthy arguments fall out naturally from the
+definition of the format itself.
+%
+This is in part due to the fact that in such formats, the structured
+representation of a large segment of a message is defined purely in
+terms of the structure of its segments.
+%
+E.g., the structure of a record consisting of multiple fields (e.g., a
+name, age, and social security number) is defined in terms of the
+correct structure of each of the constituent fields.
+
+\todo{formats like PDF: semantic value is an object model, related data objects may not be serialized locally, relies on a notion of naming/reference}
+
+\todo{further complications: data structures that define context may not be incremental, compressed}
+
+\todo{option: say that processing and validating such objects is beyond the scope of parsing. Unappealing because there's a lot of validating of serialized data left to be done.}
+
+\todo{this paper: in-depth case study of one key example of DOM parsing: parsing data structures relevant to the PDF DOM}
 
 \subsection{PDF and its challenges}
 \label{sec:pdf-challenges}
