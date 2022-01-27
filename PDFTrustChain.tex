@@ -108,7 +108,10 @@ META NOTES:
       - schizophrenia / polyglot
       - limitations of informal (english) standards
    - at least 1 other example of the principle
-    - ICC, etc.
+     - ICC, etc.
+TODO:
+- update \cite{pdfspec}
+- fill in the biblio (new.bib)
 \end{lstlisting}
 
 % ------------------------------------------------------------------------------
@@ -116,6 +119,7 @@ META NOTES:
 \label{sec:intro}
 
 \subsection{PDF and its challenges}
+\label{sec:pdf-challenges}
 
 \begin{lstlisting}[style=meta]
 - Creation of DOM ("document object model")
@@ -170,7 +174,35 @@ META NOTES:
 
 \subsection{What do we mean by Trust Chain / Trust Chain in General}
 
+We see the term \emph{Trust Chain} being used in many contexts:
+- certificate signing: ;
+- supply chain: my product is ;
+- trusted boot: ...
+- trusted platform model
+- software stack
+- systems with layered component
+
+The common idea is that ...
+
+And the key lesson is this: If the bottom/base/end of the trust chain 
+is flawed or suborned, then all bets are off with respect to the whole
+system.
+
+... everything above it is invalid/suspect.
+
 \subsection{The PDF Parser Trust Chain}
+
+In \cref{sec:pdf-challenges}, we elaborated on the challenges of PDF.
+Parsing data-formats has a long history and many solutions ...
+Parsing formal languages also has a long history and many solutions ...
+PDF has aspects of both: this makes PDF challenging.
+But PDF ``parsing'' is not merely a matter of harder [difference of degree]
+but complexer [difference of kind!]:
+  ... the 
+
+These challenges 
+
+We 
 
 The PDF "trust chain": higher levels of abstraction depend upon lower levels.
 These structures are not necessarily concrete values--e.g. parsed xref table--but they do exist `conceptually'.
@@ -184,11 +216,13 @@ See \cref{fig:pdf-trust-chain} for a diagram \todo{...}.
     \label{fig:pdf-trust-chain}
 \end{figure}
 
-
-\begin{lstlisting}[style=meta]
-- pre-dom processing
-- NOTE: [vulnerable/low links]
-\end{lstlisting}
+We think understanding a PDF parser in terms of this ``Trust Chain'' is
+important:
+(1) it highlights the presence of the many ``dependent'' parsers in PDF.
+(2) it highlights the importance of ensuring the first/basic/... computations
+    (i.e., the pre-DOM parsing and computation) is absolutely secure.
+(3) it reminds us that the integrity of the DOM cannot be verified independently
+of the lower levels.
 
 % ------------------------------------------------------------------------------
 \section{Pre-DOM Vulnerabilities \note{2.5pp}}
@@ -222,21 +256,38 @@ See \cref{fig:pdf-trust-chain} for a diagram \todo{...}.
 \section{Securing the Pre-DOM Components \note{1pp}}
 \label{sec:securing}
 
-\todo{the low/first components are most vulnerable...}
-     
-There are three major approaches we are using to improve the security of the
+There are three major approaches we are taking to improve the security of the
 Pre-DOM components of PDF parsing:
-\begin{itemize}
- \item Understanding and clarifying the standard.
-  
-   \todo{examples}
-   \cite{pdfspec} \todo{update the citation}    
+\begin{enumerate}
+\item
+  \emph{Developing tools for inspection and validation of pre-DOM structures.}
+  We have developed a tool that ..., this tool validates more of the structure
+  than ... .  Using it we can find dead objects and cavities. 
+   
+\item
+  \emph{Writing a formal specification for pre-DOM processing.}
+  The PDF specification \cite{pdfspec} is English, not ``formal'', unclear
+  in places, \todo{...}
+
+  In \cref{sec:specifying}, we go into much greater detail of our specification.
+
+\item
+  \emph{Understanding and clarifying the PDF standard.}
+  In the process of doing the above two, we have pushed the bounds
+  of our PDF knowledge and have discovered multiple places in which
+  \cite{pdfspec} could be made more clear, and also instances in which
+  it \todo{...}
+  \todo{examples being}
  \item Writing a formal specification (see \cref{sec:specifying}).
 
  \item Developing Tools
  
  \item Extant data analysis
-\end{itemize}
+
+\end{enumerate}
+
+\todo{the low/first components are most vulnerable...}
+     
 
 % ------------------------------------------------------------------------------
 \section{Specifying pre-DOM Components \note{4pp}}
@@ -254,7 +305,6 @@ Pre-DOM components of PDF parsing:
     - lots of opportunities - failure to notice digitally signed PDFs that have been tampered! 
       - elaborate?
 \end{lstlisting}
-
 
 \begin{lstlisting}[style=meta]
 - Lack of formality in standard. Thus, implementations:
@@ -290,32 +340,41 @@ Pre-DOM components of PDF parsing:
 \label{sec:conclusion}
 
 \subsection{Contributions}
-\todo{summarized}
 
+As we discussed in \cref{sec:securing} we have ...
 \todo{prosify the following bullet points, split into done/future.}
+
 
 PDF pre-DOM parsing and semantics:
 Clarified aspects of PDF with respect to incremental updates, minor parsing details
 Submitted a problem in the definition of cross reference streams (Sec 7.5.8) to
 ISO via Peter Wyatt.
+
 Write a proposed implementation/specification for dealing with parsing (DOM-dependent) object streams
 Develop formal definitions for pre-DOM parsing/computation
 
 Tool for inspecting and checking PDF at the pre-DOM level:
-Created tool for exploring the DOM Antecedent structures as well as validating them (more than a PDF reader necessarily does).  Based on Galois's TA2 PDF parser, this tool can
+Created tool for exploring the DOM Antecedent structures as well as validating
+them (more than a PDF reader necessarily does).
+
+Based on Galois's \todo{TA2} PDF parser, this tool can
 parse and validate each incremental update separately
 display "incremental updates," "incremental xref tables," parsed objects, and cavities (bytes that are not used)
 validate that object definitions do not overlap (in their source bytes)
+      
+\subsection{Related Work}
+
+\todo{pdf-hsdriver} 
+\todo{Daedalus}
+\todo{shadow attacks}
+      
+\subsection{Future Work}
+\todo{...}
+
 Add more features
 support linearized files (to improve cavity detection)
 more consistency checks: e.g, for hybrid xref files
 analysis and categorization of cavities
-      
-\subsection{Related Work}
-\todo{Daedalus, of course! ...}
-      
-\subsection{Future Work}
-\todo{...}
 
 
 % ------------------------------------------------------------------------------
