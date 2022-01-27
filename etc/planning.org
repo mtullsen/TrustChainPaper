@@ -40,6 +40,21 @@ SCHEDULED: <2022-01-21 Fri>
 ** TODO [#A] send a version to walt w for review
 SCHEDULED: <2022-02-01 Tue>
 
+* TODO biblio
+
+If you're interested in browsing the citations and having the CITEKEYS at hand, do what I did:
+I installed Better BibTex in my Zotero *App*, see this
+ https://retorque.re/zotero-better-bibtex/installation/
+Leave the citekeys as default as they note
+  "the default setting of BBT will generate different citekeys than Zotero"
+You don't need to export, as ...
+I exported all 597 references in PDF to zotero-pdf-biblio.bib (now in the repo).
+
+See my screen shot,
+your Citation Keys should be identical to mine, and you should be good to use Zotero to insert Citation Keys.
+Peter, to cite that first paper, you would just put this in the latex:
+  \cite{mladenovTrillionDollarRefund2019}
+
 * TODO our spec (spec.hs)
 ** NOTE [#A] overview of pDOM
 

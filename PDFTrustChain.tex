@@ -1,4 +1,4 @@
-\documentclass[conference,12pt]{IEEEtran}
+\documentclass[conference,10pt]{IEEEtran}
 % Re-allow e.g. the \thanks command.
 \IEEEoverridecommandlockouts
 
@@ -108,7 +108,11 @@ META NOTES:
       - schizophrenia / polyglot
       - limitations of informal (english) standards
    - at least 1 other example of the principle
-     - ICC, etc.
+   - ICC, etc.
+TERMS (to actually use, and define when needed):
+- complies with standard, compatible with standard
+- Pre-DOM
+- ?? for the repetitious use of ``parsing and computation''
 \end{lstlisting}
 
 % ------------------------------------------------------------------------------
@@ -127,7 +131,8 @@ META NOTES:
   - table with byte offset for each object
 - Cross-reference streams (added in PDF 1.5) [7 pp. in spec]
   - compressed, complicated, space-efficient, ...
-  - allows for hybrid files with both traditional xref tables and new xref streams
+  - allows for hybrid files with both traditional
+    xref tables and new xref streams
 - Incremental updates
   - by only appending to PDF file we can add, update, delete, restore objects
 - Linearized PDF (efficient incremental access) a.k.a. "Fast web view"
@@ -136,22 +141,26 @@ META NOTES:
 
 \begin{lstlisting}[style=meta]
 - We must accurately create the DOM (a DAG, no cycles allowed)
-  - ... while abstracting over xref tables, xref streams, hybrid files, incremental updates, linearization
+  - ... while abstracting over xref tables, xref streams,
+    hybrid files, incremental updates, linearization
   - ... while recovering from errors
   - ... while doing xref table reconstruction
 
-- This is the source of errors, ambiguities, even vulnerabilities!
+- This is the source of errors, ambiguities, and vulnerabilities!
 \end{lstlisting}
 
 \subsection{PDF Vulnerabilities}
-
-\emph{General Vulnerabilities} \todo{...}
-
-\emph{Pre-Dom Vulnerabilities} \todo{...}
+\label{sec:pdf-vulnerabilities}
+\todo{here, briefly describe vulnerabilities, citing the literature,
+  but not going into great detail.
+  In \cref{sec:predom-vulnerabilities}
+  we'll go into further detail on pre-DOM vulnerabilities.
+}
 
 \begin{lstlisting}[style=meta]
 - Schizophrenic files
 - Polyglot files
+- [QUESTION: these last two common terms or ``Safedocs''-isms?]
 - Shadow attacks: possible because of ability to sign dead objects and cavities
 - Steganographic attacks (similar to Shadow)
 - Multiple places for hidden/unused/malicious data in PDF
@@ -160,50 +169,50 @@ META NOTES:
   - dead bytes, dead objects, dead updates, dead linearization sections, etc.
 \end{lstlisting}
 
-\todo{these the most important (see \cref{sec:predom-vulnerabilities})}
-
+\todo{Refer to these and others:
+  pdf-insecurity.org publications,
+  https://itextpdf.com/en/blog/technical-notes/investigating-pdf-shadow-attacks-depth-pdf-security-using-itext-part-3,
+  K. Koptyra and M. R. Ogiela, “Distributed Steganography in PDF Files - Secrets Hidden in Modified Pages,” Entropy, vol. 22, no. 6, p. 600, May 2020, doi: 10.3390/e22060600.
+}
 
 \subsection{Summary of Paper}
-      
+
+\todo{in section 1 we ... blah, in section 2 blah, ... [Mark hates writing this useless paragraph]}
+
 % ------------------------------------------------------------------------------
-\section{Trust Chain for Parsers? \note{1.5pp}}
-\label{sec:trustchain}
+\section{The PDF Trust Chain \note{1.5pp}}
+\label{sec:trust-chain}
 
-\subsection{What do we mean by Trust Chain / Trust Chain in General}
+What do we mean by the term ``PDF Trust Chain'' in our title?
 
-We see the term \emph{Trust Chain} being used in many contexts:
-- certificate signing: ;
-- supply chain: my product is ;
-- trusted boot: ...
-- trusted platform model
-- software stack
-- systems with layered component
+\subsection{Trust Chains}
 
-The common idea is that ...
+The term \emph{Trust Chain} is used in multiple contexts, e.g.,
+\emph{digital certificates}: a sequence of certificates signing certificates,
+starting with a root certificate;
+\emph{supply chain}: a product is no more reliable or secure as its
+outsourced components;
+\emph{trusted boot}: unless the bootloader is correct and non-malicious,
+there can be no possibility of the operating system being the same;
+\emph{software stacks}: upper layers are dependent upon lower layers (such as
+system libraries) and vulnerabilities at the bottom affect all layers above.
 
-And the key lesson is this: If the bottom/base/end of the trust chain 
-is flawed or suborned, then all bets are off with respect to the whole
-system.
+The common idea is that we have layers/components that rely on lower
+layers/sub-components/etc for their validity.
+And the key lesson being,
+{\bf{if a single element of the trust chain 
+  is flawed or suborned, then every element ``above'' it
+  is no longer capable of being trusted.}}
 
-... everything above it is invalid/suspect.
 
-\subsection{The PDF Parser Trust Chain}
+\subsection{The Trust Chain Inside PDF Parsers}
 
-In \cref{sec:pdf-challenges}, we elaborated on the challenges of PDF.
-Parsing data-formats has a long history and many solutions ...
-Parsing formal languages also has a long history and many solutions ...
-PDF has aspects of both: this makes PDF challenging.
-But PDF ``parsing'' is not merely a matter of harder [difference of degree]
-but complexer [difference of kind!]:
-  ... the 
-
-These challenges 
-
-We 
-
-The PDF "trust chain": higher levels of abstraction depend upon lower levels.
-These structures are not necessarily concrete values--e.g. parsed xref table--but they do exist `conceptually'.
-See \cref{fig:pdf-trust-chain} for a diagram \todo{...}.
+% In \cref{sec:pdf-challenges}, we elaborated on the challenges of PDF.
+% Parsing data-formats has a long history and many solutions ...
+% Parsing formal languages also has a long history and many solutions ...
+% PDF has aspects of both: this makes PDF challenging.
+% But PDF ``parsing'' is not merely a matter of harder [difference of degree]
+% but intrinsically more complex [a difference of kind!]:
 
 \begin{figure}[t]
     \centering
@@ -213,22 +222,56 @@ See \cref{fig:pdf-trust-chain} for a diagram \todo{...}.
     \label{fig:pdf-trust-chain}
 \end{figure}
 
-We think understanding a PDF parser in terms of this ``Trust Chain'' is
-important:
-(1) it highlights the presence of the many ``dependent'' parsers in PDF.
-(2) it highlights the importance of ensuring the first/basic/... computations
-    (i.e., the pre-DOM parsing and computation) is absolutely secure.
-(3) it reminds us that the integrity of the DOM cannot be verified independently
-of the lower levels.
+In \cref{sec:pdf-challenges} we touched upon the complexities of parsing
+PDF, but to appreciate these, one has to understand the
+dependencies and interactions between the \todo{features/aspects/?}.
+In \cref{fig:pdf-trust-chain} we attempt to show these diagrammatically.
+\todo{explain the [reworked] diagram ...}
 
+% between the ``phases'' of the parsing process.
+
+The attentive reader will note that we have another instance of a \emph{Trust
+Chain}.  The later phases of the parsing process are \emph{completely
+dependent} upon the earlier phases to properly parse and interpret the PDF
+file.
+
+% The PDF "trust chain": higher levels of abstraction depend upon lower levels.
+% These structures are not necessarily concrete values--e.g. parsed xref
+% table--but they do exist `conceptually'.
+
+We think understanding a PDF parser in terms of this \emph{Trust Chain} is
+important:
+%
+(1) it highlights the presence of the many ``dependent'' parsers (or phases)
+in PDF processing.
+%
+(2) it highlights the importance of ensuring the pre-DOM parsing and
+computation (the base of our Trust Chain) is correct and secure.
+%
+(3) it reminds us that the integrity of the DOM cannot be verified
+independently of the lower levels.
+
+\todo{introduce terms such as Pre-DOM}
+\todo{say ... regarding our repetitious use of ``parse and compute''}
+    
 % ------------------------------------------------------------------------------
 \section{Pre-DOM Vulnerabilities \note{2.5pp}}
 \label{sec:predom-vulnerabilities}
 
-\subsection{shadow attacks}
+As will become even more apparent, there is a significant amount of
+parsing and computation that needs to be done \emph{pre-DOM}.
+And given our recent points about the \emph{PDF Trust Chain}
+(\cref{sec:trust-chain}),
+it should not surprise us that most of the PDF attack vectors
+(\cref{sec:pdf-vulnerabilities})
+involve some aspect of breaking the \emph{DOM} abstraction.
+I.e., they occur at the \emph{pre-DOM} levels.
+
 \todo{notion of cavities [belongs?]}
 
-\subsection{schizophrenia arising from ...}
+{\bf{Shadow Attacks}} \todo{...}
+
+{\bf{Schizophrenia}} \todo{...}
 \begin{lstlisting}[style=meta]
   - writer errors
   - parser differentials
@@ -237,63 +280,75 @@ of the lower levels.
   - blind faith in incremental updates (Shadow Attacks)
 \end{lstlisting}
 
-\subsection{polyglots arising from cavities and permissive implementations and ...}
+{\bf{Polyglots}} 
+\todo{... arising from cavities and permissive implementations and ...}
 
-\subsection{Denial of Service (DOS)}
-
+{\bf{Denial of Service (DOS)}} 
+%
 \begin{lstlisting}[style=meta]
 - [potential recursion many places]
 - format may not be well-defined because the recursion is not
     "well-defined"
 \end{lstlisting}
 
-\subsection{Other?}
+{\bf{Others}} \todo{have any others here??}
 
 % ------------------------------------------------------------------------------
 \section{Securing the Pre-DOM Components \note{1pp}}
 \label{sec:securing}
 
-There are three major approaches we are taking to improve the security of the
+There are four primary approaches we are taking to improve the security of the
 Pre-DOM components of PDF parsing:
 \begin{enumerate}
 \item
-  \emph{Developing tools for inspection and validation of pre-DOM structures.}
+  \emph{Develop tools for inspection and validation of pre-DOM structures.}
   We have developed a tool that ..., this tool validates more of the structure
-  than ... .  Using it we can find dead objects and cavities. 
-   
-\item
-  \emph{Writing a formal specification for pre-DOM processing.}
-  The PDF specification \cite{isotc171sc2wg8ISO32000220202020}
-  is English, not ``formal'', unclear
-  in places, \todo{...}
-
-  In \cref{sec:specifying}, we go into much greater detail of our specification.
-
-\item
-  \emph{Understanding and clarifying the PDF standard.}
-  In the process of doing the above two, we have pushed the bounds
-  of our PDF knowledge and have discovered multiple places in which
-  \cite{isotc171sc2wg8ISO32000220202020} could be made more clear, and also instances in which
-  it \todo{...}
-  \todo{examples being}
- \item Writing a formal specification (see \cref{sec:specifying}).
-
- \item Developing Tools
+  than ... .  Using it we can find dead objects and cavities.
+  This tool is open source and can be found as part of the Daedalus
+  project \cite{daedalus-url}.
  
- \item Extant data analysis
-
+\item
+  \emph{Understand and clarify the PDF standard.}
+  In the process of doing the above, we have pushed the bounds
+  of our PDF knowledge and have discovered multiple places in which
+  the PDF specification is ambiguous or could be made more clear.
+  We have also found instances in which the specification
+  does not correctly specify a well-defined parseable format:
+  \todo{examples being ...}
+  ... or in which the intentions of the committee was not made clear in
+  the spec.
+  
+\item
+  \emph{Write a formal specification for pre-DOM processing.}
+  Wanting to formally capture what we have learned in 2 ...
+  The ISO Standard PDF 2.0 Specification \cite{isotc171sc2wg8ISO32000220202020}
+  is English, not ``formal'',
+  unclear in places, \todo{...}
+  (see \cref{sec:specifying}).
+  
+\item
+  \emph{Analyze Extant Data}
+  \todo{...}
+  
 \end{enumerate}
 
-\todo{the low/first components are most vulnerable...}
-     
+In this paper we won't go into further details of our tool (1).
+The work done with respect to (4) is discussed further
+in \cite{icarus1,icarus2}.
+  % I.e., the papers from Galois & other TA1 groups.
+The lessons learned in (2)
+have been captured in our specification (3) as much as possible.
+Thus, the remainder of our paper will be going into much greater detail of
+our specification.
 
 % ------------------------------------------------------------------------------
 \section{Specifying pre-DOM Components \note{4pp}}
 \label{sec:specifying}
 
 \subsection{[Motivating Specification]}
+% REMEMBER: [terms: complies with standard, compatible with]
+
 \begin{lstlisting}[style=meta]
-- [terms: complies with standard, compatible with]
 - an implementation
   - should follow the standard
   - should safely support less than standard
@@ -340,12 +395,13 @@ Pre-DOM components of PDF parsing:
 \subsection{Contributions}
 
 As we discussed in \cref{sec:securing} we have ...
-\todo{prosify the following bullet points, split into done/future.}
 
+\todo{prosify the following bullet points, split into done/future.}
 
 PDF pre-DOM parsing and semantics:
 Clarified aspects of PDF with respect to incremental updates, minor parsing details
-Submitted a problem in the definition of cross reference streams (Sec 7.5.8) to
+Submitted a problem in the definition of cross reference streams
+(\cite{isotc171sc2wg8ISO32000220202020} Sec 7.5.8) to
 ISO via Peter Wyatt.
 
 Write a proposed implementation/specification for dealing with parsing (DOM-dependent) object streams
@@ -365,37 +421,36 @@ validate that object definitions do not overlap (in their source bytes)
 \todo{pdf-hsdriver} 
 \todo{Daedalus}
 \todo{shadow attacks}
-      
+
+\subsection{Applications to Other Formats}
+
+\todo{...}
+
 \subsection{Future Work}
 \todo{...}
 
-Add more features
-support linearized files (to improve cavity detection)
-more consistency checks: e.g, for hybrid xref files
-analysis and categorization of cavities
-
+Add more features to our tool and specification:
+\begin{lstlisting}[style=meta]
+- support linearized files (to improve cavity detection)
+- more consistency checks: e.g, for hybrid xref files
+- analysis and categorization of cavities
+\end{lstlisting}
 
 % ------------------------------------------------------------------------------
 \section*{Acknowledgements}
 
-This research was supported by the SafeDocs program under \todo{HR0011-19-C-0073} and HR001119C0079.
-
-\todo{Other possible refs:
-  pdf-insecurity.org publications,
-  https://itextpdf.com/en/blog/technical-notes/investigating-pdf-shadow-attacks-depth-pdf-security-using-itext-part-3,
-  K. Koptyra and M. R. Ogiela, “Distributed Steganography in PDF Files - Secrets Hidden in Modified Pages,” Entropy, vol. 22, no. 6, p. 600, May 2020, doi: 10.3390/e22060600.
-}
+This research was supported by the SafeDocs program under HR0011-19-C-0073 and HR001119C0079.
+\todo{check these!}
 
 % ----------------------------------------------------------------------------
 \bibliographystyle{plain}
 
 \bibliography{zotero-pdf-biblio,old,local}
-  % zotera-pdf-biblio:
+  % zotera-pdf-biblio.bib
   %   The Zotero export (using Better BibTex Addon) of the PDF collection
-  %   https://guides.library.iit.edu/c.php?g=720120&p=6296986
-  % old
+  % old.bib
   %  - TA1's last LangSec paper
-  % local
+  % local.bib
   %  - all other references here
 
 \end{document}
