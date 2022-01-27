@@ -67,14 +67,14 @@ getKeyOfType kname pdftype d = stub
 ---- types for xref and lower level ------------------------------------------
 
 type XRefRaw       = [SubSectionRaw]
+  -- Raw = have not parsed individual Xref entries
 type SubSectionRaw = (ObjId,Len,Offset)
                       -- the xref entries are not parsed yet
                       -- the Offset is the file offset of first xref entry
                       -- we assume valid PDF, with length(xrefEntry) = 20
 
 -- Alternative when we allow 19-21 byte xref entries
-
--- TODO Map ObjId (Offset :+: Type2Ref
+ 
           
 ---- parsing -----------------------------------------------------------------
 
