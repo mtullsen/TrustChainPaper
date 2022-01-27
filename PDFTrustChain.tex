@@ -109,9 +109,6 @@ META NOTES:
       - limitations of informal (english) standards
    - at least 1 other example of the principle
      - ICC, etc.
-TODO:
-- update \cite{pdfspec}
-- fill in the biblio (new.bib)
 \end{lstlisting}
 
 % ------------------------------------------------------------------------------
@@ -266,7 +263,8 @@ Pre-DOM components of PDF parsing:
    
 \item
   \emph{Writing a formal specification for pre-DOM processing.}
-  The PDF specification \cite{pdfspec} is English, not ``formal'', unclear
+  The PDF specification \cite{isotc171sc2wg8ISO32000220202020}
+  is English, not ``formal'', unclear
   in places, \todo{...}
 
   In \cref{sec:specifying}, we go into much greater detail of our specification.
@@ -275,7 +273,7 @@ Pre-DOM components of PDF parsing:
   \emph{Understanding and clarifying the PDF standard.}
   In the process of doing the above two, we have pushed the bounds
   of our PDF knowledge and have discovered multiple places in which
-  \cite{pdfspec} could be made more clear, and also instances in which
+  \cite{isotc171sc2wg8ISO32000220202020} could be made more clear, and also instances in which
   it \todo{...}
   \todo{examples being}
  \item Writing a formal specification (see \cref{sec:specifying}).
@@ -382,11 +380,22 @@ analysis and categorization of cavities
 
 This research was supported by the SafeDocs program under \todo{HR0011-19-C-0073} and HR001119C0079.
 
-
-\bibliographystyle{plain}
-\bibliography{old}
-% \bibliography{new}
-\todo{Other possible refs: ISO 32000-2:2020, pdf-insecurity.org publications, https://itextpdf.com/en/blog/technical-notes/investigating-pdf-shadow-attacks-depth-pdf-security-using-itext-part-3, K. Koptyra and M. R. Ogiela, “Distributed Steganography in PDF Files - Secrets Hidden in Modified Pages,” Entropy, vol. 22, no. 6, p. 600, May 2020, doi: 10.3390/e22060600.
+\todo{Other possible refs:
+  pdf-insecurity.org publications,
+  https://itextpdf.com/en/blog/technical-notes/investigating-pdf-shadow-attacks-depth-pdf-security-using-itext-part-3,
+  K. Koptyra and M. R. Ogiela, “Distributed Steganography in PDF Files - Secrets Hidden in Modified Pages,” Entropy, vol. 22, no. 6, p. 600, May 2020, doi: 10.3390/e22060600.
 }
+
+% ----------------------------------------------------------------------------
+\bibliographystyle{plain}
+
+\bibliography{zotero-pdf-biblio,old,local}
+  % zotera-pdf-biblio:
+  %   The Zotero export (using Better BibTex Addon) of the PDF collection
+  %   https://guides.library.iit.edu/c.php?g=720120&p=6296986
+  % old
+  %  - TA1's last LangSec paper
+  % local
+  %  - all other references here
 
 \end{document}
