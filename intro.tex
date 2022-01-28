@@ -1,7 +1,7 @@
 % ------------------------------------------------------------------------------
 \section{Introduction \note{1.5pp}}
 \label{sec:intro}
-% background: easy stuff
+% background: conventional grammars:
 The task of parsing may be viewed as receiving a document in an
 unstructured, or serialized, form, and building its structured
 representation, equipped with an argument that the structured
@@ -21,13 +21,140 @@ E.g., the structure of a record consisting of multiple fields (e.g., a
 name, age, and social security number) is defined in terms of the
 correct structure of each of the constituent fields.
 
-\todo{formats like PDF: semantic value is an object model, related data objects may not be serialized locally, relies on a notion of naming/reference}
+% real formats have DOMs, which involve names and references
+However, these key properties regarding context-freedom of a
+definition critically do not hold for many practical formats of
+interest.
+%
+Many such formats define a \emph{Document Object Model}: i.e., the
+result of parsing a document is a graph between objects of data, each
+of which may store a large set of fields.
+%
+In such formats, it is infeasible to provide context-free definition
+of well-formedness because data objects that must satisfy critical
+relations may not occur contiguously in a document: related objects
+may not form a tree-like hierarchy.
+%
+Such formats typically introduce a notion of \emph{naming} or
+\emph{reference} by which objects may refer to each other.
+%
+A critical practical example of this design pattern---and the
+motivating example of our work---is the document object model of the
+\emph{Portable Document Format (PDF)}~\todo{cite};
+%
+PDF data objects include an object \emph{identifier}, by which other
+objects may refer to them.
 
-\todo{further complications: data structures that define context may not be incremental, compressed}
+% further complications: people want to do other fancy tricks with
+% context tables
+In such formats, the types used for representing references and the
+data structures used to represent context take on central importance.
+%
+The simplest definition of such a data structure may arguably amount
+to including a single, contiguous definition of context.
+%
+While potentially straightforward, such a design would not support
+requirements of many practical formats, including PDF.
+%
+In many contexts, a critical feature of formats is to update a
+document incrementally by appending data: this is often best achieved
+by allowing the table of references to itself by updated with new,
+non-contiguous entries that effectively overwrite previous conflicting
+entries.
+%
+Additionally, such tables of references may be compressed using
+standard, but non-trivial, compression algorithms.
 
-\todo{option: say that processing and validating such objects is beyond the scope of parsing. Unappealing because there's a lot of validating of serialized data left to be done.}
+% potential solutions and why they fail:
+Context-free grammars and weaker formalisms are not suitable to define
+such formats in the full detail.
+%
+In the conventional setting in which a parser returns a semantic value
+that is then potentially transformed by further computation, which may
+itself be defined in an attribute grammar or parser client logic.
+%
+While feasible, the main limitation of such an approach is that
+computation on semantic values must then itself effectively parse
+unstructured data after computing partial contextual information;
+%
+such parsing logic is exactly what should be expressed declaratively
+in a grammar and implemented by a generated parser.
+%
+Alternatively, in principle it could be feasible to express some
+practical formats in fundamental grammar classes that are more
+expressive than those traditionally used to define formats, such as
+\emph{sensitive} grammars.
+%
+However, for such a general class, bounds on parsing performance are
+too loose to ensure acceptable practical performance.
 
-\todo{this paper: in-depth case study of one key example of DOM parsing: parsing data structures relevant to the PDF DOM}
+% our solution: very careful parser combinators:
+This paper explores a third approach: parser combinators a data
+description language that includes constructs for explicitly capturing
+input and parsing a previously-captured input, combined using
+semantic-level computation in Haskell.
+%
+This approach is explored within an industrial strength case study:
+validating and parsing the reference table of the PDF DOM.
+%
+In general, using parser combinators is not new: such combinators are
+available widely available in the distributions of modern industrial
+strength languages~\todo{cite: Monadic parser combinators, Staged
+  selective parser combinators, parsec}.
+%
+Moreover, with the recent interest in formalizing practical formats
+and generating high-assurance parsers, such combinators have
+specifically been applied specifically to formalize components of the
+PDF standard related to referential context.
+%
+However, our work is unique in that, to our knowledge, it constitutes
+the first attempt to use such combinators to formalize a comprehensive
+set of features used in PDF to define referential context,
+specifically incremental updates to reference tables and reference
+table compression within cross-reference streams.
+
+% results:
+The results of our case study show that such features can apparently
+by formalized, although the resulting definition is somewhat more
+subtle than what may be implemented based on a natural interpretation
+of the PDF standard, or many extant documents.
+%
+However, we suspect that there is nothing in the format definition
+that requires the language of combinators that we applied: a key goal
+of our work is to provide this formalized definition as a worked case
+study, to be improved upon using definitions in other experimental
+data definition languages as they are developed.
+
+% further applications:
+Using our comprehensive formalization of referential context, we have
+developed several tools for assisting format developers to determine
+if their format may suffer from sophisticated threats to security that
+are intricately connected to the case of parsing object models,
+specifically detecting the presence of document \emph{cavities}
+segments of documents that do not affect the document's semantic
+value, and thus may store content that is completely unobservable to
+parser clients.
+%
+Such cavities are a powerful mechanism for creating \emph{polyglot
+  files} (i.e., files that belong to multiple, unexpected formats),
+which themselves have been used in recent critical system security
+exploits \todo{cite iOS vuln}.
+
+\todo{complete}
+\paragraph*{Organization} The rest of this paper is organized as
+follows;
+%
+\Cref{sec:background} provides technical background on which our work
+is based;
+%
+\todo{complete}
+%
+\Cref{sec:rel-work} reviews related work, and %
+\Cref{sec:conclusion} concludes.
+
+\subsection{Summary of Paper}
+%
+\todo{in section 1 we ... blah, in section 2 blah, ... [Mark hates writing this useless paragraph]}
 
 \subsection{PDF and its challenges}
 \label{sec:pdf-challenges}
@@ -85,6 +212,3 @@ correct structure of each of the constituent fields.
   K. Koptyra and M. R. Ogiela, “Distributed Steganography in PDF Files - Secrets Hidden in Modified Pages,” Entropy, vol. 22, no. 6, p. 600, May 2020, doi: 10.3390/e22060600.
 }
 
-\subsection{Summary of Paper}
-
-\todo{in section 1 we ... blah, in section 2 blah, ... [Mark hates writing this useless paragraph]}
