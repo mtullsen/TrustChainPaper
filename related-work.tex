@@ -1,10 +1,58 @@
 \section{Related Work}
 \label{sec:rel-work}
+% defining the PDF standard:
+The PDF Association maintains the primary effort to specify the PDF
+format, which is done semi-formally in the PDF standard, and has now
+been backed partially be a machine-readable definition of the Document
+Object Model~\cite{wyatt2021work}.
+%
+The Caradoc project aimed to define a machine-readable specification
+of PDF with a verified parser, using the Coq interactive theorem
+prover~\cite{g.endignouxCaradocPragmaticApproach2016}.
+%
+Caradoc demonstrated that a small---but meaningful---core subset could
+be formalized in Coq;
+%
+however its definition does not include a complete definition of many
+of the key features used to define referential context, including
+cross-reference streams and incremental updates.
 
-\todo{pdf-hsdriver} 
-\todo{Daedalus}
-\todo{shadow attacks}
-\todo{Parsley}
-\todo{hammer}
+%
+A wealth of work has discovered methods for subverting the end-to-end
+guarantees of document integrity that are provided by digital
+signatures in
+PDF~\cite{mullerPracticalDecryptionExFiltration2019,mladenovTrillionDollarRefund2019,mullerProcessingDangerousPaths2021,ndsssymposiumNDSS2021Shadow2021,rohlmannBreakingSpecificationPDF2021}.
+%
+Many of these attacks rely on mutating the referential structure of a
+document by updating its cross reference table via incremental
+updates;
+%
+to our knowledge, the attacks published to date only perform basic
+updates to the table, and do not rely on nuanced features of semantics
+of cross-reference streams.
 
-\todo{complete}
+% parser combinators:
+Parser combinators are a well-known abstraction for constructing
+parsers programmatically and are available as libraries for several
+industrial-strength languages, including the \texttt{parsec}
+library~\cite{leijen2001parsec} originally implemented for Haskell and
+ported to go, F\#, C\#, and Java;
+%
+the \texttt{num} parser combinator library in Rust can be used to
+parse messages with \emph{zero copies}~\cite{couprie2015nom}.
+%
+Several experimental data-description languages, such as
+Parsley~\cite{mundkurResearchReportParsley2020} and
+hammer~\cite{bratus2017curing}.
+%
+Many of these libraries provide constructs for explicitly capturing
+and setting input streams;
+%
+thus, we expect that many of them could be used to define the aspects
+of the PDF related to referential context that we have explored in
+this work.
+%
+We believe that this and related aspects of the PDF definition will
+provide compelling motivating case studies in the design of these
+languages that will drive studies of how they can used to define the
+features precisely and completely.
