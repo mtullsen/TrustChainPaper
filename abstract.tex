@@ -10,26 +10,28 @@
   formats---including the Portable Document Format (PDF)---in which
   the interpretation of a segment as a \emph{Document Object Model
     (DOM)} graph depends on a concept of reference and complex
-  contextual data that binds data objects to references.
+  contextual data that binds data objects to references
+  \textcolor{blue}{shouldn't this be "references to data objects"?}.
   %
   Such referential context itself must often be defined
   discontinuously and compressed, to satisfy practical constraints on
   usability and performance.
+  \textcolor{blue}{Sorry - I don't understand this previous sentence. How about "The integrity of these references and their context ensures that the DOM graph is established from a basis of trust."?}
 
   % result:
   This paper describes a case study of a critical instance of such a
   design, namely the construction of PDF \emph{cross-reference tables},
-  in the presence of incremental updates and cross-reference streams.
+  in the presence of potentially multiple incremental updates and multiple dialects expressing these references.
   %
   Over the course of case study, we found that the full definition of
-  cross-reference tables contains several subtleties that could be
+  cross-reference data in PDF contains several subtleties that could be
   mis-implemented by natural implementations, but which can
   nevertheless be formalized using parser combinators in a
   data-definition language with constructs for explicitly capturing
   and updating input streams.
   %
   Our definition has served as a foundation for implementing format
-  security analyses that arise naturally in the presence of DOM's,
+  security analyses that arise naturally in the presence of constructing DOM's,
   including the analysis of document \emph{cavities} that may store
   unexamined data used to construct file \emph{polyglots}.
 \end{abstract}
