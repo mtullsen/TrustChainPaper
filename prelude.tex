@@ -1,0 +1,95 @@
+\lstset{
+  basicstyle=\scriptsize\ttfamily,
+  mathescape=true,
+  %numbers=left,
+  aboveskip=\medskipamount,
+  belowskip=\smallskipamount,
+  numberstyle=\tiny,
+  %stepnumber=2,
+  numbersep=10pt,
+  tabsize=2,
+  extendedchars=true,
+  breaklines=false,
+  keywordstyle=\color{black}
+  }
+\newcommand{\lstcd}[1]{\lstinline[basicstyle=\ttfamily\small]{#1}}
+
+\lstloadlanguages{Haskell}
+\lstnewenvironment{code}
+    {\lstset{}%
+      \csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname}
+    \lstset{
+      mathescape=false,
+      language=Haskell,
+      basicstyle=\scriptsize\ttfamily,
+      flexiblecolumns=false,
+      basewidth={0.5em,0.45em},
+      literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+               {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+               {\\\\}{{\char`\\\char`\\}}1
+               {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+               {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2 
+               {\ .}{{$\circ$}}2 {\ .\ }{{$\circ$}}2
+               {>>}{{>>}}2 {>>=}{{>>=}}2
+               {|}{{$\mid$}}1               
+    }
+    % literate haskell assumes \begin{code}
+
+% when we don't want Haskell to execute the code in paper:
+% Alts    
+%   \newenvironment{codeNoExecute}{\code}{\endcode} 
+%   \let\codeNoExecute\code
+%   \let\endcodeNoExecute\endcode
+%   the below, just duplicate!
+\lstnewenvironment{codeNoExecute}
+    {\lstset{}%
+      \csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname}
+    \lstset{
+      mathescape=false,
+      language=Haskell,
+      basicstyle=\scriptsize\ttfamily,
+      flexiblecolumns=false,
+      basewidth={0.5em,0.45em},
+      literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+               {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+               {\\\\}{{\char`\\\char`\\}}1
+               {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+               {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2 
+               {\ .}{{$\circ$}}2 {\ .\ }{{$\circ$}}2
+               {>>}{{>>}}2 {>>=}{{>>=}}2
+               {|}{{$\mid$}}1               
+    }
+    % literate haskell assumes \begin{code}
+
+    
+% this style is used for long/verbatim notes (not text) in the paper
+\lstdefinestyle{meta}
+  {basicstyle=\tiny\ttfamily\color{magenta}}
+
+\usepackage{hyperref}
+\usepackage[capitalise]{cleveref}
+  % i.e., you use '\cref{x}' rather than "Figure \ref{x}"
+% inlined bib file
+\usepackage{filecontents}
+
+% SYSTEM OF ANNOTATIONS:
+\newcommand{\info}[1]{\textcolor{blue}{[[#1]]}}
+\newcommand{\note}[1]{\noteYes{#1}}  
+\newcommand{\noteNo}[1]{}  % way to remove all notes.
+\newcommand{\noteYes}[1]{\textcolor{red}{[[#1]]}}
+\newcommand{\todo}[1]{\note{TODO: #1}}
+\newcommand{\todoa}[1]{\todo{[\#A]: #1}}
+\newcommand{\todob}[1]{\todo{[\#B]: #1}}
+\newcommand{\todoc}[1]{\todo{[\#C]: #1}}
+\newcommand{\old}[1]{\textcolor{orange}{[[OLD: #1]]}}
+\newcommand{\haskellnote}[1]{#1}
+  % ever add formatting to? Just used to indicate notes to non-Haskellers
+
+\newcommand{\paragraphsection}[1]{\vspace{7pt}\noindent{\textit{#1}}}
+  % use this for "Initial Results" or for sections at the lowest level.
+  % TODO: is the formatting sufficiently smaller than level 2 sections?
+ 
+\sisetup{group-separator={,}, group-minimum-digits=4}
+

@@ -99,8 +99,10 @@ verifyXrefRaw _ = stub
 decodeStream :: PdfValue -> a -> Offset -> P ByteString
 decodeStream _len _etc _off = stub "stream-data"
 
+findPDFHeader :: P ((Int,Int),Offset)
 findPDFHeader = stub
 
+findStartxrefThenParseToEOF :: P (Offset,Offset)
 findStartxrefThenParseToEOF = stub
 
 -- basic parsers:
@@ -108,6 +110,7 @@ pSimpleWhiteSpace = stub
 
 pDictionary = stub
 
+pValue :: P PdfValue
 pValue = stub
 
 -- parser primitives:

@@ -83,56 +83,90 @@ the parsing primitives and other omitted functions.
 The full spec can be found online at \todo{where?}.
 
 \begin{itemize}
-\item The specification is formal and executable\footnote{
+\item Our specification is formal and executable\footnote{
   Executable does not imply efficient, the specification is written
   primarily to be \emph{clear}.}.
   %
-  This is our motivation for choosing Haskell over pseudo-code, english prose,
+  This is our motivation for choosing Haskell over pseudo-code, English prose,
   and non-executable formalisms.  For the reader without a reading knowledge of
-  Haskell, we understand that parts of the specification may be a little
-  unclear, but our hope is that a precise, formal specification may prove to be
+  Haskell, we understand that parts of the specification might be a little
+  obscure, but our hope is that a precise, formal specification may prove to be
   more useful than pseudo-code or the like!
   
-\item The specification is purely functional: no global variables are hidden,
-  the data-dependencies in the spec fully represent all the data-dependencies.
+\item Our specification is purely functional: no ad hoc global variables are
+  hidden, the data-dependencies in the spec fully represent all the
+  data-dependencies.  Motivated by the Trust Chain issues
+  (\cref{sec:trust-chain}), capturing all dependencies is a primary objective
+  here.
   
-\item The specification hides no difficulties: one could implement a PDF parser
+\item Our specification hides no difficulties: one could implement a PDF parser
   by writing the omitted functions, but the spec stands complete, as is!
 \end{itemize}
 
 \todo{MT: turn old bullet points/comments below into prose!}
 
+What follows is the definition of \lstcd{pPDFDOM}; relying on lower level
+parsers, it creates the \lstcd{DOM}.
 \begin{code}
 pPDFDom :: P DOM
+\end{code}
+The above line is a type signature, it is saying that
+\lstcd{pPDFDom} is a ``monadic parser'' \lstcd{P} that returns a
+value of type \lstcd{DOM}.
+In Haskell a monad could contain many effectful constructs: global variables,
+and etc. However, \lstcd{P} is a simple monad that effectively has one
+read-only variable (the PDF file being read), and one mutable variable,
+the offset in the file where reading (parsing) occurs.  I.e., we have
+this primitive monadic function\footnote{
+  We'll use the term ``action'' to refer to a monadic function:
+  i.e., a function having a type scheme of ``\lstcd{a ->  P b}''.
+}
+\begin{codeNoExecute}
+setInputAt :: Offset -> P ()
+\end{codeNoExecute}
+that can change where reading (parsing) takes place in the file.
+
+Continuing with the definition of \lstcd{pPDFDom}:
+\begin{code}
 pPDFDom =
     do
     -- find '%PDF-x.y' at start of file, skipping up to 1K bytes:
-    (version,headerFileOffset) <- findPDFHeader
+    (version,headerOffset) <- findPDFHeader
     -- search backwards from EOF for 'startxref', gives up after 1000 bytes:
     (startxrefOff,xrefOff) <- findStartxrefThenParseToEOF
 \end{code}
 
-\todo{introduce P and Haskell 'do'? (elsewhere?)}
-  
-\begin{code}  
-    let jmp n = setInputAt (headerFileOffset+n)
-    jmp xrefOff
-\end{code}
+\haskellnote{The \lstcd{do} indicates this is monadic code.}
+The action \lstcd{findPDFHeader} has type \lstcd{P ((Int,Int),Offset)};
+it can fail if the header cannot be found or is malformed.
+Because the above calls have no data dependencies, they could be done
+in either order.
 
-\todo{there are places where we need to add calls to \lstcd{jmp}.}
-  
+A not obvious feature of PDF is that file offsets are in relation to, not the
+beginning of the file, but the beginning of the \emph{PDF header}.
+%
+The next line abstracts over this problem once and for all:
 \begin{code}  
+    let jmp n = setInputAt (headerOffset+n)
+\end{code}
+We will need to pass \lstcd{jmp} to any actions that need to change
+the offset in the file.
+
+\begin{code}  
+    jmp xrefOff
     (xrefRaw, xrefEndOff) <- pXrefRaw :: P (XRefRaw,Offset)
     validate $
       verifyXrefRaw xrefRaw
-      -- - this ensures no duplicate objectIds
-      -- - we could, but don't need to (yet)
-      --   - parse xref entries
-      --   - validate xref entries (without parsing the object)
+        -- - this ensures no duplicate objectIds
+        -- - we might parse and validate xref entries at this point
     jmp xrefEndOff
-       -- Because pXrefSubSections doesn't need to parse contents of
+       -- This jmp is needed because pXrefSubSections doesn't need to parse contents of
        -- the subsections.
 \end{code}
+
+For the sake of lucidity, we sometimes add \emph{type annotations} in the code,
+note line two of the above: \lstcd{:: P (XRefRaw,Offset)} indicates the type of
+the expression preceding it.
 
 At this point (without parsing sections)
  - we know the list of objects

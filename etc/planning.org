@@ -1,7 +1,7 @@
 * TODO Administrative/Plans/Org
 ** NOTE Effort: 2wks
 ** TODO [#A] submit Trust Chain paper to Langsec
-SCHEDULED: <2022-01-17 Mon> DEADLINE: <2022-02-07 Mon -30d>
+DEADLINE: <2022-02-07 Mon -30d>
 ** APPT meeting <2022-01-19 Wed 15:00-16:00>
 
 - overleaf
@@ -26,18 +26,13 @@ SCHEDULED: <2022-01-17 Mon> DEADLINE: <2022-02-07 Mon -30d>
   - https://wiki.pdfa.org/pages/viewpage.action?pageId=51839560
 - https://pdf-issues.pdfa.org/32000-2-2020/clause07.html#H7.5.7
   
-** DONE [#A] get format, outline into the document
-SCHEDULED: <2022-01-21 Fri>
-
-- [x] revise outline
-- [x] to latex
-- [x] add "raw/unformatted" material
-  \npy{} - not prose yet
-  
 ** TODO [#A] send a version to walt w for review
 SCHEDULED: <2022-02-01 Tue>
 
 * TODO our spec (spec.hs)
+** TODO [#A] fix spec: do we pass jmp everywhere that's needed?
+SCHEDULED: <2022-02-03 Thu>
+
 ** NOTE [#A] overview of pDOM
 
 #+begin_src haskell
@@ -271,7 +266,7 @@ SCHEDULED: <2022-02-01 Tue>
 2. cavities, a concept for understanding PDFs (and _)
    - 
 
-* ---- history ----
+* ---- history/ref ----
 * DONE biblio
 
 If you're interested in browsing the citations and having the CITEKEYS at hand, do what I did:
