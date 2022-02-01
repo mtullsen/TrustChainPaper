@@ -16,15 +16,15 @@
   Such referential context itself must often be defined
   discontinuously and compressed, to satisfy practical constraints on
   usability and performance.
-  \textcolor{blue}{Sorry - I don't understand this previous sentence. How about "The integrity of these references and their context ensures that the DOM graph is established from a basis of trust."?}
+  \textcolor{blue}{Sorry - I don't understand this previous sentence. How about "The integrity of these references and their context ensures that an ambiguous DOM graph is established from a basis of trust."?}
 
   % result:
   This paper describes a case study of a critical instance of such a
   design, namely the construction of PDF \emph{cross-reference tables},
-  in the presence of potentially multiple incremental updates and multiple dialects expressing these references.
+  in the presence of potentially multiple incremental updates and multiple complex dialects expressing these references.
   %
-  Over the course of case study, we found that the full definition of
-  cross-reference data in PDF contains several subtleties that could be
+  Over the course of our case study, we found that the full definition of
+  cross-reference data in PDF contains several subtleties that are
   mis-implemented by natural implementations, but which can
   nevertheless be formalized using parser combinators in a
   data-definition language with constructs for explicitly capturing
@@ -35,5 +35,5 @@
   including the analysis of document \emph{cavities} that may store
   unexamined data used to construct file \emph{polyglots}.
   
-  \todo{need to be consistent in terminology: PDF Trust Chain vs Chain of Trust. Also be good to use this phrase in the Abstract}
+  \todo{need to be consistent in terminology: PDF Trust Chain vs Chain of Trust. Also be good to use this phrase in the Abstract. Do we quote it?}
 \end{abstract}
