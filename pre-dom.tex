@@ -89,7 +89,7 @@ The full spec can be found online at \todo{where?}.
   %
   This is our motivation for choosing Haskell over pseudo-code, English prose,
   and non-executable formalisms.  For the reader without a reading knowledge of
-  Haskell, we understand that parts of the specification might be a little
+  Haskell, we understand that parts of the specification could be a little
   obscure, but our hope is that a precise, formal specification may prove to be
   more useful than pseudo-code or the like!
   
@@ -139,10 +139,11 @@ pPDFDom =
 \haskellnote{The \lstcd{do} indicates this is monadic code.}
 The action \lstcd{findPDFHeader} has type \lstcd{P ((Int,Int),Offset)};
 it can fail if the header cannot be found or is malformed.
-Because the above calls have no data dependencies, they could be done
-in either order.
+%
+Note also that the above two function calls have no data dependencies, they
+could be done in either order.
 
-A not obvious feature of PDF is that file offsets are in relation to, not the
+A non-obvious feature of PDF is that file offsets are in relation to, not the
 beginning of the file, but the beginning of the \emph{PDF header}.
 %
 The next line abstracts over this problem once and for all:
@@ -152,7 +153,7 @@ The next line abstracts over this problem once and for all:
 We will need to pass \lstcd{jmp} to any actions that need to change
 the offset in the file.
 
-\begin{code}  
+\begin{code}
     jmp xrefOff
     (xrefRaw, xrefEndOff) <- pXrefRaw :: P (XRefRaw,Offset)
     validate $
@@ -160,31 +161,38 @@ the offset in the file.
         -- - this ensures no duplicate objectIds
         -- - we might parse and validate xref entries at this point
     jmp xrefEndOff
-       -- This jmp is needed because pXrefSubSections doesn't need to parse contents of
-       -- the subsections.
+       -- This jmp is needed because pXrefRaw doesn't need to read
+       -- the contents of each xref subsection, so let's leave the
+       -- current file read location after the end.
 \end{code}
 
 For the sake of lucidity, we sometimes add \emph{type annotations} in the code,
-note line two of the above: \lstcd{:: P (XRefRaw,Offset)} indicates the type of
+note line 2 of the above: \lstcd{::P(XRefRaw,Offset)} indicates the type of
 the expression preceding it.
+%
+Note \lstcd{validate} in line 3, this is a special function that we apply to
+semantic checks (line 4) that are not necessary to create the DOM but which
+could detect invalid or inconsistent PDFs.
 
-At this point (without parsing sections)
- - we know the list of objects
- - we can find xref entry for each object
- - we know the end of xref table
-but the above is predicated on
+For this initial XRef table---even without parsing xref subsections---we
+know the list of object ids and we can find the xref entry for each object id.
+
+\todo{add discourse on strict vs NCBUR/de-facto implementations ...}
+\begin{lstlisting}[style=meta]
+ - [maybe some of this covered in previous section]
  - enforcing full standard compliance with 20 byte (only) xref entries.
-   - currently 19,21 byte xref entries are considered NCBUR!
-if we were to allow 19-21 byte xref entries:
-  - we would be nothing essential would 
-  - nothing essential would 
-
-
+    - currently 19,21 byte xref entries are considered NCBUR!
+ - if we were to allow 19-21 byte xref entries, we'd need
+   to parse a lot more strictly and sooner.
+ - nothing essential would change in our spec
+\end{lstlisting}
+Now to parsing more of the PDF trailer,
 \begin{code}
-    trailerDict <- pSimpleWhiteSpace >> keyword "trailer" >> pDictionary
+    pSimpleWhiteSpace >> keyword "trailer"
+    trailerDict <- pDictionary
     validate $
       do
-      cs <- readTo startxrefOff
+      cs <- readTo startxrefOff -- get bytes up to `startxrefOff`
       return (all isSpace cs)
     trailerDict' <- dictToTrailerDict trailerDict
 
@@ -193,17 +201,23 @@ if we were to allow 19-21 byte xref entries:
           -- etc is a list of unknown key-value pairs
           -- we could be even lazier to allow
           --  - Xref and DOM analysis even when errors in dictionary
-
 \end{code}
 
+\begin{lstlisting}[style=meta]
+ - generally we aren't checking dictionary keys, but ...
+ - pSimpleWhiteSpace - comments aren't allowed
+   [refactor to distinguish validate / NBCUR?]
+ - if we don't do 'validate', we have cavities!
+\end{lstlisting}
 \begin{code}
     updates' <- pAllUpdates mPrev :: P [(XRefRaw, TrailerDict)]
-       -- we've followed the 'Prev's and for each
-       --   - pXrefRaw     -- processed xref subsections (at raw level)
+       -- we've followed the 'Prev's and for each we
+       --   - pXrefRaw     -- parse xref subsections (at raw level)
        --   - pTrailerDict -- similar to above, but
        --                     only reads/validates Prev key
 \end{code}
 
+\begin{lstlisting}[style=meta]
 at this point
  - we have
    - parsed/validated minimally
@@ -217,6 +231,7 @@ at this point
  - we have NOT
    - parsed anything inessential to creating DOM
    - parsed the contents of xref entries
+\end{lstlisting}
 
 \begin{code}  
     let updates = (xrefRaw,trailerDict) : updates'
@@ -236,7 +251,7 @@ at this point
 \end{code}
 
 The \lstcd{pDOM} function definition is now finished, but most of
-the work has been put in the \lstcd{makeDOMFromUpdates} function,
+the work is in the \lstcd{makeDOMFromUpdates} function,
 where we create the DOM from the list of incremental updates:
 
 \begin{code}
@@ -256,14 +271,18 @@ makeDOMFromUpdates jmp updates =
                   xrefs
                 :: P (Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref))
 \end{code}
+% FIXME: don't call the results of pass 1 'domPass1'
 
-\todo{don't call the results of pass 1 'domPass'.}
+\todo{explain :+:}
 
+
+\begin{lstlisting}[style=meta]
 we are only NOW able to
   - verify/read toplevel stream data
     - b/c now indirect /Length and ... is defined in domPass1
     - decode ObjStm streams (if 1.5+)
-    
+\end{lstlisting}
+
 \begin{code}
     -- decode streams into ByteStrings, also pre-processes ObjStm streams
     domPass2 <- mapM
@@ -272,10 +291,12 @@ we are only NOW able to
                 :: P (Map ObjId (TopLevelDef :+: Type2Ref))
 \end{code}
 
+\begin{lstlisting}[style=meta]
 at this point
  - can compute body cavities
  - ObjStm's have been pre-processed
    - but objects inside them not parsed
+\end{lstlisting}
 
 \begin{code}
     domFinal <- mapM
@@ -285,6 +306,7 @@ at this point
     return domFinal
 \end{code}
 
+\begin{lstlisting}[style=meta]
 at this point
  - every object referenced via xref has been parsed
  - However,
@@ -293,8 +315,11 @@ at this point
  - we positively know the PDF version (only now)
    - catalog dictionary might have been in an ObjStm
    - Q. is this intentional? this precludes lots of checks.
+\end{lstlisting}
 
 \subsection{Details of Streams and Type 2 References}
+
+\todo{really want such detailed code?  put in Appendix?}
 
 \begin{code}
 -- | extractStreamData - since we now know all Lengths:
@@ -342,7 +367,7 @@ getObjStm _              = error "expected ObjStm"
 \todo{compare the above with a monolithic approach that APPEARS
   to not need multiple phases.}
 
-\subsection{Elaborating on Updates}
+\subsection{Incremental Updates: Further Details}
    
 \begin{code}
 -- | combineAllXrefTables updates - 

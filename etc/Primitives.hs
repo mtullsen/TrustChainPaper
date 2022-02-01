@@ -89,6 +89,9 @@ pTopLevelDef_UnDecStm = stub
 -- XRef functions
 pAllUpdates jmp = stub jmp
 
+-- | pXrefRaw - finds the subsections
+
+pXrefRaw :: P (XRefRaw,Offset)
 pXrefRaw = stub
 
 verifyXrefRaw :: XRefRaw -> P Bool

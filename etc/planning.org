@@ -29,6 +29,10 @@ DEADLINE: <2022-02-07 Mon -30d>
 ** TODO [#A] send a version to walt w for review
 SCHEDULED: <2022-02-01 Tue>
 
+* TODO re writing
+** TODO add line numbers to (some) listings [having latex issues]
+** TODO get all the bibs filled in
+
 * TODO our spec (spec.hs)
 ** TODO [#A] fix spec: do we pass jmp everywhere that's needed?
 SCHEDULED: <2022-02-03 Thu>
