@@ -21,6 +21,12 @@ validate mp = if validatingParser
   where
   validatingParser = False
 
+---- higher level 
+updateVersionFromCatalogDict :: DOM -> a -> P a
+updateVersionFromCatalogDict = stub
+
+extractDecodingParameters :: Dict -> P a
+extractDecodingParameters = stub
 
 ---- Dictionaries ------------------------------------------------------------
 

@@ -1,9 +1,8 @@
 
 # CAVEAT: not really enough to reach fixed point
-
 PDFTrustChain.pdf: *.tex *.bib
-	bibtex PdfTrustChain
 	pdflatex -shell-escape PDFTrustChain.tex
+	bibtex PdfTrustChain
 
 snapshot:
 	mkdir -p $@
