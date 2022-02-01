@@ -1,6 +1,6 @@
 * TODO Administrative/Plans/Org
 ** NOTE Effort: 2wks
-** TODO [#A] sched mtg fri/mon
+** DONE [#A] sched mtg fri/mon
 SCHEDULED: <2022-01-26 Wed>
 
 ** TODO [#A] submit Trust Chain paper to Langsec
