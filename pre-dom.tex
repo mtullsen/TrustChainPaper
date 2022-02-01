@@ -1,4 +1,5 @@
-% ------------------------------------------------------------------------------
+% A literate Haskell file
+------------------------------------------------------------------------------
 \section{Specifying the DOM's Foundations \note{4pp}}
 \label{sec:specifying}
 
@@ -49,3 +50,33 @@
 - presented
 - going into PDF details, as needed (this section or separate section?)
 \end{lstlisting}
+
+\iffalse  % Hs code not in paper
+\begin{code}
+{-# LANGUAGE EmptyDataDecls, TypeOperators, LambdaCase #-}
+module Spec where
+
+import           Control.Monad
+import           Data.Char
+import           Data.Foldable(foldlM)
+import qualified Data.Map as M
+import           Data.Map(Map)
+
+\end{code}
+\fi
+
+\begin{code}
+data PdfValue = V_Ref ObjNum GenNum
+              | V_Int Int
+              -- ...
+
+type ObjNum = Int
+type GenNum = Int
+type ObjId  = (ObjNum,GenNum) -- object identifier
+
+type Offset = Int    -- offset from start of "PDF file" (not nec. file offset)
+type Len    = Int    -- used as a length
+
+type a :+: b = Either a b
+
+\end{code}
