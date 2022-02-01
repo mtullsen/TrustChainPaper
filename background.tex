@@ -20,6 +20,7 @@ there can be no possibility of the operating system being the same;
 system libraries) and vulnerabilities at the bottom affect all layers above.
 
 The common idea is that we have layers/components that rely on lower
+\textcolor{blue}{is "lower" the correct term? Or "prior processing" and then "subsequent processing"?}
 layers/sub-components/etc for their validity.
 And the key lesson being,
 {\bf{if a single element of the trust chain 
@@ -50,7 +51,7 @@ dependencies and interactions between the features.
 In \cref{fig:pdf-trust-chain} we show the main components diagrammatically.
 To briefly sketch what's going on here:
 \begin{itemize}
-\item Phase 1: we find the PDF header (near start of file) and find and parse
+\item Phase 1: we find the PDF header \verb|%PDF-x.y| (near start of the physical file, to account for preamble), then the end of the PDF file \verb|%%EOF| (near the end of the physical file), then "backwards parse" to find the last \verb|startxref| keyword followed by an end-of-line sequence and an integer value as ASCII bytes representing the byte offset in the PDF file (which is then adjusted for any preamble to a physical byte offset), and then locate either the \verb|xref| keyword for traditional PDF cross-reference tables, or a PDF object that should be a XRefStm stream.
   the PDF trailer (at the end of file).
 \item Phase 2: using information from Phase 1, we find and parse all file
   updates.

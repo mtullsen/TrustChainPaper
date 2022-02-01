@@ -112,12 +112,13 @@ the first attempt to use such combinators to formalize a comprehensive
 set of features used in PDF to define referential context,
 specifically incremental updates to reference tables and reference
 table compression within cross-reference streams.
+\textcolor{blue}{I think there is also an element of general file layout (such as cavities) as an incremental update implies it is actually incremental and thus byte offsets have some inferred semantics (cf. shadow attacks; new objects cannot be from earlier in the file or a future incremental update)} 
 
 % results:
 The results of our case study show that such features can apparently
 by formalized, although the resulting definition is somewhat more
 subtle than what may be implemented based on a natural interpretation
-of the PDF standard, or many extant documents.
+of the PDF standard, or many extant documents. \textcolor{blue}{Should we mention about here that past work on PDF has focused on the DOM, without considering how trustworhty or integral the DOM is?} 
 %
 However, we suspect that there is nothing in the format definition
 that requires the language of combinators that we applied: a key goal
@@ -129,7 +130,7 @@ data definition languages as they are developed.
 Using our comprehensive formalization of referential context, we have
 developed several tools for assisting format developers to determine
 if their format may suffer from sophisticated threats to security that
-are intricately connected to the case of parsing object models,
+are intricately connected to the case of parsing and constructing object models,
 specifically detecting the presence of document \emph{cavities}
 segments of documents that do not affect the document's semantic
 value, and thus may store content that is completely unobservable to
@@ -193,8 +194,8 @@ is based;
 \begin{lstlisting}[style=meta]
 - Schizophrenic files
 - Polyglot files
-- [QUESTION: these last two common terms or ``Safedocs''-isms?]
-- Shadow attacks: possible because of ability to sign dead objects and cavities
+- [QUESTION: these last two common terms or ``Safedocs''-isms? \textcolor{blue}{"schizo" is a SafeDocs term I believe, both "schizo files" AND "schizo objects". Polyglot is definitely pre-SafeDocs.}]
+- Shadow attacks: possible because of ability to sign dead objects and cavities \textcolor{blue}{and, depending on attack mode, referencing "dead objects" via a later incremental update} 
 - Steganographic attacks (similar to Shadow)
 - Multiple places for hidden/unused/malicious data in PDF
   - non-obvious places, unnoticed when "simply parsing"

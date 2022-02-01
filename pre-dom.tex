@@ -10,12 +10,14 @@
 
 \begin{lstlisting}[style=meta]
 - an implementation
-  - should follow the standard
+  - should comply with the standard
   - should safely support less than standard
-  - pragmatically support some common extant data malformations
+  - pragmatically support some common extant data malformations so as to be compatible with extant data
   - should carefully support more than the standard
   - should not "inf. loop"
-    - lots of opportunities - failure to notice digitally signed PDFs that have been tampered! 
+    - lots of opportunities - failure to notice digitally signed PDFs that have been tampered!
+    - where failure leads to "parser differential" without user warning (e.g. excessive trailer /Size)
+    - PDF requires "backwards parsing" which is unnatural for many programming languages
       - elaborate?
 \end{lstlisting}
 
