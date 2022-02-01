@@ -70,13 +70,13 @@ Note that phases 2, 3, 4 and 5
 all require inputs from the previous phase to enable them to know where and
 how to parse further segments of the PDF input file.
 %
-Note this: an implementation \emph{might} merge phases 1-3 into single phase
+Note this: an implementation \emph{might} merge phases 1-4 into single phase
 and give a \emph{semblance} of simplicity, but our argument (in what
 follows in \cref{sec:specifying}) is that such an implementation will be
 overly complex and we will have a near insurmountable task to assure that it
 terminates for all input files.
 
-% Only after Phase 4, have we correctly constructed a 'candidate' DOM (Document
+% Only after Phase 5, have we correctly constructed a 'candidate' DOM (Document
 % Object Model) where we have a mapping of Object Identifiers to PDF Values.
 
 Although verifying Phase 5 is both difficult and tedious
@@ -96,6 +96,10 @@ file.
 % The PDF "trust chain": higher levels of abstraction depend upon lower levels.
 % These structures are not necessarily concrete values--e.g. parsed xref
 % table--but they do exist `conceptually'.
+
+
+\textcolor{blue}{From the methodical process of trying to define the pre-DOM processing, it has been relatively easily to find Denial of Service attacks against various PDF implementations. e.g. multiple startxref very close together near EOF (failure of "backwards parsing"), Size is very large (either a DoS or "parser differential" without error), cyclic dependencies between Cross-reference and object streams (also a result of parsers not enforcing "must be direct" stated requirements)}
+
 
 \todo{where do we want to mention ICC processing which has a simpler "Chain of Trust"? Should the text below not be PDF specific, but generic to file formats}
 
@@ -132,7 +136,8 @@ so what makes PDF processing so much more complex?
     - objects point to objects via byte offsets (cf. not by nested expressions such as XML)  
   - backwards parsing
   - some parsing rules written as to be not relevant to parsers ("writer-only rules")
-  - incremental updates as a set of deltas to be applied to the file, which change the DOM (note: unlike HTML, PDF's DOM is fixed and cannot be altered by JS)
+  - incremental updates as a set of deltas to be applied to the file, which change the DOM
+    - (note: unlike HTML, PDF's DOM is fixed and cannot be altered by JS)
   - xref tables ...
   - ... giving rise to cavities
     - giving rise to polyglots
@@ -177,6 +182,6 @@ I.e., they occur at the \emph{pre-DOM} levels.
     "well-defined"
 \end{lstlisting}
 
-{\bf{Steganography}} \todo{?}
+{\bf{Steganography}} \todo{do we really want to discuss ways of hiding data in PDF? Or is this just more noting that the pre-DOM data could be used to hide data as well?}
 
-{\bf{Others}} \todo{have any others here?? Maybe PII/redaction issues - just 'cos you delete something in a PDF doesn't mean it is really deleted (thanks to incremental updates)!!!! }
+{\bf{Others}} \todo{Maybe PII/redaction issues - just 'cos you delete something in a PDF doesn't mean it is really deleted (thanks to incremental updates)!!!! }
