@@ -1,27 +1,10 @@
 % A literate Haskell file
-------------------------------------------------------------------------------
 \section{Specifying the DOM's Foundations \note{4pp}}
 \label{sec:specifying}
 
-\subsection{[Motivating Specification]}
+\subsection{A Specification?}
 % REMEMBER: [terms: complies with standard, compatible with]
-
-\begin{lstlisting}[style=meta]
-- an implementation
-  - should comply with the standard
-  - should safely support less than standard
-  - pragmatically support some common extant data malformations
-    so as to be compatible with extant data
-  - should carefully support more than the standard
-  - should not "inf. loop"
-  - lots of opportunities - failure to notice digitally signed PDFs
-    that have been tampered!
-    - where failure leads to "parser differential" without user
-      warning (e.g. excessive trailer /Size)
-    - PDF requires "backwards parsing" which is unnatural for
-      many programming languages
-      - elaborate?
-\end{lstlisting}
+\note{motivate and explain our approach}
 
 \begin{lstlisting}[style=meta]
 - Lack of formality in standard. Thus, implementations:
@@ -42,25 +25,22 @@
     - schizophrenic if these features aren't mutually consistent
 \end{lstlisting}
 
-\subsection{Specifying pre-DOM phases}
-
-%%%% Hs code not in paper %%%%
-\iffalse
-\begin{code}
-{-# LANGUAGE EmptyDataDecls, TypeOperators, LambdaCase #-}
-module Spec where
-
-import           Control.Monad
-import           Data.Char
-import           Data.Foldable(foldlM)
-import qualified Data.Map as M
-import           Data.Map(Map)
-
-import           Types
-import           Utils
-import           Primitives
-\end{code}
-\fi
+\begin{lstlisting}[style=meta]
+- an implementation
+  - should comply with the standard
+  - should safely support less than standard
+  - pragmatically support some common extant data malformations
+    so as to be compatible with extant data
+  - should carefully support more than the standard
+  - should not "inf. loop"
+  - lots of opportunities - failure to notice digitally signed PDFs
+    that have been tampered!
+    - where failure leads to "parser differential" without user
+      warning (e.g. excessive trailer /Size)
+    - PDF requires "backwards parsing" which is unnatural for
+      many programming languages
+      - elaborate?
+\end{lstlisting}
 
 In what follows we use Haskell \cite{Haskell} as a specification language for
 our specification.
@@ -93,6 +73,83 @@ The full spec can be found online at \todo{where?}.
 \item Our specification hides no difficulties: one could implement a PDF parser
   by writing the omitted functions, but the spec stands complete, as is!
 \end{itemize}
+
+% The PDF "trust chain": higher levels of abstraction depend upon lower levels.
+% These structures are not necessarily concrete values--e.g. parsed xref
+% table--but they do exist `conceptually'.
+
+\subsection{Pre-DOM Phases \note{PW's text, TODO: merge into below}}
+
+{\bf{Phase 1}}
+
+We find the PDF header \lstcd{\%PDF-x.y} (near start of the physical file, to
+account for preamble), then the end of the PDF file \lstcd{\%\%EOF} (near the
+end of the physical file), then "backwards parse" to find the last
+\lstcd{startxref} keyword followed by an end-of-line sequence and an integer
+value encoded as a sequence of ASCII bytes representing the byte offset in the
+PDF file (which is then adjusted for any preamble to a physical byte offset),
+and then locate either the \lstcd{xref} keyword for traditional PDF
+cross-reference tables, or a PDF object that should be a cross-reference
+stream. In the case of traditional PDF cross-reference tables, after the cross
+reference table will be the trailer dictionary identified by the \lstcd{trailer}
+keyword or, alternatively for PDF 1.5 and later files with cross-reference
+streams, the trailer dictionary keys will be in the stream extent dictionary of
+the cross reference stream. Of particular note is the \lstcd{Size} entry, which
+is one greater than the largest object number allocated in the PDF file.
+
+{\bf{Phase 2: we find and parse any incremental updates}}
+
+These are identified by a \lstcd{Prev} entry in either the trailer
+dictionary or the stream extent dictionary of a cross-reference stream. The
+value of the \lstcd{Prev} key is another byte offset to the immediately
+preceding incremental update which, again, can either be a traditional
+cross-reference table and to the start of the \lstcd{xref} keyword, or to a
+cross-reference stream. This process repeats, working from the most recent
+update back through time to the original PDF document.
+
+{\bf{Phase 3: ... we find and parse any incremental updates}}
+  
+Phase 3: data in each cross reference table must then be parsed to
+identify the byte offset to the start of each PDF object. Note also that PDF
+does not define the byte offset to the end of an object. There are two sets of
+objects in every PDF document: the in-use list of PDF objects and a free list
+of PDF objects. Object zero is always the start of the free list as it is not
+otherwise a valid object number. For incremental updates, PDF object numbering
+does not have to be sequential, with skipped object numbers assumed to be on
+the free list (although this is not stated explicitly in the PDF
+specification). Parsing depends on the form of the incremental update, with
+traditional cross-reference tables being simpler and larger independent of
+other processing. Cross-reference streams however are more complex as they are
+usually compressed and thus require the pre-DOM parser to "trust" the stream
+extent dictionary data.
+
+{\bf{Phase 4: ...}}
+  
+Phase 4: using information from Phases 1, 2 and 3, the final set of
+objects that comprise the final PDF document can be established. Each
+incremental update can add new objects, mark existing in-use objects as free,
+or reinstate previously freed objects. \pwnote{do we want to mention the
+complexity of dig-sig here? what about cavities?}
+  
+\subsection{Pre-DOM phases}
+
+%%%% Hs code not in paper %%%%
+\iffalse
+\begin{code}
+{-# LANGUAGE EmptyDataDecls, TypeOperators, LambdaCase #-}
+module Spec where
+
+import           Control.Monad
+import           Data.Char
+import           Data.Foldable(foldlM)
+import qualified Data.Map as M
+import           Data.Map(Map)
+
+import           Types
+import           Utils
+import           Primitives
+\end{code}
+\fi
 
 \todo{MT: turn old bullet points/comments below into prose!}
 
@@ -354,7 +411,8 @@ getObjStm _              = error "expected ObjStm"
 \end{code}
    
 \subsection{Can we Avoid Multiple Phases?}
-
+\label{sec:single-pass-problems}
+  
 \todo{compare the above with a monolithic approach that APPEARS
   to not need multiple phases.}
 
@@ -376,7 +434,7 @@ combineAllXrefTables updates =
   return index
 \end{code}
 
-NOTE
+\begin{lstlisting}[style=meta]
  - we've lost information:
    - which update an object is part of
    - object history
@@ -389,7 +447,6 @@ NOTE
    - incremental updates that are "weird/nonsensical"
      - free-ing dead objects
      - unconventional use of generation numbers
-         
  - IF updates are defined by xref STREAMS
    - no problem: as we can fully parse xref stream (w/ dict) as
      there is no dependence of xref STREAMS on DOM
@@ -400,6 +457,18 @@ NOTE
    - when the latter, the ObjectId -> Offset must be available
        - in current or previous (or next!) xref stream
          - BTW, pervasive design issue: must partial updates be valid?
+\end{lstlisting}
+
+\subsection{Incremental Updates and Signatures: What A Tangled Web}
+           
+\todo{Need to mention that validating a PDF with a digital signature entails
+  identifying at which iteration of the PDF document the dig-sig was applied and
+  then validating the dig-sig in the context of that specific DOM and the
+  objects that were in effect at that instance in time.}
+\mtnote{Yes, but maybe elsewhere. Note: digital signatures \emph{break} the
+  update abstraction [the abstraction that renderers can ignore the xrefs and
+    updates and need only access the DOM]
+}
 
 
 

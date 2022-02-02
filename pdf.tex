@@ -1,4 +1,5 @@
 \section{PDF: Structure, Complexity, Vulnerabilities}
+\label{sec:pdf}
 
 \subsection{PDF Structure}
 
@@ -14,7 +15,6 @@ The overall structure of a PDF is shown in \cref{fig:pdf-structure}.
 
 \pwtodo{PW: more detail}
 \mttodo{import the type definitions?}
-\whtodo{test, test}
 
 \subsection{Root Causes of PDF Complexity}
 
@@ -43,8 +43,19 @@ so what makes PDF processing so much more complex?
 
 Further detail of how these work in PDF is in \cref{sec:specifying}.
 
+\subsection{[TODO: ORPHAN TEXT: Belongs Where?]}
+
+\todo{we should use the concept of "data integrity relationships" being the
+  essence of the necessary context. e.g. PDF incremental updates are appended to
+  a previously valid PDF - thus an incremental update should not "make visible"
+  a PDF object that was not already valid and visible in the original PDF (this
+  is one method Shadow Attacks use - cf. an upstream "supply chain attack" by an
+  attacker), even if that PDF object is otherwise entirely syntactically
+  valid. In the same way an incremental update that refers to an object at a
+  file byte offset after the incremental update would be highly suspicious.}
+
 % ------------------------------------------------------------------------------
-\subsection{Pre-DOM Vulnerabilities \note{1pp}}
+\subsection{Vulnerabilities \note{1pp}}
 \label{sec:predom-vulnerabilities}
 
 As will become even more apparent, there is a significant amount of
@@ -86,3 +97,4 @@ I.e., they occur at the \emph{pre-DOM} levels.
 
 
 {\bf{Others}} \todo{Maybe PII/redaction issues - just 'cos you delete something in a PDF doesn't mean it is really deleted (thanks to incremental updates)!!!! }
+

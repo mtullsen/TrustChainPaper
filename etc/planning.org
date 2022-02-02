@@ -108,7 +108,20 @@ SCHEDULED: <2022-02-01 Tue>
     
 >>>>>>> Stashed changes
 * TODO re writing
-** TODO [#C] resurrect dropped text on our tool
+** TODO determine no of phases and fixup the relevant sections!
+** TODO misc
+- macro for peterw/* comments
+- \todo{say ... regarding our repetitious use of ``parse and compute''}
+\todo{ensure that spec.hs, the above text (trust chain), and \cref{sec:specifying} are all
+  consistent!}
+
+** TODO add line numbers to (some) listings [having latex issues]
+** TODO get all the bibs filled in
+
+** TODO spell-check
+** TODO final review
+** ----
+** TODO [#C] resurrect dropped text on cavity tool
 
   - Tool for inspecting and checking PDF at the pre-DOM level:
     Created tool for exploring the DOM Antecedent structures
@@ -119,12 +132,6 @@ SCHEDULED: <2022-02-01 Tue>
       display "incremental updates," "incremental xref tables,"
       parsed objects, and cavities (bytes that are not used)
       validate that object definitions do not overlap (in their source bytes)
-
-** TODO misc
-- macro for peterw/* comments
-
-** TODO add line numbers to (some) listings [having latex issues]
-** TODO get all the bibs filled in
 
 * TODO our spec (spec.hs)
 ** TODO [#A] fix spec: do we pass jmp everywhere that's needed?
