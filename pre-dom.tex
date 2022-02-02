@@ -34,8 +34,8 @@
     so as to be compatible with extant data
   - should carefully support more than the standard
   - should not "inf. loop"
-  - lots of opportunities - failure to notice digitally signed PDFs
-    that have been tampered!
+- lots of opportunities
+   - failure to notice digitally signed PDFs that have been tampered with
     - where failure leads to "parser differential" without user
       warning (e.g. excessive trailer /Size)
     - PDF requires "backwards parsing" which is unnatural for
@@ -73,7 +73,11 @@ online at \todo{where: in daedalus repo?}.
   here.
   
 \item Our specification hides no difficulties: one could implement a PDF parser
-  by writing the omitted functions, but the spec stands complete, as is!
+  by writing the omitted functions, but the spec stands complete, as
+  is\footnote{One caveat here, the addition of support for \emph{some} features
+  could require some re-design.  E.g., signature validation, as discussed in
+  \cref{sec:updates-and-signatures} would require non-trivial changes.
+  }!
 \end{itemize}
 
 % need to say: These structures are not necessarily concrete values--e.g. parsed
@@ -132,28 +136,28 @@ incremental update can add new objects, mark existing in-use objects as free,
 or reinstate previously freed objects. \pwnote{do we want to mention the
 complexity of dig-sig here? what about cavities?}
   
-\subsection{Pre-DOM stages}
+\subsection{Stages 1 - 4, Preliminaries}
 
-%%%% Hs code not in paper %%%%
+%%%% begin: Hs code not in paper %%%%
 \iffalse
 \begin{code}
 {-# LANGUAGE EmptyDataDecls, TypeOperators, LambdaCase #-}
 module Spec where
-
 import           Control.Monad
 import           Data.Char
 import           Data.Foldable(foldlM)
 import qualified Data.Map as M
 import           Data.Map(Map)
-
 import           Types
 import           Utils
 import           Primitives
 \end{code}
 \fi
+%%%% end: Hs code not in paper %%%%
 
-What follows is the definition of \lstcd{pPDFDOM}; relying on primitive
-parsers, it creates the \lstcd{DOM}.
+What follows is the definition of \lstcd{pPDFDOM} which does the
+parsing/computation for stages 1-4;
+relying on primitive parsers, it creates the \lstcd{DOM}.
 \begin{code}
 pPDFDom :: P DOM
 \end{code}
@@ -172,6 +176,8 @@ this primitive monadic function\footnote{
 setInputAt :: Offset -> P ()
 \end{codeNoExecute}
 that can change where reading (parsing) takes place in the file.
+
+\subsection{Stage 1: Find \& Parse Header and Trailer}
 
 Continuing with the definition of \lstcd{pPDFDom}:
 \begin{code}
@@ -199,6 +205,8 @@ The next line abstracts over this problem once and for all:
 \end{code}
 We will need to pass \lstcd{jmp} to any actions that need to change
 the offset in the file.
+
+\subsection{Stage 2: Find \& Parse Incremental Updates}
 
 \begin{code}
     jmp xrefOff
@@ -262,10 +270,18 @@ Now to parsing more of the PDF trailer,
        --   - pXrefRaw     -- parse xref subsections (at raw level)
        --   - pTrailerDict -- similar to above, but
        --                     only reads/validates Prev key
+    let updates = (xrefRaw,trailerDict) : updates'
+
+    -- combine all the updates to get a single map to offsets:
+    xrefs <- combineAllXrefTables updates
+             :: P (Map ObjId (Offset :+: Type2Ref))
 \end{code}
+
+\subsection{TODO}
 
 \begin{lstlisting}[style=meta]
 at this point
+ - we know ALL the object ids in PDF
  - we have
    - parsed/validated minimally
    - rejected *some* invalid PDFs
@@ -281,9 +297,7 @@ at this point
 \end{lstlisting}
 
 \begin{code}  
-    let updates = (xrefRaw,trailerDict) : updates'
-    dom <- makeDOMFromUpdates jmp updates
-
+    dom <- transformXRefMapToObjectMap jmp xrefs
     -- N.B.: only when we have parsed everything, do we
     -- actually know the PDF version, because the version
     -- may be embedded in the DOM:
@@ -297,21 +311,61 @@ at this point
     return dom
 \end{code}
 
-The \lstcd{pDOM} function definition is now finished, but most of
-the work is in the \lstcd{makeDOMFromUpdates} function,
-where we create the DOM from the list of incremental updates:
+The \lstcd{pDOM} function definition is now finished.
+In the next two sections we will break down these functions
+\lstcd{combineAllXrefTables} (stage 3) and
+\lstcd{transformXRefMapToObjectMap} (stage 4).
+
+\subsection{Stage 3: Merge Incremental Updates}
+   
+\begin{code}
+-- | combineAllXrefTables updates - 
+--   - for each update
+--     - parses each xref subsection into a list of xref entries
+--   - merges all the xref tables into a single mapping
+--     - when no errors/inconsistencies
+combineAllXrefTables
+  :: [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
+combineAllXrefTables updates =
+  do
+  updates' <- mapM pUpdate updates  
+  indices' <- mapM (createIndex . fst) updates' 
+  index    <- foldlM mergeIndices M.empty indices'
+  return index
+\end{code}
+
+\begin{lstlisting}[style=meta]
+ - we've lost information:
+   - which update an object is part of
+   - object history
+   - object definitions that are no longer reachable
+ - fails on
+   - malformed xref entries
+   - mixture of xref table and xref streams [PW?]
+ - should detect (or fail) on
+   - trailer dicts that aren't consistent between updates
+   - incremental updates that are "weird/nonsensical"
+     - free-ing dead objects
+     - unconventional use of generation numbers
+ - IF updates are defined by xref STREAMS
+   - no problem: as we can fully parse xref stream (w/ dict) as
+     there is no dependence of xref STREAMS on DOM
+     - NOTE: clarificaton to PDF working group regarding this.
+   - we'll have Type2Ref's in addition to Offset's
+      
+ - NOTE 
+   - when the latter, the ObjectId -> Offset must be available
+       - in current or previous (or next!) xref stream
+         - BTW, pervasive design issue: must partial updates be valid?
+\end{lstlisting}
+
+\subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
 
 \begin{code}
-makeDOMFromUpdates :: (Offset -> P ()) -> [(XRefRaw, TrailerDict)] -> P DOM
-makeDOMFromUpdates jmp updates =
+transformXRefMapToObjectMap
+  :: (Offset -> P ()) -> Map ObjId (Offset :+: Type2Ref) -> P DOM
+transformXRefMapToObjectMap jmp xrefs =
     do
-    -- combine all the updates to get a single map to offsets:
-    xrefs <- combineAllXrefTables updates
-             :: P (Map ObjId (Offset :+: Type2Ref))
-
-    -- at this point
-    --  - we know ALL the object ids in PDF
-
     -- parse all uncompressed objects (but leave streams undecoded):
     domPass1 <- mapM
                   (mMapLeft (\o-> do {jmp o; pTopLevelDef_UnDecStm}))
@@ -321,7 +375,6 @@ makeDOMFromUpdates jmp updates =
 % FIXME: don't call the results of pass 1 'domPass1'
 
 \todo{explain :+:}
-
 
 \begin{lstlisting}[style=meta]
 we are only NOW able to
@@ -346,11 +399,11 @@ at this point
 \end{lstlisting}
 
 \begin{code}
-    domFinal <- mapM
-                 (return `either` derefType2Ref domPass2)
-                  domPass2
-                :: P (Map ObjId TopLevelDef)
-    return domFinal
+    domCandidate <- mapM
+                     (return `either` derefType2Ref domPass2)
+                     domPass2
+                    :: P (Map ObjId TopLevelDef)
+    return domCandidate
 \end{code}
 
 \begin{lstlisting}[style=meta]
@@ -415,51 +468,8 @@ getObjStm _              = error "expected ObjStm" -- cannot recover from this
 \todo{compare the above with a monolithic approach that APPEARS
   to not need multiple stages.}
 
-\subsection{Incremental Updates: Further Details}
-   
-\begin{code}
--- | combineAllXrefTables updates - 
---   - for each update
---     - parses each xref subsection into a list of xref entries
---   - merges all the xref tables into a single mapping
---     - when no errors/inconsistencies
-combineAllXrefTables
-  :: [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
-combineAllXrefTables updates =
-  do
-  updates' <- mapM pUpdate updates  
-  indices' <- mapM (createIndex . fst) updates' 
-  index    <- foldlM mergeIndices M.empty indices'
-  return index
-\end{code}
-
-\begin{lstlisting}[style=meta]
- - we've lost information:
-   - which update an object is part of
-   - object history
-   - object definitions that are no longer reachable
- - fails on
-   - malformed xref entries
-   - mixture of xref table and xref streams [PW?]
- - should detect (or fail) on
-   - trailer dicts that aren't consistent between updates
-   - incremental updates that are "weird/nonsensical"
-     - free-ing dead objects
-     - unconventional use of generation numbers
- - IF updates are defined by xref STREAMS
-   - no problem: as we can fully parse xref stream (w/ dict) as
-     there is no dependence of xref STREAMS on DOM
-     - NOTE: clarificaton to PDF working group regarding this.
-   - we'll have Type2Ref's in addition to Offset's
-      
- - NOTE 
-   - when the latter, the ObjectId -> Offset must be available
-       - in current or previous (or next!) xref stream
-         - BTW, pervasive design issue: must partial updates be valid?
-\end{lstlisting}
-
 \subsection{Incremental Updates and Signatures: What A Tangled Web}
-           
+\label{sec:updates-and-signatures}
 \todo{Need to mention that validating a PDF with a digital signature entails
   identifying at which iteration of the PDF document the dig-sig was applied and
   then validating the dig-sig in the context of that specific DOM and the
