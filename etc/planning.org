@@ -102,6 +102,11 @@ SCHEDULED: <2022-02-01 Tue>
 
 - parser combinators?
   
+=======
+- contribs
+  - terminology
+    
+>>>>>>> Stashed changes
 * TODO re writing
 ** TODO [#C] resurrect dropped text on our tool
 

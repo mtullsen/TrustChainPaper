@@ -10,12 +10,16 @@
 - an implementation
   - should comply with the standard
   - should safely support less than standard
-  - pragmatically support some common extant data malformations so as to be compatible with extant data
+  - pragmatically support some common extant data malformations
+    so as to be compatible with extant data
   - should carefully support more than the standard
   - should not "inf. loop"
-    - lots of opportunities - failure to notice digitally signed PDFs that have been tampered!
-    - where failure leads to "parser differential" without user warning (e.g. excessive trailer /Size)
-    - PDF requires "backwards parsing" which is unnatural for many programming languages
+  - lots of opportunities - failure to notice digitally signed PDFs
+    that have been tampered!
+    - where failure leads to "parser differential" without user
+      warning (e.g. excessive trailer /Size)
+    - PDF requires "backwards parsing" which is unnatural for
+      many programming languages
       - elaborate?
 \end{lstlisting}
 
@@ -25,7 +29,8 @@
   - over implement, under implement, wrongly implement
   - backwards and forwards compatibility
   - "backwards parsing"
-  - some requirements will not be checked by PDF readers ("writer only" file requirements) 
+  - some requirements will not be checked by PDF readers
+    ("writer only" file requirements) 
   - patch existing vs implement from scratch
 - No definition of acceptable, reasonable error recovery
 - Less than ideal design that reflects 27 years of an evolving standard
