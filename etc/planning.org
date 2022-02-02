@@ -26,7 +26,7 @@ DEADLINE: <2022-02-07 Mon -30d>
   - https://wiki.pdfa.org/pages/viewpage.action?pageId=51839560
 - https://pdf-issues.pdfa.org/32000-2-2020/clause07.html#H7.5.7
   
-** TODO [#A] send a version to walt w for review
+** TODO [#B] send a version to walt w for review
 SCHEDULED: <2022-02-01 Tue>
 ** 2022-02-01 meeting
 
@@ -98,6 +98,7 @@ SCHEDULED: <2022-02-01 Tue>
 
 \pwnote{"schizo" is a SafeDocs term I believe, both "schizo files" AND "schizo objects". Polyglot is definitely pre-SafeDocs.}
 
+* WAIT citation for 'cavity' term?
 * TODO MT comments
 
 - parser combinators?
@@ -108,13 +109,50 @@ SCHEDULED: <2022-02-01 Tue>
     
 >>>>>>> Stashed changes
 * TODO re writing
-** TODO determine no of phases and fixup the relevant sections!
-** TODO misc
-- macro for peterw/* comments
-- \todo{say ... regarding our repetitious use of ``parse and compute''}
-\todo{ensure that spec.hs, the above text (trust chain), and \cref{sec:specifying} are all
-  consistent!}
+** DONE determine no of stages and fixup the relevant sections!
 
+- stages (passes)
+  #+begin_src 
+    +-----------------------------------------------------+
+    | 1. Find & parse header and trailer                  |<-- File
+    +-----------------------------------------------------+
+                       | offsets + ...
+                       v
+    +-----------------------------------------------------+
+    | 2. Find & parse incremental updates                 |<-- File
+    +-----------------------------------------------------+
+                       | list of XRef maps
+                       v
+    +-----------------------------------------------------+
+    | 3. Merge incremental updates                        |
+    +-----------------------------------------------------+
+                       | XRef map
+                       v
+    +-----------------------------------------------------+
+    | 4. XRef map to object map (candidate DOM)           |
+    |    1. Parse uncompressed objects                 <--+-- File
+    |    2. Decode streams & preprocess Object Streams <--+-- File
+    |    3. Resolve Type 2 references                  <--+-- File
+    +-----------------------------------------------------+
+                       | DOM (candidate)                      
+                       v
+    +-----------------------------------------------------+
+    | 5. Validate candidate DOM                           |
+    +-----------------------------------------------------+
+                       | DOM (final)                                    
+                       v
+    +-----------------------------------------------------+
+    | 6. Render DOM                                       |
+    +-----------------------------------------------------+
+                       | 
+                       v
+  #+end_src
+           
+- note when xref complete?
+  
+** TODO misc
+- \todo{say ... regarding our repetitious use of ``parse and compute''}
+   
 ** TODO add line numbers to (some) listings [having latex issues]
 ** TODO get all the bibs filled in
 
