@@ -1,6 +1,9 @@
+%%%% listings pkg: %%%%
+
+\lstloadlanguages{Haskell}
 \lstset{
   basicstyle=\scriptsize\ttfamily,
-  mathescape=true,
+  %mathescape=true,
   %numbers=left,
   aboveskip=\medskipamount,
   belowskip=\smallskipamount,
@@ -8,13 +11,16 @@
   %stepnumber=2,
   numbersep=10pt,
   tabsize=2,
-  extendedchars=true,
+  %extendedchars=true,
   breaklines=false,
-  keywordstyle=\color{black}
+  %keywordstyle=\color{black}
   }
 \newcommand{\lstcd}[1]{\lstinline[basicstyle=\ttfamily\footnotesize]{#1}}
 
-\lstloadlanguages{Haskell}
+% this style is used for long/verbatim notes (not text) in the paper
+\lstdefinestyle{meta}
+  {basicstyle=\scriptsize\ttfamily\color{magenta}}
+
 \lstnewenvironment{code}
     {\lstset{}%
       \csname lst@SetFirstLabel\endcsname}
@@ -64,10 +70,6 @@
     % literate haskell assumes \begin{code}
 
     
-% this style is used for long/verbatim notes (not text) in the paper
-\lstdefinestyle{meta}
-  {basicstyle=\tiny\ttfamily\color{magenta}}
-
 \usepackage{hyperref}
 \usepackage[capitalise]{cleveref}
   % i.e., you use '\cref{x}' rather than "Figure \ref{x}"
@@ -77,10 +79,15 @@
 % SYSTEM OF ANNOTATIONS:
 
 \newcommand{\pwnote}[1]{\textcolor{blue}{[[PW: #1]]}}
-\newcommand{\mtnote}[1]{\textcolor{red}{[[MT: #1]]}}
-\newcommand{\whnote}[1]{\textcolor{magenta}{[[BH: #1]]}}
+\newcommand{\mtnote}[1]{\textcolor{BlueGreen}{[[MT: #1]]}}
+\newcommand{\whnote}[1]{\textcolor{Cyan}{[[WH: #1]]}}
 
-\newcommand{\info}[1]{\textcolor{blue}{[[#1]]}}
+\newcommand{\pwtodo}[1]{\pwnote{TODO:#1}}
+\newcommand{\mttodo}[1]{\mtnote{TODO:#1}}
+\newcommand{\whtodo}[1]{\whnote{TODO:#1}}
+
+
+\newcommand{\info}[1]{\textcolor{brown}{[[#1]]}}
 \newcommand{\note}[1]{\noteYes{#1}}  
 \newcommand{\noteNo}[1]{}  % way to remove all notes.
 \newcommand{\noteYes}[1]{\textcolor{red}{[[#1]]}}

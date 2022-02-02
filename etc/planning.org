@@ -72,7 +72,7 @@ SCHEDULED: <2022-02-01 Tue>
 - contribs
   - terminology for PDF/etc
     
-* TODO msg to team
+* DONE msg to team
 
 - I did a little restructuring in the doc:
   - removed some sections
