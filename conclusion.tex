@@ -1,4 +1,3 @@
-% ------------------------------------------------------------------------------
 \section{Conclusion \note{1.5pp}}
 \label{sec:conclusion}
 
@@ -16,28 +15,17 @@
   - Pre-DOM specification
     - dealing with parsing (DOM-dependent) object streams
       (the lack of clarity as submitted to ISO)
-  - Tool for inspecting and checking PDF at the pre-DOM level:
-    Created tool for exploring the DOM Antecedent structures
-    as well as validating them (more than a
-    PDF reader necessarily does).
-    - Based on Galois's \todo{TA2} PDF parser, this tool can
-      parse and validate each incremental update separately
-      display "incremental updates," "incremental xref tables,"
-      parsed objects, and cavities (bytes that are not used)
-      validate that object definitions do not overlap (in their source bytes)
   - Generic and principled approach for dealing with
     \note{complex,onery,etc} formats.
     - E.g., cavities, embedded offsets/lengths, etc
 \end{lstlisting}
 
-\subsection{Applications to Other Formats}
-
-\todo{...}
-
 \subsection{Future Work}
 
 Support more features in our specification:
 \begin{lstlisting}[style=meta]
+  - to support signatures (expose updates and ...)
+  - more detail, e.g., with xref streams
   - linearized PDFs
   - specify hybrid xref PDFs
   - add further ``validators''
@@ -47,11 +35,3 @@ Support more features in our specification:
   - add ``Phase X'' DOM validation
 \end{lstlisting}
 
-Add more features to our tool and specification:
-\begin{lstlisting}[style=meta]
-  - support linearized files (to improve cavity detection)
-  - more consistency checks: e.g, for hybrid xref files
-  - further analysis and categorization of cavities
-\end{lstlisting}
-
-\todo{And even more?}

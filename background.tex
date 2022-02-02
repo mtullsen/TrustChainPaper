@@ -1,13 +1,10 @@
-% bkg: technical stuff that we didn't contribute
-\section{Background}
-\label{sec:background}
-
-\subsection{The PDF Trust Chain \note{1.5pp}}
+\section{The PDF Trust Chain \note{1.5pp}}
+\label{sec:background} 
 \label{sec:trust-chain}
 
-Let's define what we mean by ``PDF Trust Chain''.
+\subsection{Trust Chains, Abstractly}
 
-\subsection{Trust Chains}
+Let's define what we mean by ``PDF Trust Chain''.
 
 The term \emph{Trust Chain} is used in multiple contexts, e.g.,
 \emph{digital certificates}: a sequence of certificates signing certificates,
@@ -120,68 +117,3 @@ independently of the lower levels.
 \todo{ensure that spec.hs, the above text, and \cref{sec:specifying}
       are all consistent!}
 
-\subsection{Root Causes of PDF Complexity}
-
-Most data formats can be described by much simpler mechanisms;
-most language processors (e.g., a Python parser) can be described and parsed by
-textbook methods (e.g., the old \emph{lex} and \emph{yacc} are sufficient for
-most language processors);
-so what makes PDF processing so much more complex?
-\begin{lstlisting}[style=meta]
-  - indirect offsets
-    - which may recursively point to other indirect offsets
-    - need programming language
-      (or a 'seek' in the data definition lang)
-  - DOM is a directed graph structure that allows cycles and arbitrary references (so not a DAG)
-    - objects point to objects via byte offsets (cf. not by nested expressions such as XML)  
-  - backwards parsing
-  - some parsing rules written as to be not relevant to parsers ("writer-only rules")
-  - incremental updates as a set of deltas to be applied to the file, which change the DOM
-    - (note: unlike HTML, PDF's DOM is fixed and cannot be altered by JS)
-  - xref tables ...
-  - ... giving rise to cavities
-    - giving rise to polyglots
-  - dependent parsers
-  - <MORE?>
-\end{lstlisting}
-
-Further detail of how these work in PDF is in \cref{sec:specifying}.
-
-% ------------------------------------------------------------------------------
-\section{Pre-DOM Vulnerabilities \note{2.5pp}}
-\label{sec:predom-vulnerabilities}
-
-As will become even more apparent, there is a significant amount of
-parsing and computation that needs to be done \emph{pre-DOM}.
-And given our recent points about the \emph{PDF Trust Chain}
-(\cref{sec:trust-chain}),
-it should not surprise us that most of the PDF attack vectors
-(\cref{sec:pdf-vulnerabilities})
-involve some aspect of breaking the \emph{DOM} abstraction.
-I.e., they occur at the \emph{pre-DOM} levels.
-
-{\bf{Shadow Attacks}} \todo{...}
-
-{\bf{Schizophrenia}} \todo{should define what we mean by schizo - is this the same thing that gives rise to parser differentials or a feature of of the syntax or layout of PDF?}
-\begin{lstlisting}[style=meta]
-  - writer errors
-  - parser differentials
-    - e.g., ignoring xref tables
-  - recovering parsers !!
-  - blind faith in incremental updates (Shadow Attacks)
-\end{lstlisting}
-
-{\bf{Polyglots}} 
-\todo{... arising from cavities and permissive implementations and ...}
-
-{\bf{Denial of Service (DOS)}} 
-%
-\begin{lstlisting}[style=meta]
-- [potential recursion many places]
-- format may not be well-defined because the recursion is not
-    "well-defined"
-\end{lstlisting}
-
-{\bf{Steganography}} \todo{do we really want to discuss ways of hiding data in PDF? Or is this just more noting that the pre-DOM data could be used to hide data as well?}
-
-{\bf{Others}} \todo{Maybe PII/redaction issues - just 'cos you delete something in a PDF doesn't mean it is really deleted (thanks to incremental updates)!!!! }

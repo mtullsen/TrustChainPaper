@@ -141,21 +141,7 @@ Such cavities are a powerful mechanism for creating \emph{polyglot
 which themselves have been used in recent critical system security
 exploits \todo{cite iOS vuln}.
 
-\todo{complete}
-\paragraph*{Organization} The rest of this paper is organized as
-follows;
-%
-\Cref{sec:background} provides technical background on which our work
-is based;
-%
-\todo{complete}
-%
-\Cref{sec:rel-work} reviews related work, and %
-\Cref{sec:conclusion} concludes.
-
-\subsection{PDF and its challenges}
-\label{sec:pdf-challenges}
-
+\todo{short paragraph on PDF and its challenges}
 \begin{lstlisting}[style=meta]
 - Creation of DOM ("document object model")
   - list of object definitions
@@ -172,40 +158,35 @@ is based;
 - Linearized PDF (efficient incremental access) a.k.a. "Fast web view"
   - "differential by design"!
 \end{lstlisting}
-
 \begin{lstlisting}[style=meta]
 - We must accurately create the DOM (a DAG, no cycles allowed)
   - ... while abstracting over xref tables, xref streams,
     hybrid files, incremental updates, linearization
   - ... while recovering from errors
   - ... while doing xref table reconstruction
-
 - This is the source of errors, ambiguities, and vulnerabilities!
 \end{lstlisting}
 
-\subsection{PDF Vulnerabilities}
+\todo{short paragraph on PDF Vulnerabilities}
 \label{sec:pdf-vulnerabilities}
-\todo{here, briefly describe vulnerabilities, citing the literature,
-  but not going into great detail.
-  In \cref{sec:predom-vulnerabilities}
-  we'll go into further detail on pre-DOM vulnerabilities.
-}
-
 \begin{lstlisting}[style=meta]
-- Schizophrenic files
+- Ambiguous files
 - Polyglot files
-- [QUESTION: these last two common terms or ``Safedocs''-isms? \textcolor{blue}{"schizo" is a SafeDocs term I believe, both "schizo files" AND "schizo objects". Polyglot is definitely pre-SafeDocs.}]
-- Shadow attacks: possible because of ability to sign dead objects and cavities \textcolor{blue}{and, depending on attack mode, referencing "dead objects" via a later incremental update} 
-- Steganographic attacks (similar to Shadow)
-- Multiple places for hidden/unused/malicious data in PDF
-  - non-obvious places, unnoticed when "simply parsing"
-  - e.g., shadow-attacks
-  - dead bytes, dead objects, dead updates, dead linearization sections, etc.
+- Shadow attacks: possible because of ability to sign dead objects
+  and cavities 
+  \pwnote{and, depending on attack mode, referencing "dead objects" via a later
+  incremental update}
 \end{lstlisting}
 
-\todo{Refer to these and others:
-  pdf-insecurity.org publications,
-  https://itextpdf.com/en/blog/technical-notes/investigating-pdf-shadow-attacks-depth-pdf-security-using-itext-part-3,
-  K. Koptyra and M. R. Ogiela, “Distributed Steganography in PDF Files - Secrets Hidden in Modified Pages,” Entropy, vol. 22, no. 6, p. 600, May 2020, doi: 10.3390/e22060600.
-}
+\todo{complete}
+\paragraph*{Organization} The rest of this paper is organized as
+follows;
+%
+\Cref{sec:background} provides technical background on which our work
+is based;
+%
+\todo{complete}
+%
+\Cref{sec:rel-work} reviews related work, and %
+\Cref{sec:conclusion} concludes.
 

@@ -28,8 +28,96 @@ DEADLINE: <2022-02-07 Mon -30d>
   
 ** TODO [#A] send a version to walt w for review
 SCHEDULED: <2022-02-01 Tue>
+** 2022-02-01 meeting
 
+- Agenda
+  - disc. of outline/etc
+  - finish going through the spec.hs / the section
+  - for NLS: ask about the Ruhr CVE and reporting and _
+  - add people for \todo's
+  - who's doing what?
+
+- task allocation
+  - Bill: conclusion
+  - Bill?: 
+  - Peter:
+  - Mark : finish up _
+  - Mark : move Peters stuff from TC to _
+  - ? : ?
+        
+- TODO
+  - Trust Chain
+    - make consistently "Trust Chain"
+  - in principle: what is xref table!
+    - gory details
+  - II.
+    - levels/phases/layers
+    - 
+  - 1.A & 1.B
+
+- random notes   
+  - ETSI - pdf signature process      
+  - phase: _
+  - ICC earlier
+  - "current work in progress"
+    
+- Terms
+  - partial differentials & schizophrenic files.
+    - ambiguity!
+  - file level/object level
+  - polyglot
+    - cavities
+  - NEED FOR TERMINOLOGY
+
+- contribs
+  - terminology for PDF/etc
+    
+* TODO msg to team
+
+- I did a little restructuring in the doc:
+  - removed some sections
+  - added new top level sections
+    - PDF 
+      - Structures
+      - Vulnerabilities
+      - Root Causes of PDF Complexity
+    - Relevance to Other Formats
+
+- current task allocation in the new structure:
+  - Bill: Conclusion
+  - Bill: Intro
+    - (can we (want we) to fit in paragraphs on PDF challenges and vulnerabilities?)
+  - Peter: III.A. PDF Structure
+    - and other subsections in III?
+  - Peter: V. Relevance to Other Formats
+    - ICC Stuff here
+  - Mark : move Peter's details from II.B to IV
+  - Mark : finish up IV.
+      
+* TODO misc
+
+\pwnote{"schizo" is a SafeDocs term I believe, both "schizo files" AND "schizo objects". Polyglot is definitely pre-SafeDocs.}
+
+* TODO MT comments
+
+- parser combinators?
+  
 * TODO re writing
+** TODO [#C] resurrect dropped text on our tool
+
+  - Tool for inspecting and checking PDF at the pre-DOM level:
+    Created tool for exploring the DOM Antecedent structures
+    as well as validating them (more than a
+    PDF reader necessarily does).
+    - Based on Galois's \todo{TA2} PDF parser, this tool can
+      parse and validate each incremental update separately
+      display "incremental updates," "incremental xref tables,"
+      parsed objects, and cavities (bytes that are not used)
+      validate that object definitions do not overlap (in their source bytes)
+
+** TODO misc
+- macro for peterw/* comments
+
 ** TODO add line numbers to (some) listings [having latex issues]
 ** TODO get all the bibs filled in
 
