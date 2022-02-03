@@ -26,36 +26,8 @@ DEADLINE: <2022-02-07 Mon -30d>
   - https://wiki.pdfa.org/pages/viewpage.action?pageId=51839560
 - https://pdf-issues.pdfa.org/32000-2-2020/clause07.html#H7.5.7
   
-** TODO [#B] send a version to walt w for review
-SCHEDULED: <2022-02-01 Tue>
-
-Hi Walt,
-
-Thanks for volunteering to review our paper. Let me know if you have any
-problems accessing the overleaf doc
-  https://www.overleaf.com/4642632342sfvgzqbjzxrm
-
-Your input is appreciated in any and all forms
- - overleaf comments
- - \note{}'s in latex
- - big picture comments in email, etc
- - And if you want, for "obvious improvements," you can edit the doc!
-   
-In case it's useful, I also invited you to be a collaborator on the underlying
-github repo https://github.com/mtullsen/TrustChainPaper/
-
-Right now some parts are a little rough.  (I'm planning on putting 4 more days
-into this and Bill and Peter are also contributing significantly.) So, your
-choice: review now in it's rough form or wait another day to review a bit more
-polished version :-).
-
-It would be great to have your comments by end of day Friday.
-
-Thanks!
-
-- Mark
-
-** 2022-02-01 meeting
+** WAIT [#B] walt w review
+** NOTE 2022-02-01 meeting
 
 - Agenda
   - disc. of outline/etc
@@ -201,7 +173,7 @@ Thanks!
 ** TODO spell-check
 ** TODO final review
 ** ----
-** TODO [#C] resurrect dropped text on cavity tool
+** TODO [#D] resurrect dropped text on cavity tool
 
   - Tool for inspecting and checking PDF at the pre-DOM level:
     Created tool for exploring the DOM Antecedent structures
