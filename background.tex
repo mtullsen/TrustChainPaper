@@ -20,7 +20,7 @@ And the key lesson being,
   is flawed or suborned, then every layer relying on it
   is no longer capable of being trusted.}}
 
-\mtnote{I use 'layer' in this subsection, but hereafter I'll be using
+\mtnote{I used 'layer' in this subsection, but hereafter I'll be using
   'stage' (not phase/component/etc) for our concrete instance in PDF.}
 
 \subsection{The Trust Chain of a PDF Parser}
@@ -94,27 +94,30 @@ To briefly sketch what's going on in each stage:
   verifies that it represents a sensible Document Tree per the PDF Standard.
   E.g., all indirect objects are in the candidate DOM, no unexpected recursion,
   etc.
-\item Stage 6: Render.  Here we render the validated DOM, or parts thereof, to
-  whatever display or graphic format we choose.
+\item Stage 6: Render DOM.  Here we render the validated DOM, or parts thereof,
+  to whatever display or graphic format we choose.
 \end{itemize}
 
-Note that stages 2, 4.1, 4.2, and 4.3
-all use inputs from the previous stage to determine where and
-how to further parse segments of the PDF input file.
-An error in an earlier stage will always affect the output of later stages,
-but errors that percolate into these stages can cause parsing of the wrong data.
-%
+An error in an earlier stage will affect the output of stages that follow.
+But note stages 2, 4.1, 4.2, and 4.3:
+these stages use inputs from the previous stage to determine where and
+how to parse segments of the PDF input file;
+errors that percolate into these stages can
+cause all forms of havoc (parsing wrong data, etc.).
+
 The attentive reader will note that we have another instance of a \emph{Trust
 Chain}.  The subsequent stages of the parsing process are \emph{completely
 dependent} upon the earlier stages to properly parse and interpret the PDF
 file.
 
-Note this: an implementation \emph{might} merge stages 2, 3, 4.1, 4.2, 4.3 into
-a single stage and give a \emph{semblance} of simplicity, our argument in what
-follows---particularly in \cref{sec:single-pass-problems}---is that such an
-implementation will be overly complex and result in a nearly insurmountable task
-to assure that such an implementation is actually implementing the standard
-and terminating for all input files.
+An implementation \emph{might} merge stages 2, 3, 4.1, 4.2, 4.3 into
+a single stage and give a \emph{semblance} of simplicity.
+%
+Our argument in what follows---particularly in
+\cref{sec:single-pass-problems}---is
+that such an implementation will be overly
+complex and result in a nearly insurmountable task to assure that it
+actually implements the standard and terminates for all input files.
 
 We think it is important to understand PDF parsing in terms of this
 \emph{Trust Chain} because
@@ -126,14 +129,14 @@ in PDF processing.
 computation (the base of our Trust Chain) is correct and secure.
 %
 (3) it reminds us that the integrity of the DOM cannot be verified
-independently of the lower levels.
+independently of verifying the earlier stages.
 %
 (4) it illustrates that PDF parsing, although uniquely complex, is an instance of
 a general concept.
 
-Although verifying Stage 5 is both difficult and tedious
+Although \emph{Validate candidate DOM} (stage 5) is both difficult and tedious
 (\pwtodo{...; say something re the Arlington DOM model? a paper?})
-and the Render stage has many complications of its own (e.g., fonts are
+and the \emph{Render DOM} stage has many complications of its own (e.g., fonts are
 a special challenge), we will focus on stages 1-4.
 We refer to these stages as pre-DOM parsing/computation; if anything
 goes wrong pre-DOM---and lots can go wrong---there's hell to pay. \mtnote{?!}

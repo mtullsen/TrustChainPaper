@@ -41,8 +41,6 @@ so what makes PDF processing so much more complex?
   - <MORE?>
 \end{lstlisting}
 
-Further detail of how these work in PDF is in \cref{sec:specifying}.
-
 \subsection{[TODO: ORPHAN TEXT: Belongs Where?]}
 
 \todo{we should use the concept of "data integrity relationships" being the
@@ -58,13 +56,14 @@ Further detail of how these work in PDF is in \cref{sec:specifying}.
 \subsection{Vulnerabilities \note{1pp}}
 \label{sec:predom-vulnerabilities}
 
-As will become even more apparent, there is a significant amount of
-parsing and computation that needs to be done \emph{pre-DOM}.
-And given our recent points about the \emph{PDF Trust Chain}
+% As will become even more apparent, there is a significant amount of
+% parsing and computation that needs to be done \emph{pre-DOM}.
+
+Given our recent points about the \emph{PDF Trust Chain}
 (\cref{sec:trust-chain}),
 it should not surprise us that most of the PDF attack vectors
 involve some aspect of breaking the \emph{DOM} abstraction.
-I.e., they occur \emph{pre-DOM}.
+I.e., the vulnerabilities occur \emph{pre-DOM}.
 
 {\bf{Shadow Attacks}} \todo{...}
 

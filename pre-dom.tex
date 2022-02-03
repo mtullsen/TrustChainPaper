@@ -48,7 +48,7 @@ our specification.
 %
 Our goal is to bridge the gap between the low level parsers
 (parsing integers, parsing xref entries, etc.) and the processing
-that happens after the DOM is created (stage 5 \& 6).
+that happens after the DOM is created (stages 5 \& 6).
 %
 Thus, the primitive parsers are omitted from this spec as well as a few other
 simple functions.  See \cref{sec:appendix1} for the Haskell type signatures for
@@ -83,59 +83,26 @@ online at \todo{where: in daedalus repo?}.
 % need to say: These structures are not necessarily concrete values--e.g. parsed
 % xref table--but they do exist `conceptually'.
 
-\subsection{Pre-DOM Stages \note{PW's text, TODO: merge into below}}
+This spec supports PDF 2.0, including compressed objects and xref streams.
+%
+It (safely) ignores linearization data and traditional xref tables in a hybrid
+PDF.  It processes signatures (incremental updates) but it does not support
+validation of signatures.
 
-{\bf{Stage 1}}
+\mtnote{brings up issues:
+  How much validation to do?
+  Are we specifying a renderer or a text-extractor?
+  Are we supporting the validation of signatures (which radically
+  changes things)?}
 
-We find the PDF header \lstcd{\%PDF-x.y} (near start of the physical file, to
-account for preamble), then the end of the PDF file \lstcd{\%\%EOF} (near the
-end of the physical file), then "backwards parse" to find the last
-\lstcd{startxref} keyword followed by an end-of-line sequence and an integer
-value encoded as a sequence of ASCII bytes representing the byte offset in the
-PDF file (which is then adjusted for any preamble to a physical byte offset),
-and then locate either the \lstcd{xref} keyword for traditional PDF
-cross-reference tables, or a PDF object that should be a cross-reference
-stream. In the case of traditional PDF cross-reference tables, after the cross
-reference table will be the trailer dictionary identified by the \lstcd{trailer}
-keyword or, alternatively for PDF 1.5 and later files with cross-reference
-streams, the trailer dictionary keys will be in the stream extent dictionary of
-the cross reference stream. Of particular note is the \lstcd{Size} entry, which
-is one greater than the largest object number allocated in the PDF file.
+\mttodo{move this paragraph to ?}
+Future work might involve:
+(1) processing Linearization data and ensuring consistency with the
+non-linearized DOM.
+(2) processing both ``branches'' of a hybrid PDF and ensuring that there
+is some form of constency between pre 1.5 readers and 1.5+ readers.
+(3) adding signature validation, ee \cref{sec:updates-and-signatures}.
 
-{\bf{Stage 2: we find and parse any incremental updates}}
-
-These are identified by a \lstcd{Prev} entry in either the trailer
-dictionary or the stream extent dictionary of a cross-reference stream. The
-value of the \lstcd{Prev} key is another byte offset to the immediately
-preceding incremental update which, again, can either be a traditional
-cross-reference table and to the start of the \lstcd{xref} keyword, or to a
-cross-reference stream. This process repeats, working from the most recent
-update back through time to the original PDF document.
-
-{\bf{Stage 3: ... parse xref table and ...}}
-  
-Stage 3: data in each cross reference table must then be parsed to
-identify the byte offset to the start of each PDF object. Note also that PDF
-does not define the byte offset to the end of an object. There are two sets of
-objects in every PDF document: the in-use list of PDF objects and a free list
-of PDF objects. Object zero is always the start of the free list as it is not
-otherwise a valid object number. For incremental updates, PDF object numbering
-does not have to be sequential, with skipped object numbers assumed to be on
-the free list (although this is not stated explicitly in the PDF
-specification). Parsing depends on the form of the incremental update, with
-traditional cross-reference tables being simpler and larger independent of
-other processing. Cross-reference streams however are more complex as they are
-usually compressed and thus require the pre-DOM parser to "trust" the stream
-extent dictionary data.
-
-{\bf{Stage 4: ...}}
-  
-Stage 4: using information from Stages 1, 2 and 3, the final set of
-objects that comprise the final PDF document can be established. Each
-incremental update can add new objects, mark existing in-use objects as free,
-or reinstate previously freed objects. \pwnote{do we want to mention the
-complexity of dig-sig here? what about cavities?}
-  
 \subsection{Stages 1 - 4, Preliminaries}
 
 %%%% begin: Hs code not in paper %%%%
@@ -157,7 +124,7 @@ import           Primitives
 
 What follows is the definition of \lstcd{pPDFDOM} which does the
 parsing/computation for stages 1-4;
-relying on primitive parsers, it creates the \lstcd{DOM}.
+it creates the \lstcd{DOM} relying on primitive parsers.
 \begin{code}
 pPDFDom :: P DOM
 \end{code}
@@ -168,7 +135,7 @@ In Haskell a monad could contain many effectful constructs: global variables,
 and etc. However, \lstcd{P} is a simple monad that effectively has one
 read-only variable (the PDF file being read), and one mutable variable,
 the offset in the file where reading (parsing) occurs.  I.e., we have
-this primitive monadic function\footnote{
+this effectful primitive monadic function\footnote{
   We'll use the term ``action'' to refer to a monadic function:
   i.e., a function having a type scheme of ``\lstcd{a ->  P b}''.
 }
@@ -179,7 +146,25 @@ that can change where reading (parsing) takes place in the file.
 
 \subsection{Stage 1: Find \& Parse Header and Trailer}
 
-Continuing with the definition of \lstcd{pPDFDom}:
+\todo{introduce this:}
+We find the PDF header \lstcd{\%PDF-x.y} (near start of the physical file, to
+account for preamble), then the end of the PDF file \lstcd{\%\%EOF} (near the
+end of the physical file), then "backwards parse" to find the last
+\lstcd{startxref} keyword followed by an end-of-line sequence and an integer
+value encoded as a sequence of ASCII bytes representing the byte offset in the
+PDF file (which is then adjusted for any preamble to a physical byte offset),
+and then locate either the \lstcd{xref} keyword for traditional PDF
+cross-reference tables, or a PDF object that should be a cross-reference
+stream. In the case of traditional PDF cross-reference tables, after the cross
+reference table will be the trailer dictionary identified by the \lstcd{trailer}
+keyword or, alternatively for PDF 1.5 and later files with cross-reference
+streams, the trailer dictionary keys will be in the stream extent dictionary of
+the cross reference stream. Of particular note is the \lstcd{Size} entry, which
+is one greater than the largest object number allocated in the PDF file.
+
+\mttodo{code should account for Size, it must be passed to ...}
+
+Now to define \lstcd{pPDFDom}:
 \begin{code}
 pPDFDom =
     do
@@ -189,7 +174,7 @@ pPDFDom =
     (startxrefOff,xrefOff) <- findStartxrefThenParseToEOF
 \end{code}
 
-\haskellnote{The \lstcd{do} indicates this is monadic code.}
+\haskellnote{The \lstcd{do} keyword indicates the start of monadic code.}
 The action \lstcd{findPDFHeader} has type \lstcd{P ((Int,Int),Offset)};
 it can fail if the header cannot be found or is malformed.
 %
@@ -241,11 +226,12 @@ know the list of object ids and we can find the xref entry for each object id.
    to parse a lot more strictly and sooner.
  - nothing essential would change in our spec
 \end{lstlisting}
-Now to parsing more of the PDF trailer,
+
+Now to parsing more of the PDF trailer
 \begin{code}
     pSimpleWhiteSpace >> keyword "trailer"
     trailerDict <- pDictionary
-    validate $
+    validateAction $
       do
       cs <- readTo startxrefOff -- get bytes up to `startxrefOff`
       return (all isSpace cs)
@@ -264,6 +250,9 @@ Now to parsing more of the PDF trailer,
    [refactor to distinguish validate / NBCUR?]
  - if we don't do 'validate', we have cavities!
 \end{lstlisting}
+
+\mttodo{we have now parsed the trailer but ...}
+
 \begin{code}
     updates' <- pAllUpdates mPrev :: P [(XRefRaw, TrailerDict)]
        -- we've followed the 'Prev's and for each we
@@ -271,13 +260,16 @@ Now to parsing more of the PDF trailer,
        --   - pTrailerDict -- similar to above, but
        --                     only reads/validates Prev key
     let updates = (xrefRaw,trailerDict) : updates'
-
-    -- combine all the updates to get a single map to offsets:
-    xrefs <- combineAllXrefTables updates
-             :: P (Map ObjId (Offset :+: Type2Ref))
 \end{code}
 
-\subsection{TODO}
+\mttodo{integrate this text:}
+... these are identified by a \lstcd{Prev} entry in either the trailer
+dictionary or the stream extent dictionary of a cross-reference stream. The
+value of the \lstcd{Prev} key is another byte offset to the immediately
+preceding incremental update which, again, can either be a traditional
+cross-reference table and to the start of the \lstcd{xref} keyword, or to a
+cross-reference stream. This process repeats, working from the most recent
+update back through time to the original PDF document.
 
 \begin{lstlisting}[style=meta]
 at this point
@@ -296,11 +288,21 @@ at this point
    - parsed the contents of xref entries
 \end{lstlisting}
 
+Now let's finish the definition of \lstcd{pDOM}, making calls
+to the actions for stage 3 and stage 4.
+
 \begin{code}  
+    -- Stage 3: combine all the updates to get a single map to offsets
+    xrefs <- combineAllXrefTables updates
+             :: P (Map ObjId (Offset :+: Type2Ref))
+
+    -- Stage 4:
     dom <- transformXRefMapToObjectMap jmp xrefs
     -- N.B.: only when we have parsed everything, do we
     -- actually know the PDF version, because the version
     -- may be embedded in the DOM:
+
+    -- Miscellanea
     version' <- updateVersionFromCatalogDict dom version
     if version' > (2,0) then
       warn "PDF file has version greater than 2.0"
@@ -308,16 +310,48 @@ at this point
       -- version' <= (2,0)
       when (not (null etc)) $
         warn "trailer dictionary has unknown keys (per PDF 2.0)"
+    validate $
+      versionAndDomConsistent version' dom
     return dom
 \end{code}
 
-The \lstcd{pDOM} function definition is now finished.
-In the next two sections we will break down these functions
+Due to PDF-1.5 additions, we are now in the odd position that we cannot
+determine the PDF version till we have done all the pre-DOM processing.
+So, we can check that the created \lstcd{dom} is consistent with
+\lstcd{version'},
+but \lstcd{version'} is unavailable to us during stages 1-4, where
+an implementation might have used this.
+%
+For instance, checking that Object Streams are not used when the version is
+PDF-1.4.  Such a check \emph{could} be done, but it would definitely complicate
+the above spec.
+
+In the next two sections we will look at the definitions of
 \lstcd{combineAllXrefTables} (stage 3) and
 \lstcd{transformXRefMapToObjectMap} (stage 4).
 
 \subsection{Stage 3: Merge Incremental Updates}
-   
+
+\mttodo{integrate this text:}
+In this stage, data in each cross reference table must then be parsed to
+identify the byte offset to the start of each PDF object. Note also that PDF
+does not define the byte offset to the end of an object. There are two sets of
+objects in every PDF document: the in-use list of PDF objects and a free list
+of PDF objects. Object zero is always the start of the free list as it is not
+otherwise a valid object number. For incremental updates, PDF object numbering
+does not have to be sequential, with skipped object numbers assumed to be on
+the free list (although this is not stated explicitly in the PDF
+specification). Parsing depends on the form of the incremental update, with
+traditional cross-reference tables being simpler and larger independent of
+other processing. Cross-reference streams however are more complex as they are
+usually compressed and thus require the pre-DOM parser to "trust" the stream
+extent dictionary data.
+
+Each incremental update can add new objects, mark existing in-use objects as
+free, or reinstate previously freed objects.
+\mttodo{address the above in spec: either add to spec OR indicate that
+  we are not ``refining'' this.}
+
 \begin{code}
 -- | combineAllXrefTables updates - 
 --   - for each update
@@ -359,6 +393,9 @@ combineAllXrefTables updates =
          - BTW, pervasive design issue: must partial updates be valid?
 \end{lstlisting}
 
+\pwnote{and, depending on attack mode, referencing "dead objects" via a later
+incremental update}
+
 \subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
 
 \begin{code}
@@ -366,11 +403,11 @@ transformXRefMapToObjectMap
   :: (Offset -> P ()) -> Map ObjId (Offset :+: Type2Ref) -> P DOM
 transformXRefMapToObjectMap jmp xrefs =
     do
-    -- parse all uncompressed objects (but leave streams undecoded):
-    domPass1 <- mapM
-                  (mMapLeft (\o-> do {jmp o; pTopLevelDef_UnDecStm}))
-                  xrefs
-                :: P (Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref))
+    -- Stage 4.1: parse all uncompressed objects (but leave streams undecoded):
+    xrefs1 <- mapM
+                (mMapLeft (\o-> do {jmp o; pTopLevelDef_UnDecStm}))
+                xrefs
+              :: P (Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref))
 \end{code}
 % FIXME: don't call the results of pass 1 'domPass1'
 
@@ -384,11 +421,11 @@ we are only NOW able to
 \end{lstlisting}
 
 \begin{code}
-    -- decode streams into ByteStrings, also pre-processes ObjStm streams
-    domPass2 <- mapM
-                  (mMapLeft (extractStreamData domPass1))
-                  domPass1
-                :: P (Map ObjId (TopLevelDef :+: Type2Ref))
+    -- Stage 4.2: decode streams into ByteStrings, also pre-processes ObjStm streams
+    xrefs2 <- mapM
+                (mMapLeft (extractStreamData xrefs1))
+                xrefs1
+              :: P (Map ObjId (TopLevelDef :+: Type2Ref))
 \end{code}
 
 \begin{lstlisting}[style=meta]
@@ -399,9 +436,10 @@ at this point
 \end{lstlisting}
 
 \begin{code}
+    -- Stage 4.3: resolve Type 2 references
     domCandidate <- mapM
-                     (return `either` derefType2Ref domPass2)
-                     domPass2
+                     (return `either` derefType2Ref xrefs2)
+                     xrefs2
                     :: P (Map ObjId TopLevelDef)
     return domCandidate
 \end{code}
@@ -417,9 +455,9 @@ at this point
    - Q. is this intentional? this precludes lots of checks.
 \end{lstlisting}
 
-\subsection{Details of Streams and Type 2 References}
+\subsection{Stage 4: Details of Streams and Type 2 References}
 
-\todo{really want such detailed code?  put in Appendix?}
+\mtnote{really want such detailed code?  put in Appendix?}
 
 \begin{code}
 -- | extractStreamData - since we now know all Lengths:
@@ -465,7 +503,7 @@ getObjStm _              = error "expected ObjStm" -- cannot recover from this
 \subsection{Can we Avoid Multiple Stages?}
 \label{sec:single-pass-problems}
   
-\todo{compare the above with a monolithic approach that APPEARS
+\mttodo{compare the above with a monolithic approach that APPEARS
   to not need multiple stages.}
 
 \subsection{Incremental Updates and Signatures: What A Tangled Web}
@@ -478,6 +516,5 @@ getObjStm _              = error "expected ObjStm" -- cannot recover from this
   update abstraction [the abstraction that renderers can ignore the xrefs and
     updates and need only access the DOM]
 }
-
 
 

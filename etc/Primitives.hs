@@ -9,17 +9,23 @@ import           Utils
 
 ---- compiler ----------------------------------------------------------------
 
-validate :: P Bool -> P ()
-validate mp = if validatingParser
-              then
-                do
-                b <- mp -- run 'monadic predicate'
-                when b $ fail "fails validation"
-              else
-                return ()
-              -- or maybe warn
+-- | validateAction - used when we need to read from file, or the validation
+--                    itself calls a parser or could fail.
+--                    NOTE: prefer validate!
+validateAction :: P Bool -> P ()
+validateAction a = do
+                   b <- a
+                   validate b
+  
+validate :: Bool -> P ()
+validate condition = if validatingParser then
+                       do
+                       unless condition $ fail "fails validation"
+                     else
+                       return ()
+                     -- or maybe warn
   where
-  validatingParser = False
+  validatingParser = False -- could be passed on command line
 
 ---- higher level 
 updateVersionFromCatalogDict :: DOM -> a -> P a
@@ -27,6 +33,9 @@ updateVersionFromCatalogDict = stub
 
 extractDecodingParameters :: Dict -> P a
 extractDecodingParameters = stub
+
+versionAndDomConsistent :: (Int,Int) -> DOM -> Bool
+versionAndDomConsistent = stub
 
 ---- Dictionaries ------------------------------------------------------------
 
@@ -94,7 +103,7 @@ pAllUpdates jmp = stub jmp
 pXrefRaw :: P (XRefRaw,Offset)
 pXrefRaw = stub
 
-verifyXrefRaw :: XRefRaw -> P Bool
+verifyXrefRaw :: XRefRaw -> Bool
 verifyXrefRaw _ = stub
 
 -- lower level "parsers":
