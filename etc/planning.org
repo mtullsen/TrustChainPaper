@@ -28,6 +28,27 @@ DEADLINE: <2022-02-07 Mon -30d>
   
 ** TODO [#B] send a version to walt w for review
 SCHEDULED: <2022-02-01 Tue>
+
+Hi Walt,
+
+Thanks for volunteering to review our paper. Let me know if you have any
+problems accessing the overleaf doc
+  https://www.overleaf.com/4642632342sfvgzqbjzxrm
+
+And please, for "obvious upgrades," just edit the doc!
+
+In case it's useful, I also invited you to be a collaborator on the underlying
+github repo https://github.com/mtullsen/TrustChainPaper/
+
+Right now some parts are a little rough.  (I'm planning on putting 4 more days
+into this and Bill and Peter are also contributing significantly.) So, your
+choice: review now in it's rough form or wait another day to review a bit more
+polished version :-).
+
+It would be great to have your comments by end of day Friday.
+
+- Mark
+
 ** 2022-02-01 meeting
 
 - Agenda
@@ -150,12 +171,27 @@ SCHEDULED: <2022-02-01 Tue>
            
 - note when xref complete?
   
-** TODO misc
-- \todo{say ... regarding our repetitious use of ``parse and compute''}
+** TODO misc/old-ish
+- ?? for the repetitious use of ``parsing and computation''
+- challenge: figuring out how much detail to go into, e.g., xref
+- the idiom
+  - details (e.g., in PDF)
+  - general principles
+    - E.g., such as
+      - cavities
+      - trust-chain 
+      - redundant-data [highlight]
+        - E.g., Size, we don't want to *invisibly*
+          null-out obj. nums > Size
+      - file-offsets in format
+      - schizophrenia / polyglot
+      - limitations of informal (english) standards
+   - at least 1 other example of the principle
+   - ICC, etc.
    
-** TODO add line numbers to (some) listings [having latex issues]
 ** TODO get all the bibs filled in
 
+** TODO add line numbers to (some) listings: adjust lstlisting!
 ** TODO spell-check
 ** TODO final review
 ** ----

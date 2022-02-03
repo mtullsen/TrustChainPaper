@@ -34,7 +34,7 @@ so what makes PDF processing so much more complex?
   - some parsing rules written as to be not relevant to parsers ("writer-only rules")
   - incremental updates as a set of deltas to be applied to the file, which change the DOM
     - (note: unlike HTML, PDF's DOM is fixed and cannot be altered by JS)
-  - xref tables ...
+  - XRef tables ...
   - ... giving rise to cavities
     - giving rise to polyglots
   - dependent parsers
@@ -71,7 +71,7 @@ I.e., the vulnerabilities occur \emph{pre-DOM}.
 \begin{lstlisting}[style=meta]
   - writer errors
   - parser differentials
-    - e.g., ignoring xref tables
+    - e.g., ignoring XRef tables
   - recovering parsers !!
   - blind faith in incremental updates (Shadow Attacks)
 \end{lstlisting}
