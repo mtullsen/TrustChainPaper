@@ -35,8 +35,12 @@ Thanks for volunteering to review our paper. Let me know if you have any
 problems accessing the overleaf doc
   https://www.overleaf.com/4642632342sfvgzqbjzxrm
 
-And please, for "obvious upgrades," just edit the doc!
-
+Your input is appreciated in any and all forms
+ - overleaf comments
+ - \note{}'s in latex
+ - big picture comments in email, etc
+ - And if you want, for "obvious improvements," you can edit the doc!
+   
 In case it's useful, I also invited you to be a collaborator on the underlying
 github repo https://github.com/mtullsen/TrustChainPaper/
 
@@ -46,6 +50,8 @@ choice: review now in it's rough form or wait another day to review a bit more
 polished version :-).
 
 It would be great to have your comments by end of day Friday.
+
+Thanks!
 
 - Mark
 
