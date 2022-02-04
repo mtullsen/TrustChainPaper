@@ -215,12 +215,23 @@ I'm thinking
       - limitations of informal (english) standards
    - at least 1 other example of the principle
    - ICC, etc.
-   
-** TODO get all the bibs filled in
+** TODO aha: stage 3 read or not AND how lazy/raw xref parse?!
 
-** TODO add line numbers to (some) listings: adjust lstlisting!
-** TODO spell-check
-** TODO final review
+- since you are going to "meld" the Traditional and Xref streams
+  - want to parse the xref entries earlier?
+    - no need, xref streams are the same: one can get the subsection
+      data without parsing xref entries!
+      
+  - what *WERE* the advantages?
+    - ability of the spec to allow for
+      - tools that minimally parse
+    - not overconstrain implementations that are lazier/minimalistic
+  - one could/would parse *all* in a =validate=
+              
+** TODO get all the bibs filled in                                      :E2:
+** TODO add line numbers to (some) listings: adjust lstlisting!         :E1:
+** TODO spell check                                                     :E1:
+** TODO final review                                                    :E3:
 ** ----
 ** TODO misc orphans
 

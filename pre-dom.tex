@@ -26,14 +26,14 @@ The job of an implementor is challenging due to many factors:
   PDF is architected to allow for efficient implementations of
   large files (``efficiency hacks'').
   PDF involves multiple sublanguages and embedded formats.
-  PDF contains features beyond standard parsing and data-format
-  tools: E.g., searching backwards, embedded file offsets.
+  PDF contains complex parsing needs:
+  E.g., searching backwards, embedded file offsets.
 \item Lack of formality in standard. Thus, implementations
   require more effort to comply.
   Implementations commonly over implement, under implement,
   and wrongly implement the standard.
   Clearly, writing a PDF implementation from scratch is challenge,
-  implementors are likely to patch existing code (correct or not).
+  implementors are incentivized to patch existing code (correct or not).
 \item The standard defines one thing: \emph{What is a valid PDF?},
   and leaves other decisions to the implementation:
   (1) What should absolutely \emph{not} be allowed (because in the real world
@@ -50,6 +50,9 @@ The job of an implementor is challenging due to many factors:
       I.e., like ``undefined'' in the C programming language sense: the
       compiler can do anything it wants!
     } or \emph{must} we detect and report this?
+    \mtnote{this last, (5), seems pretty key and
+      feels like a major omission in the standard! This question
+      brings us to the ``[e]ndobj'' cavity thing!}
 \end{itemize}
 Failure to faithfully implement the standard can result in ambiguities
 between implementations as well as direct vulnerabilities (such as
