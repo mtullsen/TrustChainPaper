@@ -125,15 +125,15 @@ pDictionary = stub
 pValue :: P PdfValue
 pValue = stub
 
--- parser primitives:
+-- parser P primitives:
 
 parseString :: P a -> ByteString -> P a
 parseString _p _s = stub
 
-setInputAt :: Offset -> P ()
-setInputAt offset = stub offset
+seekPrimitive :: Offset -> P ()
+seekPrimitive _offset = stub
 
-readTo :: Offset -> P String
-readTo offset = stub offset
+readToPrimitive :: Offset -> P String
+readToPrimitive _offset = stub
 
 keyword s = stub s

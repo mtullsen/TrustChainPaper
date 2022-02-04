@@ -21,13 +21,13 @@ The job of an implementor is challenging due to many factors:
 \begin{itemize}
 \item The intrinsic complexity of PDF:
   PDF is a \emph{less than ideal} design that reflects 27 years of
-  an evolving standard
+  an evolving standard.
   PDF has multiple redundant features.
   PDF is architected to allow for efficient implementations of
   large files (``efficiency hacks'').
   PDF involves multiple sublanguages and embedded formats.
   PDF contains features beyond standard parsing and data-format
-  tools: E.g, search backwards, embedded file offsets.
+  tools: E.g., searching backwards, embedded file offsets.
 \item Lack of formality in standard. Thus, implementations
   require more effort to comply.
   Implementations commonly over implement, under implement,
@@ -35,36 +35,40 @@ The job of an implementor is challenging due to many factors:
   Clearly, writing a PDF implementation from scratch is challenge,
   implementors are likely to patch existing code (correct or not).
 \item The standard defines one thing: \emph{What is a valid PDF?},
-  And it leaves other decisions to the implementation:
+  and leaves other decisions to the implementation:
   (1) What should absolutely \emph{not} be allowed (because in the real world
     implementations are more or less relaxed)? And similarly,
-    what is deemed to be acceptable, reasonable error recovery methods?
+    what are deemed to be acceptable, reasonable error recovery methods?
   (2) What is required to support backwards and forwards compatibility?
-  (3) What to do when redundant features don't line up: Which, if
-    either, has priority?
-    Similarly, what to do when the stated PDF version and the PDF
+  (3) What is done when redundant features are inconsistent: which, or
+    neither, has priority?
+    Similarly, what is done when the stated PDF version and the PDF
     constructs used don't match?
   (4) What is \emph{required} from the PDF writer versus
-     what do we \emph{require} the PDF reader to check?
+    what do we \emph{require} the PDF reader to check?
+  (5) If given an incorrect PDF, is the behavior undefined\footnote{
+      I.e., like ``undefined'' in the C programming language sense: the
+      compiler can do anything it wants!
+    } or \emph{must} we detect and report this?
 \end{itemize}
 Failure to faithfully implement the standard can result in ambiguities
-between implemetations as well as direct vulverabilities (such as
+between implementations as well as direct vulnerabilities (such as
 Shadow Attacks or DOS attacks).
 
 Writing a \emph{formal specification} is not going to solve all the above,
-but we believe it is a strong first step toward understanding the
-Standard, clarifying the vulnerabilties, and aiding PDF implementors.
+but we believe it is a strong first step toward clarify the
+standard, understanding the vulnerabilties, and aiding the PDF implementor.
 
-In what follows we use Haskell \cite{Haskell} as a specification language for
+We use Haskell \cite{Haskell} as a specification language for
 our specification.
 %
 The scope of our specification is the gap between the low
 level parsers (parsing integers, parsing XRef entries, etc.) and the
 processing that happens after the DOM is created (stages 5 \& 6).
 %
-Thus, the primitive parsers are not included in this spec (they are
-just assumed, other formalisms are better suited to specifying the
-parsers).
+Thus, the primitive parsers are assumed, not included in this spec,
+other formalisms\footnote{Such as daedalus, see \todo{}
+} would be better suited to specifying the parsers.
 \mtnote{need?: Also, for the sake of focusing on the tricky parts and ignoring
   the tedious (not that it is always obvious which is which),
   we do not show code for many of the simple, tedious parts.
@@ -150,11 +154,10 @@ the offset in the file where reading (parsing) occurs.  I.e., we have
 a single effectful primitive monadic function\footnote{
   We'll use the term ``action'' to refer to a monadic function:
   i.e., a function having a type scheme of ``\lstcd{a -> P b}''.
-}
+}:
 \begin{codeNoExecute}
-setInputAt :: Offset -> P ()
+seekPrimitive :: Offset -> P () -- move read pointer to offset in file.
 \end{codeNoExecute}
-that will update where reading (parsing) takes place in the file.
 
 \subsection{Stage 1: Find \& Parse Header and Trailer}
 
@@ -163,9 +166,9 @@ Now to define \lstcd{pPDFDom}:
 pPDFDom =
     do
     -- find '%PDF-x.y' at start of file, searching the first 1000 bytes:
-    (version,headerOffset) <- findPDFHeader
+    (version, headerOffset) <- findPDFHeader
     -- search backwards from EOF for 'startxref', gives up after 1000 bytes:
-    (startxrefOff,xrefOff) <- findStartxrefThenParseToEOF
+    (startxrefOff, xrefOff) <- findStartxrefThenParseToEOF
 \end{code}
 
 \haskellnote{The \lstcd{do} keyword indicates the start of monadic code.}
@@ -180,9 +183,9 @@ beginning of the file, but the beginning of the \emph{PDF header}.
 %
 The next line abstracts over this problem once and for all:
 \begin{code}  
-    let jmp n = setInputAt (headerOffset+n)
+    let seek n = seekPrimitive (headerOffset+n)
 \end{code}
-We will need to pass \lstcd{jmp} to any actions that need to change
+We will need to pass \lstcd{seek} to any actions that need to change
 the offset in the file.
 
 The code for \lstcd{findStartxrefThenParseToEOF} is
@@ -209,14 +212,14 @@ dictionary of the cross reference stream.
 
 \lstset{numbers=right}
 \begin{code}
-    jmp xrefOff
+    seek xrefOff
     (xrefRaw, xrefEndOff) <- pXrefRaw :: P (XRefRaw,Offset)
     validate $
       verifyXrefRaw xrefRaw
         -- - this ensures no duplicate objectIds
         -- - we might parse and validate XRef entries at this point
-    jmp xrefEndOff
-       -- This jmp is needed because pXrefRaw doesn't need to read
+    seek xrefEndOff
+       -- This seek is needed because pXrefRaw doesn't need to read
        -- the contents of each XRef subsection, so let's leave the
        -- current file read location after the end.
 \end{code}
@@ -252,7 +255,7 @@ Now to parsing more of the PDF trailer
     validateAction $
       -- ensures nothing in the cavity between dictionary and ``startxref''
       do
-      cs <- readTo startxrefOff -- get bytes up to `startxrefOff`
+      cs <- readToPrimitive startxrefOff -- get bytes up to `startxrefOff`
       return (all isSpace cs)
 
     trailerDict' <- dictToTrailerDict trailerDict
@@ -316,7 +319,7 @@ to the actions for stage 3 and stage 4.
              :: P (Map ObjId (Offset :+: Type2Ref))
 
     -- Stage 4:
-    dom <- transformXRefMapToObjectMap jmp xrefs
+    dom <- transformXRefMapToObjectMap seek xrefs
     
     -- Miscellanea:
     version' <- updateVersionFromCatalogDict dom version
@@ -424,43 +427,82 @@ incremental update}
 
 \subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
 
+Getting this stage right was a key motivation for writing our
+specification, and it turned out to be surprisingly complicated.  It has
+three separate stages all of which do some reading/parsing of the file.
+
 \begin{code}
 transformXRefMapToObjectMap
   :: (Offset -> P ()) -> Map ObjId (Offset :+: Type2Ref) -> P DOM
-transformXRefMapToObjectMap jmp xrefs =
-    do
-    -- Stage 4.1: parse all uncompressed objects (but leave streams undecoded):
+transformXRefMapToObjectMap seek xrefs0 = do
+
+    -- Stage 4.1: parse all uncompressed objects
     xrefs1 <- mapM
-                (mMapLeft (\o-> do {jmp o; pTopLevelDef_UnDecStm}))
-                xrefs
+                (mMapLeft (\o-> do {seek o; pTopLevelDef_UnDecStm}))
+                xrefs0
               :: P (Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref))
 \end{code}
-% FIXME: don't call the results of pass 1 'domPass1'
 
-\todo{explain :+:}
+We are transforming \lstcd{xrefs0} into \lstcd{xrefs1}, note the types:
+\begin{codeNoExecute}
+  xrefs0 :: Map ObjId (Offset               :+: Type2Ref) 
+  xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
+\end{codeNoExecute}
+\haskellnote{
+We are using the infix type operator \lstcd{a :+: b} as a synonym for
+\lstcd{Either a b}, \lstcd{Either} is the Haskell sum type having two constructors
+\lstcd{Left} and \lstcd{Right}.}
+When we have a traditional XRef, we just parse the object, see line 7.
 
-\begin{lstlisting}[style=meta]
-we are only NOW able to
-  - verify/read toplevel stream data
-    - b/c now indirect /Length and ... is defined in domPass1
-    - decode ObjStm streams (if 1.5+)
-\end{lstlisting}
+We can't do more in stage 4.1 because we can't yet decode
+object streams nor can we decode streams: in both cases these top
+level objects \emph{cannot} always be parsed without looking up
+integers in the DOM: as \lstcd{Length} keys and similar might contain
+indirect references to top level integers.
+\keypoint{
+  In PDF we need to lookup and parse some objects in the DOM
+  before we can parse other objects in the DOM!}
+% TODO: ^ could make clearer.
 
 \begin{code}
-    -- Stage 4.2: decode streams into ByteStrings, also pre-processes ObjStm streams
+    -- Stage 4.2: decode streams into ByteStrings,
+    --            pre-process ObjStm streams
     xrefs2 <- mapM
                 (mMapLeft (extractStreamData xrefs1))
                 xrefs1
               :: P (Map ObjId (TopLevelDef :+: Type2Ref))
 \end{code}
+This stage computes the second from the first:
+\begin{codeNoExecute}
+  xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
+  xrefs2 :: Map ObjId (TopLevelDef          :+: Type2Ref) 
+\end{codeNoExecute}
+We have a sufficiently complete \lstcd{DOM} in \lstcd{xrefs1} in which
+we can lookup the integers that are needed to finish decoding the
+streams we left undecoded.
+If we cannot find the referenced integer in the DOM, we have a true PDF
+error.  Any indirect \lstcd{Length} values are required to be at the
+top level.
 
-\begin{lstlisting}[style=meta]
-at this point
- - can compute body cavities
- - ObjStm's have been pre-processed
-   - but objects inside them not parsed
-\end{lstlisting}
+At this point, in \lstcd{xrefs2}, we still have \lstcd{ObjId}'s that point
+(via \lstcd{Type2Ref}) into \lstcd{ObjStm} streams.
+Only in the stage 4.2 were we able to decode the stream inside of
+which is the object to be parsed.
+% this gets to be complicated/tedious!
 
+\mttodo{bring in some of the Alg. Data Type defs?}
+
+So at this point, (1) we can compute body cavities \todo{define this} as
+we can parse all the top level objects, (2) object streams have been
+pre-processed, but we have not yet parsed the objects inside them.
+
+Stage 4.3 computes the second from the first
+\begin{codeNoExecute}
+  xrefs2       :: Map ObjId (TopLevelDef :+: Type2Ref) 
+  domCandidate :: Map ObjId TopLevelDef
+\end{codeNoExecute}
+using the same pattern we've been seeing but now we no longer have 
+the sum, we have a mapping from \lstcd{ObjId}'s to PDF Values:
 \begin{code}
     -- Stage 4.3: resolve Type 2 references
     domCandidate <- mapM
@@ -470,18 +512,18 @@ at this point
     return domCandidate
 \end{code}
 
-\begin{lstlisting}[style=meta]
-at this point
- - every object referenced via XRef has been parsed
- - However,
-   - extraneous object defs in body are never parsed
-   - unreferenced objects (per XRef) in ObjStm's are never parsed
- - we positively know the PDF version (only now)
-   - catalog dictionary might have been in an ObjStm
-   - Q. is this intentional? this precludes lots of checks.
-\end{lstlisting}
+At this point every object referenced via the XRef table has been
+correctly parsed. However, (1) object definitions in the PDF body
+area that are not ``XRef referenced'' are neither read nor parsed,
+(2) objects inside an \lstcd{ObjStm} stream that are not ``XRef
+referenced`` are also neither read nor parsed.
 
-\subsection{Stage 4: Details of Streams and Type 2 References}
+Note that the \emph{Catalog Dictionary} (which has the optional
+\lstcd{Version} key) may have been in an Object stream, so in general
+we may not know till this point which version of PDF we are
+parsing\footnote{We wonder if this was the intention of the Standard!}.
+
+\subsection{Stage 4: Details of Streams and Type 2 References \note{DELETE?}}
 \mtnote{really want such detailed code?  put in Appendix?}
 
 \begin{code}

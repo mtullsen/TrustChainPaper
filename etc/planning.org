@@ -71,11 +71,11 @@ DEADLINE: <2022-02-07 Mon -30d>
 - contribs
   - terminology for PDF/etc
 
-** TODO [#A] status of sections : send out
+** DONE [#A] status of sections : send out
 SCHEDULED: <2022-02-03 Thu>
 
-- Here's the Current outline
-  
+Here's the current outline
+```  
   1. Introduction \note{1.5pp}
   2. The PDF Trust Chain \note{1.5pp}
      - Trust Chains in General
@@ -103,15 +103,15 @@ SCHEDULED: <2022-02-03 Thu>
      - Future Work
 Appendix
    Primitive Functions
-
-For me,
-  - section 2: "written", ready for review
-  - sections 4.A-C: "written", ready for review
-  - sections 4.D - 4.J: still filling in parts and writing
+```
+My status
+ - section 2: "written", ready for review
+ - sections 4.A-C: "written", ready for review
+ - sections 4.D - 4.J: still filling in parts and writing
 I'm thinking
-  - sections 1 and 7 : Bill will be writing/reviewing 
-  - section 3 : Peter, if he has the time, could contribute here.
-  - section 4.I : and maybe Peter here too??
+ - sections 1 and 7 : Bill will be writing/reviewing 
+ - section 3 : Peter, if he has the time, could contribute here.
+ - section 4.I : and maybe Peter here too??
    
 * DONE msg to team
 
@@ -192,6 +192,13 @@ I'm thinking
 - note when xref complete?
   
 ** TODO misc/old-ish
+
+- cavities - ??
+  - dead angle / fr. blind spot / shroedinger bytes
+  - shroedinger bytes
+    - use for validateAction
+    - try to avoid?
+      
 - ?? for the repetitious use of ``parsing and computation''
 - challenge: figuring out how much detail to go into, e.g., xref
 - the idiom
