@@ -3,66 +3,74 @@
 \section{Specifying the DOM's Foundations \note{4pp}}
 \label{sec:specifying}
 
-\subsection{A Specification?}
+\subsection{Specifications}
 % REMEMBER: [terms: complies with standard, compatible with]
 
-\mttodo{motivate and explain our approach}
+What do we want from a PDF implementation?
+Among other things we want it to
+\begin{itemize}
+\item comply with the standard,
+\item when not supporting full standard, do so gracefully,
+\item support common extant data malformations
+  to be compatible with extant data, without introducing ambiguities
+  or causing other unintended consequences.
+\end{itemize}
+At the same time, it should be resilient against all attacks.
 
-\begin{lstlisting}[style=meta]
-- Lack of formality in standard. Thus, implementations:
-  - are more effort
-  - over implement, under implement, wrongly implement
-  - backwards and forwards compatibility
-  - "backwards parsing"
-  - some requirements will not be checked by PDF readers
-    ("writer only" file requirements) 
-  - patch existing vs implement from scratch
-- No definition of acceptable, reasonable error recovery
-- Less than ideal design that reflects 27 years of an evolving standard
-- Pre-DOM processing
-  - is where many parsing errors & recovery occur
-  - is non-trivial
-  - involves multiple interdependent features and subtle dialects
-  - involves multiple redundant features
-    - TODO: these currently aren't mentioned in our text below
-      e.g., object ids match.
-    - schizophrenic if these features aren't mutually consistent
-\end{lstlisting}
+The job of an implementor is challenging due to many factors:
+\begin{itemize}
+\item The intrinsic complexity of PDF:
+  PDF is a \emph{less than ideal} design that reflects 27 years of
+  an evolving standard
+  PDF has multiple redundant features.
+  PDF is architected to allow for efficient implementations of
+  large files (``efficiency hacks'').
+  PDF involves multiple sublanguages and embedded formats.
+  PDF contains features beyond standard parsing and data-format
+  tools: E.g, search backwards, embedded file offsets.
+\item Lack of formality in standard. Thus, implementations
+  require more effort to comply.
+  Implementations commonly over implement, under implement,
+  and wrongly implement the standard.
+  Clearly, writing a PDF implementation from scratch is challenge,
+  implementors are likely to patch existing code (correct or not).
+\item The standard defines one thing: \emph{What is a valid PDF?},
+  And it leaves other decisions to the implementation:
+  (1) What should absolutely \emph{not} be allowed (because in the real world
+    implementations are more or less relaxed)? And similarly,
+    what is deemed to be acceptable, reasonable error recovery methods?
+  (2) What is required to support backwards and forwards compatibility?
+  (3) What to do when redundant features don't line up: Which, if
+    either, has priority?
+    Similarly, what to do when the stated PDF version and the PDF
+    constructs used don't match?
+  (4) What is \emph{required} from the PDF writer versus
+     what do we \emph{require} the PDF reader to check?
+\end{itemize}
+Failure to faithfully implement the standard can result in ambiguities
+between implemetations as well as direct vulverabilities (such as
+Shadow Attacks or DOS attacks).
 
-\begin{lstlisting}[style=meta]
-- an implementation
-  - should comply with the standard
-  - should safely support less than standard
-  - pragmatically support some common extant data malformations
-    so as to be compatible with extant data
-  - should carefully support more than the standard
-  - should not go into an infinite loop
-  
-- PW: lots of opportunities
-   - failure to notice digitally signed PDFs that have been tampered with
-    - where failure leads to "parser differential" without user
-      warning (e.g. excessive trailer /Size)
-    - PDF requires "backwards parsing" which is unnatural for
-      many programming languages
-      - elaborate?
-\end{lstlisting}
+Writing a \emph{formal specification} is not going to solve all the above,
+but we believe it is a strong first step toward understanding the
+Standard, clarifying the vulnerabilties, and aiding PDF implementors.
 
 In what follows we use Haskell \cite{Haskell} as a specification language for
 our specification.
 %
-Our goal is to bridge the gap between the low level parsers
-(parsing integers, parsing XRef entries, etc.) and the processing
-that happens after the DOM is created (stages 5 \& 6).
+The scope of our specification is the gap between the low
+level parsers (parsing integers, parsing XRef entries, etc.) and the
+processing that happens after the DOM is created (stages 5 \& 6).
 %
 Thus, the primitive parsers are not included in this spec (they are
 just assumed, other formalisms are better suited to specifying the
 parsers).
-Also, for the sake of focusing on the tricky parts and ignoring
-the tedious (not that it is always obvious which is which),
-we do not show code for many of the simple, tedious parts.
-%
+\mtnote{need?: Also, for the sake of focusing on the tricky parts and ignoring
+  the tedious (not that it is always obvious which is which),
+  we do not show code for many of the simple, tedious parts.
+}
 See \cref{sec:appendix1} for the Haskell type signatures for the
-parsing primitives and other omitted functions. \todo{s/omitted/?/}
+parsing primitives and various other functions.
 %
 The full spec can be found online at \todo{where? in daedalus repo?}.
 
@@ -71,11 +79,12 @@ The full spec can be found online at \todo{where? in daedalus repo?}.
   Executable does not imply efficient, the specification is written
   primarily to be \emph{clear}.}.
   %
-  This is our motivation for choosing Haskell over pseudo-code, English prose,
-  and non-executable formalisms.  For the reader without a reading knowledge of
-  Haskell, we understand that parts of the specification could be a little
-  obscure, but our hope is that a precise, formal specification may prove to be
-  more useful than pseudo-code or the like!
+  This is our motivation for choosing Haskell over pseudo-code,
+  English prose, and non-executable formalisms.  For the reader
+  without a reading knowledge of Haskell, we understand that parts of
+  the specification could be a little obscure, but our hope is that a
+  precise, formal specification may prove to be more useful than
+  pseudo-code or the like!
   
 \item Our specification is purely functional: no ad hoc global variables are
   hidden, the data-dependencies in the spec fully represent all the
@@ -516,12 +525,61 @@ getObjStm (TLD_ObjStm x) = return x
 getObjStm _              = error "expected ObjStm" -- cannot recover from this
 \end{code}
    
-\subsection{Can we Avoid Multiple Stages? \note{0.3pp}}
+\subsection{Can We Avoid Multiple Stages? \note{0.3pp}}
 \label{sec:single-pass-problems}
 
-\mtnote{TLDR: no, we cannot!}
-\mttodo{compare our approach with a monolithic approach that APPEARS
-  to not need multiple stages.}
+\newcommand{\ssp}{$S$}
+\newcommand{\dsp}{$D$}
+
+The short answer to ``Can we avoid multiple stages?'' is
+``Yes, but at a cost we don't want to pay.''
+
+Let's refer to the above multi-stage specification as the \ssp{}
+(staged) specification.
+%
+We will compare it to a single-stage specification, the \dsp{}
+(dynamic) spec in which stage 1 is the same but stages 2, 3, and 4 are
+merged together.
+In our experience, implementations seem to work more like \dsp{} than \ssp{}.
+
+\mttodo{Here's how \dsp{} works: ...}
+\begin{lstlisting}[style=meta]
+  - you have =derefId= command
+    - very lazy & you only access/read what is needed
+    - it calls itself recursively!
+      - TODO :: add check for infinite loop
+    - e.g., if a "dependent on DOM parser" (stream with indirect), 
+      then immediately look that up and parse that, then return
+\end{lstlisting}
+
+\mttodo{To compare \ssp{} and \dsp{} ...}
+\begin{lstlisting}[style=meta]
+[TOO MUCH DETAIL:]
+- implementation /D/ (Dynamic)
+  - NOTE, /D/ compared to implementation /N/     
+    - it *IS* nicely lazy if you don't want to =derefId= all obj ids
+      - doesn't parse unused ObjStms
+    - more efficient than /N/ (?)
+      - each object goes from unparsed to fully parsed
+      - directly follows references without needing to recurse over ObjId Map
+      - but ... every derefId needs to check evaled/not
+    - con :: as currently done in pdf-hs-driver, allows bad PDFs
+      - not detecting length in ObjStm unless *required*
+      - we might have a recursive situation that is "well-defined"
+      - help to have a =derefLength= / =derefFromUncompressed=
+        - more complicated than just this, because this won't catch error if we
+          luck out and the length is already decoded.
+    - con :: no parallel execution, no parallel error messages
+    - con :: imperative
+    - con :: no way to create a validator from. ?
+            
+- reasons for /N/ over /D/
+  - want to parse everything and be done
+  - want to *efficiently* parse all objects
+  - want to know (sooner) that all objects parse and pre-Dom works.
+  - want to be assured that the code terminates 
+  - elegance/simplicity in all objects being in same state of "evaluation"
+\end{lstlisting}
 
 \subsection{Incremental Updates and Signatures: What A Tangled Web \note{0.3pp}}
 \label{sec:updates-and-signatures}
@@ -536,7 +594,7 @@ getObjStm _              = error "expected ObjStm" -- cannot recover from this
     updates and need only access the DOM]
 }
 
-\subsection{Assessment, Future Work, \& Improvements}
+\subsection{Assessments}
 
 Currently this specification adheres to the PDF-2.0 standard but this
 may not be practical.

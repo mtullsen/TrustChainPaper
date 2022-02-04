@@ -70,7 +70,49 @@ DEADLINE: <2022-02-07 Mon -30d>
 
 - contribs
   - terminology for PDF/etc
-    
+
+** TODO [#A] status of sections : send out
+SCHEDULED: <2022-02-03 Thu>
+
+- Here's the Current outline
+  
+  1. Introduction \note{1.5pp}
+  2. The PDF Trust Chain \note{1.5pp}
+     - Trust Chains in General
+     - The Trust Chain of a PDF Parser
+  3. PDF: Structure, Complexity, Vulnerabilities
+     A. PDF Structure
+     B. Root Causes of PDF Complexity
+     C. \todo{para. needs home: ``data integrity relationships...''}
+     D. Vulnerabilities \note{1pp}
+  4. Specifying the DOM's Foundations \note{4pp}
+     A. A Specification?
+     B. Stages 1 - 4, Preliminaries
+     C. Stage 1: Find \& Parse Header and Trailer
+     D. Stage 2: Find \& Parse Incremental Updates
+     E. Stage 3: Merge Incremental Updates
+     F. Stage 4: Transform XRef Map to Object Map (DOM)
+     G. Stage 4: Details of Streams and Type 2 References
+     H. Can We Avoid Multiple Stages? \note{0.3pp}w
+     I. Incremental Updates and Signatures: What A Tangled Web \note{0.3pp}
+     J. Assessments
+  5. Relevance to Other Formats \note{1pp}
+  6. Related Work
+  7. Conclusion \note{1.5pp}
+     - Contributions
+     - Future Work
+Appendix
+   Primitive Functions
+
+For me,
+  - section 2: "written", ready for review
+  - sections 4.A-C: "written", ready for review
+  - sections 4.D - 4.J: still filling in parts and writing
+I'm thinking
+  - sections 1 and 7 : Bill will be writing/reviewing 
+  - section 3 : Peter, if he has the time, could contribute here.
+  - section 4.I : and maybe Peter here too??
+   
 * DONE msg to team
 
 - I did a little restructuring in the doc:
@@ -173,6 +215,20 @@ DEADLINE: <2022-02-07 Mon -30d>
 ** TODO spell-check
 ** TODO final review
 ** ----
+** TODO misc orphans
+
+\mttodo{checking that object-ids match ...}
+
+\begin{lstlisting}[style=meta]
+- PW: lots of opportunities
+   - failure to notice digitally signed PDFs that have been tampered with
+    - where failure leads to "parser differential" without user
+      warning (e.g. excessive trailer /Size)
+    - PDF requires "backwards parsing" which is unnatural for
+      many programming languages
+      - elaborate?
+\end{lstlisting}
+
 ** TODO [#D] resurrect dropped text on cavity tool
 
   - Tool for inspecting and checking PDF at the pre-DOM level:
