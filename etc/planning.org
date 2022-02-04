@@ -139,59 +139,12 @@ I'm thinking
 
 \pwnote{"schizo" is a SafeDocs term I believe, both "schizo files" AND "schizo objects". Polyglot is definitely pre-SafeDocs.}
 
-* WAIT citation for 'cavity' term?
 * TODO MT comments
 
 - parser combinators?
-  
-=======
-- contribs
-  - terminology
     
->>>>>>> Stashed changes
 * TODO re writing
-** DONE determine no of stages and fixup the relevant sections!
-
-- stages (passes)
-  #+begin_src 
-    +-----------------------------------------------------+
-    | 1. Find & parse header and trailer                  |<-- File
-    +-----------------------------------------------------+
-                       | offsets + ...
-                       v
-    +-----------------------------------------------------+
-    | 2. Find & parse incremental updates                 |<-- File
-    +-----------------------------------------------------+
-                       | list of XRef maps
-                       v
-    +-----------------------------------------------------+
-    | 3. Merge incremental updates                        |
-    +-----------------------------------------------------+
-                       | XRef map
-                       v
-    +-----------------------------------------------------+
-    | 4. XRef map to object map (candidate DOM)           |
-    |    1. Parse uncompressed objects                 <--+-- File
-    |    2. Decode streams & preprocess Object Streams <--+-- File
-    |    3. Resolve Type 2 references                  <--+-- File
-    +-----------------------------------------------------+
-                       | DOM (candidate)                      
-                       v
-    +-----------------------------------------------------+
-    | 5. Validate candidate DOM                           |
-    +-----------------------------------------------------+
-                       | DOM (final)                                    
-                       v
-    +-----------------------------------------------------+
-    | 6. Render DOM                                       |
-    +-----------------------------------------------------+
-                       | 
-                       v
-  #+end_src
-           
-- note when xref complete?
-  
-** TODO misc/old-ish
+** NOTE misc/old-ish
 
 - cavities - ??
   - dead angle / fr. blind spot / shroedinger bytes
@@ -215,23 +168,12 @@ I'm thinking
       - limitations of informal (english) standards
    - at least 1 other example of the principle
    - ICC, etc.
-** TODO aha: stage 3 read or not AND how lazy/raw xref parse?!
-
-- since you are going to "meld" the Traditional and Xref streams
-  - want to parse the xref entries earlier?
-    - no need, xref streams are the same: one can get the subsection
-      data without parsing xref entries!
-      
-  - what *WERE* the advantages?
-    - ability of the spec to allow for
-      - tools that minimally parse
-    - not overconstrain implementations that are lazier/minimalistic
-  - one could/would parse *all* in a =validate=
-              
-** TODO get all the bibs filled in                                      :E2:
-** TODO add line numbers to (some) listings: adjust lstlisting!         :E1:
+** TODO get all the biblios filled in                                   :E2:
+** TODO adjust lstlisting!                                              :E0:
 ** TODO spell check                                                     :E1:
 ** TODO final review                                                    :E3:
+- acronyms defined
+** TODO submission                                                      :E1:
 ** ----
 ** TODO misc orphans
 
@@ -259,7 +201,72 @@ I'm thinking
       parsed objects, and cavities (bytes that are not used)
       validate that object definitions do not overlap (in their source bytes)
 
-* TODO our spec (spec.hs)
+* TODO MT tasks
+** TODO [#A] ascii-ify diagram                                          :E1:
+** TODO [#B] make stage 2 lazy, update stage 3 to reflect.              :E1:
+** TODO spec improvements
+*** TODO misc
+
+validateA $
+  parse every object in ObjStms
+
+*** TODO aha: stage 3 read or not AND how lazy/raw xref parse?!
+
+- since you are going to "meld" the Traditional and Xref streams
+  - want to parse the xref entries earlier?
+    - no need, xref streams are the same: one can get the subsection
+      data without parsing xref entries!
+      
+  - what *WERE* the advantages?
+    - ability of the spec to allow for
+      - tools that minimally parse
+    - not overconstrain implementations that are lazier/minimalistic
+    - an implem. that doesn't parse/read dead xrefs, dead objects
+      should not be considered out of spec
+  - one could/would parse *all* in a =validate=
+              
+** TODO [#A] paper writing
+**** WAIT 1. Introduction [WH]
+**** DONE 2. The PDF Trust Chain \note{1.5pp}
+**** WAIT 3. PDF: Structure, Complexity, Vulnerabilities [PW?]
+**** WAIT 3.A. PDF Structure
+**** WAIT 3.B. Root Causes of PDF Complexity
+**** WAIT 3.x \todo{para. needs home:}
+**** WAIT 3.C. Vulnerabilities 
+**** TODO 4. Specifying the DOM's Foundations
+***** DONE 4.A. A Specification?
+***** DONE 4.B. Stages 1 - 4, Preliminaries
+***** DONE 4.C. Stage 1: Find \& Parse Header and Trailer
+***** TODO 4.D. Stage 2: Find \& Parse Incremental Updates           :E1:
+***** TODO 4.E. Stage 3: Combine Incremental Updates                 :E2:
+- rewrite to be trad & xref stream generic!
+- rewrite this & 4.D with LAZINESS in mind
+- currently sketchy
+***** DONE 4.F. Stage 4: Transform XRef Map to Object Map (DOM)     
+***** CANC 4.G. Stage 4: Details of Streams and Type 2 References
+***** TODO 4.H. Can We Avoid Multiple Stages?                        :E1:
+***** TODO 4.I. Incremental Updates and Signatures                   :E1:
+***** DONE 4.J. Assessments
+**** TODO 5. Relevance to Other Formats [PW+?]                        :E2:
+- PW: stuff on ICC
+- more?
+**** DONE 6. Related Work
+**** WAIT 7. Conclusion [WH]
+**** TODO Appendix
+
+** NOTE 2022-02-04 tag up
+
+- Bill advice: details if result is surprising to the reader
+  
+** TODO thk re "key item (5)":
+
+- properties we want?
+ : valid(pdf) => parseObj1(pdf) == rightvalue
+
+ : if valid(pdf) then parseObj1(pdf) == Good (rightvalue)
+ :               else parseObj1(pdp) == Error _
+
+* TODO the spec (spec.hs)
 ** TODO [#A] fix spec: do we pass jmp everywhere that's needed?
 SCHEDULED: <2022-02-03 Thu>
 
@@ -497,6 +504,7 @@ SCHEDULED: <2022-02-03 Thu>
    - 
 
 * ---- history/ref ----
+* DONE citation for 'cavity' term?
 * DONE biblio
 
 If you're interested in browsing the citations and having the CITEKEYS at hand, do what I did:

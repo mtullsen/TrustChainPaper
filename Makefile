@@ -1,6 +1,6 @@
 
-# CAVEAT: not really enough to reach fixed point
-PDFTrustChain.pdf: *.tex *.bib
+# CAVEAT: not really enough to reach fixed point:
+PDFTrustChain.pdf: *.tex *.bib etc/Streams.hs
 	pdflatex -shell-escape PDFTrustChain.tex
 	bibtex PdfTrustChain
 

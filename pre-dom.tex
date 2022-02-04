@@ -50,10 +50,15 @@ The job of an implementor is challenging due to many factors:
       I.e., like ``undefined'' in the C programming language sense: the
       compiler can do anything it wants!
     } or \emph{must} we detect and report this?
-    \mtnote{this last, (5), seems pretty key and
-      feels like a major omission in the standard! This question
-      brings us to the ``[e]ndobj'' cavity thing!}
 \end{itemize}
+\mtnote{this last, (5), seems pretty key and
+  feels like a major omission in the standard! If the answer is
+  yes, then there's nothing keeping an implementation from only
+  doing enough to ``work on good pdfs'' without even checking that it
+  IS a good PDF.  Thus, we have the tool that only reads the 'e'
+  in ``endobj''.  Is this reasonable?  Are there vulnerabilities that
+  would exist in such implementations?
+  }
 Failure to faithfully implement the standard can result in ambiguities
 between implementations as well as direct vulnerabilities (such as
 Shadow Attacks or DOS attacks).
@@ -79,7 +84,7 @@ other formalisms\footnote{Such as daedalus, see \todo{}
 See \cref{sec:appendix1} for the Haskell type signatures for the
 parsing primitives and various other functions.
 %
-The full spec can be found online at \todo{where? in daedalus repo?}.
+The full spec can be found online at \cite{daedalusrepo}.
 
 \begin{itemize}
 \item Our specification is formal and executable\footnote{
@@ -112,7 +117,7 @@ The full spec can be found online at \todo{where? in daedalus repo?}.
 This spec supports PDF 2.0, including compressed objects and XRef streams.
 %
 It (safely) ignores linearization data, and in hybrid XRef PDFs
-it ignores the pre 1.5 parts of the file.
+it ignores the traditional xrefs for pre 1.5 readers.
 It processes signatures (as incremental updates) but it does not support
 validation of signatures.
 
@@ -137,6 +142,7 @@ import           Data.Map(Map)
 import           Types
 import           Utils
 import           Primitives
+import           Streams
 \end{code}
 \fi
 %%%% end: Hs code not in paper %%%%
@@ -431,22 +437,15 @@ incremental update}
 \subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
 
 Getting this stage right was a key motivation for writing our
-specification, and it turned out to be surprisingly complicated.  It has
-three separate stages all of which do some reading/parsing of the file.
-
+specification, and it turned out to be surprisingly complicated.
 \begin{code}
 transformXRefMapToObjectMap
   :: (Offset -> P ()) -> Map ObjId (Offset :+: Type2Ref) -> P DOM
 transformXRefMapToObjectMap seek xrefs0 = do
-
-    -- Stage 4.1: parse all uncompressed objects
-    xrefs1 <- mapM
-                (mMapLeft (\o-> do {seek o; pTopLevelDef_UnDecStm}))
-                xrefs0
-              :: P (Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref))
 \end{code}
-
-We are transforming \lstcd{xrefs0} into \lstcd{xrefs1}, note the types:
+It has three separate stages all of which do some reading/parsing of
+the file. Stage 4.1
+transforms \lstcd{xrefs0} into \lstcd{xrefs1}, note the types:
 \begin{codeNoExecute}
   xrefs0 :: Map ObjId (Offset               :+: Type2Ref) 
   xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
@@ -454,9 +453,17 @@ We are transforming \lstcd{xrefs0} into \lstcd{xrefs1}, note the types:
 \haskellnote{
 We are using the infix type operator \lstcd{a :+: b} as a synonym for
 \lstcd{Either a b}, \lstcd{Either} is the Haskell sum type having two constructors
-\lstcd{Left} and \lstcd{Right}.}
-When we have a traditional XRef, we just parse the object, see line 7.
-
+\lstcd{Left} and \lstcd{Right}.
+}
+%
+We look up traditional \lstcd{XRef}'s and parses the objects,
+see line 3
+\begin{code}
+    -- Stage 4.1: parse all uncompressed objects
+    xrefs1 <- mapM
+                (mMapLeft (\o-> do {seek o; pTopLevelDef_UnDecStm}))
+                xrefs0
+\end{code}
 We can't do more in stage 4.1 because we can't yet decode
 object streams nor can we decode streams: in both cases these top
 level objects \emph{cannot} always be parsed without looking up
@@ -465,21 +472,20 @@ indirect references to top level integers.
 \keypoint{
   In PDF we need to lookup and parse some objects in the DOM
   before we can parse other objects in the DOM!}
-% TODO: ^ could make clearer.
+% TODO: ^ rewrite to make clearer.
 
-\begin{code}
-    -- Stage 4.2: decode streams into ByteStrings,
-    --            pre-process ObjStm streams
-    xrefs2 <- mapM
-                (mMapLeft (extractStreamData xrefs1))
-                xrefs1
-              :: P (Map ObjId (TopLevelDef :+: Type2Ref))
-\end{code}
-This stage computes the second from the first:
+Stage 4.2 further refines the xref map, computing the second from the first
 \begin{codeNoExecute}
   xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
   xrefs2 :: Map ObjId (TopLevelDef          :+: Type2Ref) 
 \end{codeNoExecute}
+in this code
+\begin{code}
+    -- Stage 4.2: decode stream bytes, pre-process ObjStm streams
+    xrefs2 <- mapM
+                (mMapLeft (extractStreamData xrefs1))
+                xrefs1
+\end{code}
 We have a sufficiently complete \lstcd{DOM} in \lstcd{xrefs1} in which
 we can lookup the integers that are needed to finish decoding the
 streams we left undecoded.
@@ -489,9 +495,9 @@ top level.
 
 At this point, in \lstcd{xrefs2}, we still have \lstcd{ObjId}'s that point
 (via \lstcd{Type2Ref}) into \lstcd{ObjStm} streams.
-Only in the stage 4.2 were we able to decode the stream inside of
+Only in stage 4.2 were we able to decode the stream inside of
 which is the object to be parsed.
-% this gets to be complicated/tedious!
+% this text is rather complicated/tedious!
 
 \mttodo{bring in some of the Alg. Data Type defs?}
 
@@ -499,7 +505,7 @@ So at this point, (1) we can compute body cavities \todo{define this} as
 we can parse all the top level objects, (2) object streams have been
 pre-processed, but we have not yet parsed the objects inside them.
 
-Stage 4.3 computes the second from the first
+Finally, stage 4.3 computes the second from the first
 \begin{codeNoExecute}
   xrefs2       :: Map ObjId (TopLevelDef :+: Type2Ref) 
   domCandidate :: Map ObjId TopLevelDef
@@ -511,92 +517,88 @@ the sum, we have a mapping from \lstcd{ObjId}'s to PDF Values:
     domCandidate <- mapM
                      (return `either` derefType2Ref xrefs2)
                      xrefs2
-                    :: P (Map ObjId TopLevelDef)
     return domCandidate
 \end{code}
 
 At this point every object referenced via the XRef table has been
 correctly parsed. However, (1) object definitions in the PDF body
 area that are not ``XRef referenced'' are neither read nor parsed,
+% 
 (2) objects inside an \lstcd{ObjStm} stream that are not ``XRef
-referenced`` are also neither read nor parsed.
+referenced'' are also neither read nor parsed.
 
 Note that the \emph{Catalog Dictionary} (which has the optional
 \lstcd{Version} key) may have been in an Object stream, so in general
 we may not know till this point which version of PDF we are
 parsing\footnote{We wonder if this was the intention of the Standard!}.
 
-\subsection{Stage 4: Details of Streams and Type 2 References \note{DELETE?}}
-\mtnote{really want such detailed code?  put in Appendix?}
-
-\begin{code}
--- | extractStreamData - since we now know all Lengths:
---   - 1st, with the file offset, read into a bytestring
---   - 2nd, if an ObjStm, decodes/validates the stream
---     - NOTE: this processing done just once, not each time
---       that we "index" into the ObjStm.
-extractStreamData ::
-     Map ObjId (TopLevelDef' Offset :+: a)
-  -> TopLevelDef' Offset
-  -> P (TopLevelDef' ByteString)
-extractStreamData _dom' (TLD_ObjStm _)    = error "unexpeced ObjStm"
-extractStreamData _dom' (TLD_Value v)     = return $ TLD_Value v
-extractStreamData dom' (TLD_Stream d off) =
-  do
-  len  <- getKeyOfType "Length" T_Int d  -- indirect OR direct
-  len' <- derefValue dom' len            -- now an integer direct
-  decodingParameters
-       <- extractDecodingParameters d
-  bs   <- decodeStream len' decodingParameters off
-  return $ TLD_Stream d bs
-
-derefType2Ref ::
-     Map ObjId (TopLevelDef :+: Type2Ref)
-  -> Type2Ref
-  -> P TopLevelDef
-derefType2Ref dom' (Type2Ref oi j) =
-  do
-  tld       <- derefTLD dom' (oi,0)
-  ObjStm ss <- getObjStm tld      -- make sure the object is ObjStm
-  s         <- case safeIndex ss j of
-                 Just s  -> return s
-                 Nothing -> error "bad type2 ref: index out of bounds"
-  v <- parseString pValue s
-       -- note that streams cannot be inside ObjStm
-  return $ TLD_Value v
-
-getObjStm :: TopLevelDef' ByteString -> P ObjStm
-getObjStm (TLD_ObjStm x) = return x
-getObjStm _              = error "expected ObjStm" -- cannot recover from this
-\end{code}
-   
-\subsection{Can We Avoid Multiple Stages? \note{0.3pp}}
+\subsection{A One Stage Version?}
 \label{sec:single-pass-problems}
 
 \newcommand{\ssp}{$S$}
 \newcommand{\dsp}{$D$}
 
-The short answer to ``Can we avoid multiple stages?'' is
-``Yes, but at a cost we don't want to pay.''
-
+One might ask if one might implement the above as a single stage?
+Or another question, can we rewrite the specification to be a single stage?
+The answer is \emph{Yes, but at a cost we don't want to pay!}
 Let's refer to the above multi-stage specification as the \ssp{}
 (staged) specification.
 %
 We will compare it to a single-stage specification, the \dsp{}
 (dynamic) spec in which stage 1 is the same but stages 2, 3, and 4 are
 merged together.
-In our experience, implementations seem to work more like \dsp{} than \ssp{}.
+%
+In our experience, PDF tools generally work more like \dsp{} than \ssp{}.
 
-\mttodo{Here's how \dsp{} works: ...}
-\begin{lstlisting}[style=meta]
-  - you have =derefId= command
-    - very lazy & you only access/read what is needed
-    - it calls itself recursively!
-      - TODO :: add check for infinite loop
-    - e.g., if a "dependent on DOM parser" (stream with indirect), 
-      then immediately look that up and parse that, then return
+\dsp must be understood imperatively; here's a sketch of a possible
+implementation in C-ish notation:
+\begin{lstlisting}[language=C]
+  // xref and dom start with nothing in them.
+  // - their size would in reality be dynamically allocated.
+  XREF_ENTRY xref[Size];     
+  DOM_ENTRY dom[Size];
+
+  void initialize() { /* initialize dom & xref arrays */ }
+  
+  // the DOM is updated dynamically, on demand, via the following
+  PdfValue deref(ObjId oi) {
+    if (evald(dom[oi]))
+      return dom[oi];
+    else if (infiniteloopdetected())
+      quit ();      
+    else {
+      o = getOffsetFromXref(xref, oi); // updates xref[oi]
+      seek(o);
+      v = parseObject;
+      dom[oi] = v;
+      return v;
+    }
+    
+  parseObject {
+    ...; len = deref(oi'); ...
+  }
+  
+  OFFSET getOffsetFromXref(xref,oi){
+    if xref_evald(xref[oi]) then
+      return xref[oi];
+    else {
+      // follow Prev pointers if not in top xref
+      //  - make sure no infinite loop in chasing Prev's
+      ...
+      xref[oi] = offset;
+      return xref[oi];
+    }
+  }
 \end{lstlisting}
-
+The key things to note are
+ - \lstcd{XREF_ENTRY} and \lstcd{DOM_ENTRY} are both types that mutate progressively
+   from unparsed/unknown to fully evaluated.
+ - \lstcd{deref()} and \lstcd{parseObject()} are mutually recursive functions.
+ - it could be complicated to implement \lstcd{infiniteLoopDetected()}.
+ - this implementation is naturally ``lax'': it would for instance
+   allow a \lstcd{Length} to be stored in an \lstcd{ObjStm} stream as
+   long as an infinite loop wasn't detected.
+   
 \mttodo{To compare \ssp{} and \dsp{} ...}
 \begin{lstlisting}[style=meta]
 [TOO MUCH DETAIL:]
@@ -617,7 +619,6 @@ In our experience, implementations seem to work more like \dsp{} than \ssp{}.
     - con :: no parallel execution, no parallel error messages
     - con :: imperative
     - con :: no way to create a validator from. ?
-            
 - reasons for /N/ over /D/
   - want to parse everything and be done
   - want to *efficiently* parse all objects
