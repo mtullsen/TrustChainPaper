@@ -3,9 +3,8 @@
 \label{sec:intro}
 % background: conventional grammars:
 The task of parsing may be viewed as receiving a document in an
-unstructured, or serialized, form, and building its structured
-representation, equipped with an argument that the structured
-representation is a faithful representation of the given document.
+unstructured, serialized form, and building its structured
+representation. Furthermore, this structured representation must be a faithful representation of the given document.
 %
 For formats defined in conventional data-description languages that
 correspond closely to well-understood classes of the Chomsky hierarchy
@@ -30,7 +29,7 @@ Many such formats define a \emph{Document Object Model}: i.e., the
 result of parsing a document is a graph between objects of data, each
 of which may store a large set of fields.
 %
-In such formats, it is infeasible to provide context-free definition
+In such formats, it is infeasible to provide context-free definitions
 of well-formedness because data objects that must satisfy critical
 relations may not occur contiguously in a document: related objects
 may not form a tree-like hierarchy.
