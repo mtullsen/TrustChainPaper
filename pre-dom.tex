@@ -199,23 +199,16 @@ the offset in the file.
 
 The code for \lstcd{findStartxrefThenParseToEOF} is
 not elucidated here as it is more tedious than instructive.
-In English,
-\begin{quote}
-Find the ``EOF marker'' \lstcd{\%\%EOF} (near the end of the physical
-file), then "Backwards parse" to find the last \lstcd{startxref}
-keyword followed by an end-of-line sequence and an integer value
-encoded as a sequence of ASCII bytes representing the byte offset in
-the PDF file (which is then adjusted for any preamble to a physical
-byte offset), and then locate either the \lstcd{xref} keyword for
-traditional PDF cross-reference tables, or a PDF object that should be
-a cross-reference stream.  In the case of traditional PDF
-cross-reference tables, after the cross reference table will be the
-trailer dictionary identified by the \lstcd{trailer} keyword or,
-alternatively for PDF 1.5 and later files with cross-reference
-streams, the trailer dictionary keys will be in the stream extent
-dictionary of the cross reference stream.
-\end{quote}
-% TODO: reduce indentation
+So, in this case, we'll stick with an informal description:
+\begin{enumerate}
+\item Find the ``EOF marker'' \lstcd{\%\%EOF} (near the end of the physical
+  file)
+\item "Backwards parse" to find the last \lstcd{startxref}
+  keyword followed by an end-of-line sequence.
+\item parse the integer value encoded as a sequence of ASCII bytes
+  (this represents the byte offset in the PDF file, which as noted
+  above is adjusted for any preamble to the Header).
+\end{enumerate}
 
 \subsection{Stage 2: Find \& Parse Incremental Updates}
 
@@ -294,6 +287,18 @@ its argument can have side-effects (fail or change the file reading point).
 \end{code}
 
 \mttodo{integrate this text:}
+\begin{lstlisting}[style=meta]
+and then locate either the \lstcd{xref} keyword for
+traditional PDF cross-reference tables, or a PDF object that should be
+a cross-reference stream.  In the case of traditional PDF
+cross-reference tables, after the cross reference table will be the
+trailer dictionary identified by the \lstcd{trailer} keyword or,
+alternatively for PDF 1.5 and later files with cross-reference
+streams, the trailer dictionary keys will be in the stream extent
+dictionary of the cross reference stream.
+\end{lstlisting}
+
+\mttodo{integrate this text:}
 ... these are identified by a \lstcd{Prev} entry in either the trailer
 dictionary or the stream extent dictionary of a cross-reference stream. The
 value of the \lstcd{Prev} key is another byte offset to the immediately
@@ -363,7 +368,7 @@ In the next two sections we will look at the definitions of
 \lstcd{combineAllXrefTables} (stage 3) and
 \lstcd{transformXRefMapToObjectMap} (stage 4).
 
-\subsection{Stage 3: Merge Incremental Updates}
+\subsection{Stage 3: Combine Incremental Updates}
 
 Of particular note is the \lstcd{Size} entry, which
 is one greater than the largest object number allocated in the PDF

@@ -210,14 +210,14 @@ SCHEDULED: <2022-02-05 Sat>
 
 * TODO tasks (from MT pt of view)
 ** TODO [#A] ascii-ify diagram                                          :E1:
-** TODO [#B] make stage 2 lazy, update stage 3 to reflect.              :E1:
-** TODO spec improvements
-*** TODO misc
+** TODO [#B] Fix Stages 2 & 3                                           :E3:
 
-validateA $
-  parse every object in ObjStms
-
-*** TODO aha: stage 3 read or not AND how lazy/raw xref parse?!
+- text AND spec
+  - and find any places where we say/assume stage 3 does no input!
+  - note that 2 and 3 *could* be merged/fused.
+- what
+  - make stage 2 lazy, update stage 3 to reflect
+  - change spec code to be generic across both trad and stream xref tables!
 
 - since you are going to "meld" the Traditional and Xref streams
   - want to parse the xref entries earlier?
@@ -231,7 +231,13 @@ validateA $
     - an implem. that doesn't parse/read dead xrefs, dead objects
       should not be considered out of spec
   - one could/would parse *all* in a =validate=
-              
+  
+** TODO spec improvements
+*** TODO misc
+
+validateA $
+  parse every object in ObjStms
+
 ** TODO [#A] paper writing
 **** WAIT 1. Introduction [WH]
 **** DONE 2. The PDF Trust Chain
