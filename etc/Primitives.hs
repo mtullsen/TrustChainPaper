@@ -58,9 +58,6 @@ getKeyOfType _kname _pdftype _d = stub
 
 data XRef    -- TBD
 
-pUpdate      :: (XRefRaw, TrailerDict) -> P (XRef, TrailerDict)
-pUpdate      = stub
-
 createIndex  :: XRef -> P (Map ObjId (Offset :+: Type2Ref))
 createIndex  = stub
 
@@ -95,9 +92,6 @@ pTopLevelDef_UnDecStm :: P TopLevelDef_UnDecStm
 pTopLevelDef_UnDecStm = stub
 
 
--- XRef functions
-pAllUpdates jmp = stub jmp
-
 -- | pXrefRaw - finds the subsections
 
 pXrefRaw :: P (XRefRaw,Offset)
@@ -114,7 +108,7 @@ decodeStream _len _etc _off = stub "stream-data"
 findPDFHeader :: P ((Int,Int),Offset)
 findPDFHeader = stub
 
-findStartxrefThenParseToEOF :: P (Offset,Offset)
+findStartxrefThenParseToEOF :: P Offset
 findStartxrefThenParseToEOF = stub
 
 -- basic parsers:
@@ -137,3 +131,7 @@ readToPrimitive :: Offset -> P String
 readToPrimitive _offset = stub
 
 keyword s = stub s
+
+(.|.) :: P a -> P a -> P a
+(.|.) = stub
+

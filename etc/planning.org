@@ -148,7 +148,7 @@ I'm thinking
 
 - parser combinators?
     
-** TODO finish section 4 and notify Bill
+** TODO [#A] finish section 4 and notify Bill
 SCHEDULED: <2022-02-05 Sat>
 
 ** NOTE misc/old-ish
@@ -184,6 +184,10 @@ SCHEDULED: <2022-02-05 Sat>
 ** ----
 ** TODO misc orphans
 
+to give better error messages or passing around the info to do further
+validation can _
+
+TODO: remove $ from Hs code
 \mttodo{checking that object-ids match ...}
 
 \begin{lstlisting}[style=meta]
@@ -211,11 +215,33 @@ SCHEDULED: <2022-02-05 Sat>
 * TODO tasks (from MT pt of view)
 ** TODO [#B] ascii-ify diagram                                          :E1:
 ** TODO [#B] replace "object identifier" by \lstcd{ObjID} and the like?
-** TODO [#A] Fix Stages 2 & 3                                           :E3:
+** TODO [#A] Fix Stages 2 & 3: text AND spec                                         :E3:
 
-- text AND spec
-  - and find any places where we say/assume stage 3 does no input!
-  - note that 2 and 3 *could* be merged/fused.
+- note that 2 and 3 *might* be merged/fused.
+  - but sem. difference
+    - if Size or update/free makes the xref moot!
+
+- and direction of update?
+  - follow Prev all the way back, then construct table forwards
+    - catch more errors
+  - construct xref from last-update to first
+    - does less work
+- then issue
+  - should _ be valid PDFs
+  - ...
+
+- our guideline (little subjective)
+  - reject little that an efficient standards compliant parser might accept
+    - this also allows us to maximize no of error messages, when desired
+      all the mapM's could be turned into a parallelMapM
+  - and use validate's to control/tweak
+            
+- brings up another point
+  - ^ is unclear from the standard
+  - we could have the same issue if not every obj id is
+    - defined in DOM
+    - used in DOM
+  
 - what
   - make stage 2 lazy, update stage 3 to reflect
   - change spec code to be generic across both trad and stream xref tables!
@@ -278,6 +304,15 @@ validateA $
  :               else parseObj1(pdp) == Error _
 
 * TODO the spec (spec.hs)
+** TODO [#C] this dropped, any solution?
+
+    validateAction $
+      -- ensures nothing in the cavity between dictionary and ``startxref''
+      do
+      cs <- readToPrimitive startxrefOff -- get bytes up to `startxrefOff`
+      return (all isSpace cs)
+
+
 ** TODO [#A] fix spec: do we pass jmp everywhere that's needed?
 SCHEDULED: <2022-02-03 Thu>
 

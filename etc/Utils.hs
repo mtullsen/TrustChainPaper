@@ -21,5 +21,7 @@ safeIndex = sub
 
 stub = error "stub"
 
+notImplementedYet = error "not implemented"
+
 warn :: [Char] -> IO ()
 warn s = error s

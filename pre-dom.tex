@@ -127,7 +127,7 @@ validation of signatures.
   Are we supporting the validation of signatures (which radically
   changes things)?}
 
-\subsection{Preliminaries}
+\subsection{Overview}
 
 %%%% begin: Hs code not in paper %%%%
 \iffalse
@@ -137,6 +137,7 @@ module Spec where
 import           Control.Monad
 import           Data.Char
 import           Data.Foldable(foldlM)
+import qualified Data.IntSet as IntSet
 import qualified Data.Map as M
 import           Data.Map(Map)
 import           Types
@@ -169,36 +170,63 @@ a single effectful primitive monadic function\footnote{
 seekPrimitive :: Offset -> P () -- move read pointer to offset in file.
 \end{codeNoExecute}
 
-\subsection{Stage 1: Find \& Parse Header and Trailer}
-
-Now to define \lstcd{pPDFDom}:
 \begin{code}
 pPDFDom =
     do
-    -- find '%PDF-x.y' at start of file, searching the first 1000 bytes:
-    (version, headerOffset) <- findPDFHeader
+    -- Stage 1:
+    (seek,xrefOffset,version) <- findHeaderAndTrailer
 
-    -- search backwards from EOF for 'startxref', gives up after 1000 bytes:
-    (startxrefOff, xrefOff) <- findStartxrefThenParseToEOF
+    -- Stage 2:
+    updates <- parseAllIncUpdates seek xrefOffset
+               :: P [(XRefRaw, TrailerDict)]
+
+    -- Stage 3: combine all the updates to get a single xref table
+    xrefs <- combineUpdates seek updates
+             :: P (Map ObjId (Offset :+: Type2Ref))
+
+    -- Stage 4:
+    dom <- transformXRefMapToObjectMap seek xrefs
+           :: P DOM
+    
+    -- Miscellaneous Checks, validations
+    variousValidations dom version updates
+
+    return dom
 \end{code}
 
 \haskellnote{
   The \lstcd{do} keyword indicates the start of monadic code.
 }
-The action \lstcd{findPDFHeader} has type \lstcd{P ((Int,Int),Offset)};
+
+The action \lstcd{pHeaderAndTrailer} has type \lstcd{P
+  ((Int,Int),Offset)}; FIXME
 it will ``return failure'' if the header cannot be found or is malformed.
 If any action fails, the whole parser fails.
-%
-Note also that the above two function calls have no data dependencies, they
+
+\subsection{Stage 1: Find \& Parse Header and Trailer}
+
+Now to define \lstcd{findHeaderAndTrailer}:
+\begin{code}
+findHeaderAndTrailer =
+    do
+    -- find '%PDF-x.y' at start of file, searching the first 1000 bytes:
+    (version, headerOffset) <- findPDFHeader
+
+    -- search backwards from EOF for 'startxref', gives up after 1000 bytes:
+    xrefOff <- findStartxrefThenParseToEOF
+    
+    let seek n = seekPrimitive (headerOffset+n)
+    return (seek, xrefOff, version)
+    
+\end{code}
+
+Note that the above two function calls FIXME have no data dependencies, they
 could be done in either order.
 
 A non-obvious feature of PDF is that file offsets are in relation to, not the
 beginning of the file, but the beginning of the \emph{PDF header}.
 %
-The next line abstracts over this problem once and for all:
-\begin{code}  
-    let seek n = seekPrimitive (headerOffset+n)
-\end{code}
+The FIXME next line abstracts over this problem once and for all:
 We will need to pass \lstcd{seek} to any actions that need to change
 the offset in the file.
 
@@ -219,19 +247,63 @@ So, in this case, we'll describe it informally:
 
 \lstset{numbers=right}
 \begin{code}
-    seek xrefOff
+type Update = (XRefRaw,TrailerDict)
+type SEEK   = Offset -> P ()
+
+parseAllIncUpdates :: SEEK -> Offset -> P [Update]
+parseAllIncUpdates seek offset =
+  parseAllIncUpdates' IntSet.empty seek offset
+
+parseAllIncUpdates' :: IntSet.IntSet -> SEEK -> Offset -> P [Update]
+parseAllIncUpdates' prevSet seek offset =
+    if offset `IntSet.member` prevSet then
+      error "recursive incremental updates"
+    else
+      do
+      seek offset
+      (xref,trailerDict) <- pIncUpdate seek
+      case trailerDict_getPrev trailerDict of 
+        Nothing        -> return [(xref,trailerDict)]
+        (Just offset') -> do
+                          us <- parseAllIncUpdates'
+                                  (IntSet.insert offset prevSet)
+                                  seek
+                                  offset'
+                          return ((xref,trailerDict):us)
+\end{code}
+\begin{code}
+pIncUpdate :: SEEK -> P (XRefRaw,TrailerDict)
+pIncUpdate seek =
+      pIncUpdate_Traditional seek
+  .|. pIncUpdate_XrefStream seek
+
+pIncUpdate_Traditional :: SEEK -> P Update
+pIncUpdate_Traditional seek =
+    do
     (xrefRaw, xrefEndOff) <- pXrefRaw :: P (XRefRaw,Offset)
     validate $
       verifyXrefRaw xrefRaw
         -- - this ensures no duplicate objectIds
         -- - we might parse and validate XRef entries at this point
     seek xrefEndOff
-       -- This seek is needed because pXrefRaw isn't required to read
+       -- This seek is needed because pXrefRaw doesn't need to read
        -- the entries of each XRef subsection, so let's leave the
        -- current file read location after the xref table.
+
+    pSimpleWhiteSpace -- no comments allowed between XRef table and 
+    keyword "trailer"
+    trailerDict  <- pDictionary
+    trailerDict' <- dictToTrailerDict trailerDict
+    return (xrefRaw, trailerDict')
 \end{code}
 \lstset{numbers=none}
 
+\begin{code}
+pIncUpdate_XrefStream :: SEEK -> P (XRefRaw,TrailerDict)
+pIncUpdate_XrefStream _seek = notImplementedYet
+\end{code}
+
+\todo{FIXME:}
 For the sake of lucidity, we sometimes add \emph{type annotations} in
 the code, note in line 2 of the above that \lstcd{::P(XRefRaw,Offset)}
 indicates the type of the expression preceding it.
@@ -253,22 +325,9 @@ know the list of object ids and for each object identifier we can find the XRef 
 \end{lstlisting}
 
 \mttodo{this is traditional XRef specific, update!}
-  
+
 Now to parsing more of the PDF trailer
 \begin{code}
-    pSimpleWhiteSpace -- no comments allowed between XRef table and 
-    keyword "trailer"
-    trailerDict <- pDictionary
-    validateAction $
-      -- ensures nothing in the cavity between dictionary and ``startxref''
-      do
-      cs <- readToPrimitive startxrefOff -- get bytes up to `startxrefOff`
-      return (all isSpace cs)
-
-    trailerDict' <- dictToTrailerDict trailerDict
-    let mPrev = trailerDict_getPrev trailerDict' :: Maybe Offset
-        etc = trailerDict_Extras trailerDict'    :: Dict
-          -- etc is a list of unknown key-value pairs
 \end{code}
 
 Note \lstcd{validateAction}: it differs from \lstcd{validate} in that
@@ -281,15 +340,6 @@ its argument can have side-effects (fail or change the file reading point).
 \end{lstlisting}
 
 \mttodo{we have now parsed the trailer but ...}
-
-\begin{code}
-    updates' <- pAllUpdates mPrev :: P [(XRefRaw, TrailerDict)]
-       -- we've followed the 'Prev's and for each we
-       --   - pXrefRaw     -- parse XRef subsections (at raw level)
-       --   - pTrailerDict -- similar to above, but
-       --                     only reads/validates Prev key
-    let updates = (xrefRaw,trailerDict) : updates'
-\end{code}
 
 \mttodo{integrate this text:}
 \begin{lstlisting}[style=meta]
@@ -329,50 +379,6 @@ at this point
    - parsed the contents of XRef entries
 \end{lstlisting}
 
-Now we finish the definition of \lstcd{pDOM}, making calls
-to the actions for stage 3 and stage 4.
-
-\begin{code}  
-    -- Stage 3: combine all the updates to get a single map to offsets
-    xrefs <- combineAllXrefTables updates
-             :: P (Map ObjId (Offset :+: Type2Ref))
-
-    -- Stage 4:
-    dom <- transformXRefMapToObjectMap seek xrefs
-    
-    -- Miscellanea:
-    version' <- updateVersionFromCatalogDict dom version
-    if version' > (2,0) then
-      warn "PDF file has version greater than 2.0"
-    else
-      -- version' <= (2,0)
-      when (not (null etc)) $
-        warn "trailer dictionary has unknown keys (per PDF 2.0)"
-    validate $
-      versionAndDomConsistent version' dom
-    return dom
-\end{code}
-
-Due to PDF-1.5 additions, we are now in the odd position that we
-cannot determine the PDF version until after we have created the DOM.
-So although we
-can check that the created \lstcd{dom} is consistent with
-\lstcd{version'},
-% 
-we cannot use \lstcd{version'} to validate any of the other processing
-in stages 1-4.
-%
-For instance, one would like to verify that Object Streams are not
-used when the version is PDF-1.4 or earlier.
-%
-Such a check would be possible if we were to update the spec to pass
-more information through the stages so we could verify more after
-computation of the DOM.
-
-In the next two sections we will look at the definitions of
-\lstcd{combineAllXrefTables} (stage 3) and
-\lstcd{transformXRefMapToObjectMap} (stage 4).
-
 \subsection{Stage 3: Combine Incremental Updates}
 
 Of particular note is the \lstcd{Size} entry, which
@@ -401,19 +407,21 @@ free, or reinstate previously freed objects.
   we are not ``refining'' this.}
 
 \begin{code}
--- | combineAllXrefTables updates - 
+-- FIXME: revise: HOW LAZY TO BE?
+-- FIXME: should use Size ...
+-- | combineUpdates updates - 
 --   - for each update
 --     - parses each XRef subsection into a list of XRef entries
 --   - merges all the XRef tables into a single mapping
 --     - when no errors/inconsistencies
-combineAllXrefTables
-  :: [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
-combineAllXrefTables updates =
-  do
-  updates' <- mapM pUpdate updates  
-  indices' <- mapM (createIndex . fst) updates' 
-  index    <- foldlM mergeIndices M.empty indices'
-  return index
+combineUpdates
+  :: SEEK -> [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
+combineUpdates seek updates =
+    do
+    -- updates' <- mapM pUpdate updates  
+    indices' <- mapM (createIndex . fst . stub) updates -- TODO
+    index    <- foldlM mergeIndices M.empty indices'
+    return index
 \end{code}
 
 \begin{lstlisting}[style=meta]
@@ -450,7 +458,7 @@ Getting this stage right was a key motivation for writing our
 specification, and it turned out to be surprisingly complicated.
 \begin{code}
 transformXRefMapToObjectMap
-  :: (Offset -> P ()) -> Map ObjId (Offset :+: Type2Ref) -> P DOM
+  :: SEEK -> Map ObjId (Offset :+: Type2Ref) -> P DOM
 transformXRefMapToObjectMap seek xrefs0 = do
 \end{code}
 It has three separate stages all of which do some reading/parsing of
@@ -541,6 +549,47 @@ Note that the \emph{Catalog Dictionary} (which has the optional
 \lstcd{Version} key) may have been in an Object stream, so in general
 we may not know till this point which version of PDF we are
 parsing\footnote{We wonder if this was the intention of the Standard!}.
+
+\subsection{Validating More}
+\label{sec:validating}
+
+\mttodo{...}
+
+\begin{code}  
+variousValidations dom version updates =
+    do    
+    version' <- updateVersionFromCatalogDict dom version
+    let etc = stub "extra keys in the trailer dict" :: Dict -- TODO!
+
+    if version' > (2,0) then
+      warn "PDF file has version greater than 2.0"
+    else
+      -- version' <= (2,0)
+      when (not (null etc)) $
+        warn "trailer dictionary has unknown keys (per PDF 2.0)"
+    validate $
+      versionAndDomConsistent version' dom
+    validate $
+      trailersConsistentAcrossUpdates updates
+    
+\end{code}
+
+Due to PDF-1.5 additions, we are now in the odd position that we
+cannot determine the PDF version until after we have created the DOM.
+So although we
+can check that the created \lstcd{dom} is consistent with
+\lstcd{version'},
+% 
+we cannot use \lstcd{version'} to validate any of the other processing
+in stages 1-4.
+%
+For instance, one would like to verify that Object Streams are not
+used when the version is PDF-1.4 or earlier.
+%
+Such a check would be possible if we were to update the spec to pass
+more information through the stages so we could verify more after
+computation of the DOM.
+
 
 \subsection{A One Stage Version?}
 \label{sec:single-pass-problems}
@@ -721,3 +770,14 @@ non-linearized DOM;
 (2) processing both ``branches'' of a hybrid PDF and ensuring
 some form of constency between pre 1.5 readers and 1.5+ readers;
 (3) adding signature validation, see \cref{sec:updates-and-signatures}.
+
+%%%% not implemented functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% begin: Hs code not in paper %%%%
+\iffalse
+\begin{code}
+trailersConsistentAcrossUpdates :: [Update] -> Bool
+trailersConsistentAcrossUpdates = stub
+
+\end{code}
+\fi
+%%%% end: Hs code not in paper %%%%
