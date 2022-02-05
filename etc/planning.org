@@ -112,7 +112,12 @@ I'm thinking
  - sections 1 and 7 : Bill will be writing/reviewing 
  - section 3 : Peter, if he has the time, could contribute here.
  - section 4.I : and maybe Peter here too??
-   
+
+** NOTE 2022-02-04 tag up
+
+- Bill advice: details if result is surprising to the reader
+  
+
 * DONE msg to team
 
 - I did a little restructuring in the doc:
@@ -144,6 +149,9 @@ I'm thinking
 - parser combinators?
     
 * TODO re writing
+** TODO finish section 4 and notify Bill
+SCHEDULED: <2022-02-05 Sat>
+
 ** NOTE misc/old-ish
 
 - cavities - ??
@@ -227,7 +235,7 @@ validateA $
               
 ** TODO [#A] paper writing
 **** WAIT 1. Introduction [WH]
-**** DONE 2. The PDF Trust Chain \note{1.5pp}
+**** DONE 2. The PDF Trust Chain
 **** WAIT 3. PDF: Structure, Complexity, Vulnerabilities [PW?]
 **** WAIT 3.A. PDF Structure
 **** WAIT 3.B. Root Causes of PDF Complexity
@@ -243,21 +251,18 @@ validateA $
 - rewrite this & 4.D with LAZINESS in mind
 - currently sketchy
 ***** DONE 4.F. Stage 4: Transform XRef Map to Object Map (DOM)     
-***** CANC 4.G. Stage 4: Details of Streams and Type 2 References
-***** TODO 4.H. Can We Avoid Multiple Stages?                        :E1:
-***** TODO 4.I. Incremental Updates and Signatures                   :E1:
-***** DONE 4.J. Assessments
+***** DONE 4.G. A One Stage Version?                                 
+***** TODO 4.H. Incremental Updates and Signatures                   :E1:
+***** DONE 4.I. Assessments
 **** TODO 5. Relevance to Other Formats [PW+?]                        :E2:
 - PW: stuff on ICC
 - more?
 **** DONE 6. Related Work
 **** WAIT 7. Conclusion [WH]
 **** TODO Appendix
+***** A. Primitive Functions
+***** B. Details of Streams and Type 2 References
 
-** NOTE 2022-02-04 tag up
-
-- Bill advice: details if result is surprising to the reader
-  
 ** TODO thk re "key item (5)":
 
 - properties we want?

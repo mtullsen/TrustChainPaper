@@ -551,14 +551,12 @@ merged together.
 In our experience, PDF tools generally work more like \dsp{} than \ssp{}.
 
 \dsp must be understood imperatively; here's a sketch of a possible
-implementation in C-ish notation:
-\begin{lstlisting}[language=C]
+implementation in C-ish notation: \mttodo{put into figure; fixup lst rendering.}
+\begin{myc}
   // xref and dom start with nothing in them.
   // - their size would in reality be dynamically allocated.
   XREF_ENTRY xref[Size];     
   DOM_ENTRY dom[Size];
-
-  void initialize() { /* initialize dom & xref arrays */ }
   
   // the DOM is updated dynamically, on demand, via the following
   PdfValue deref(ObjId oi) {
@@ -575,7 +573,7 @@ implementation in C-ish notation:
     }
     
   parseObject {
-    ...; len = deref(oi'); ...
+    /* ... */ ; len = deref(oi'); /* ... */
   }
   
   OFFSET getOffsetFromXref(xref,oi){
@@ -584,48 +582,58 @@ implementation in C-ish notation:
     else {
       // follow Prev pointers if not in top xref
       //  - make sure no infinite loop in chasing Prev's
-      ...
+      /* ... */
       xref[oi] = offset;
       return xref[oi];
     }
   }
-\end{lstlisting}
-The key things to note are
- - \lstcd{XREF_ENTRY} and \lstcd{DOM_ENTRY} are both types that mutate progressively
+\end{myc}
+The key things to note about the pseudo-code are
+\begin{itemize}
+\item \lstcd{XREF_ENTRY} and \lstcd{DOM_ENTRY} are both types that mutate progressively
    from unparsed/unknown to fully evaluated.
- - \lstcd{deref()} and \lstcd{parseObject()} are mutually recursive functions.
- - it could be complicated to implement \lstcd{infiniteLoopDetected()}.
- - this implementation is naturally ``lax'': it would for instance
-   allow a \lstcd{Length} to be stored in an \lstcd{ObjStm} stream as
-   long as an infinite loop wasn't detected.
-   
-\mttodo{To compare \ssp{} and \dsp{} ...}
-\begin{lstlisting}[style=meta]
-[TOO MUCH DETAIL:]
-- implementation /D/ (Dynamic)
-  - NOTE, /D/ compared to implementation /N/     
-    - it *IS* nicely lazy if you don't want to =derefId= all obj ids
-      - doesn't parse unused ObjStms
-    - more efficient than /N/ (?)
-      - each object goes from unparsed to fully parsed
-      - directly follows references without needing to recurse over ObjId Map
-      - but ... every derefId needs to check evaled/not
-    - con :: as currently done in pdf-hs-driver, allows bad PDFs
-      - not detecting length in ObjStm unless *required*
-      - we might have a recursive situation that is "well-defined"
-      - help to have a =derefLength= / =derefFromUncompressed=
-        - more complicated than just this, because this won't catch error if we
-          luck out and the length is already decoded.
-    - con :: no parallel execution, no parallel error messages
-    - con :: imperative
-    - con :: no way to create a validator from. ?
-- reasons for /N/ over /D/
-  - want to parse everything and be done
-  - want to *efficiently* parse all objects
-  - want to know (sooner) that all objects parse and pre-Dom works.
-  - want to be assured that the code terminates 
-  - elegance/simplicity in all objects being in same state of "evaluation"
-\end{lstlisting}
+\item \lstcd{deref()} and \lstcd{parseObject()} are mutually recursive functions.
+\item implementing \lstcd{infiniteLoopDetected()} is non-trivial.
+\end{itemize}
+Also to note about \dsp{}:
+\begin{itemize}
+\item it is \emph{not} equivalent to \ssp{}: \dsp{} potentially reads
+  less of the input file and accepts more input files.  it is
+  naturally ``lax'': it would for instance allow a \lstcd{Length} to
+  be stored in an \lstcd{ObjStm} stream as long as an infinite loop
+  wasn't detected.  However, we could extend (and complicate) \dsp{}
+  to approximate \ssp{} better.
+  % E.g.,
+  %  - have a =derefLength= / =derefFromUncompressed=
+  %  - More complicated than just this, because this won't catch error if we
+  %    luck out and when we request the length it is already decoded.
+\item it is nicely lazy if the PDF tool doesn't need to \lstcd{deref}
+  every object identifiers, even more lazy than \ssp{}.
+\end{itemize}
+
+We believe that \ssp{} is clearly preferable to \dsp{} for these two
+simple reasons:
+\begin{itemize}
+\item It corresponds to the standard, and does so obviously.
+\item It does not use general recursion, so it is obvious that this
+  algorithm terminates on all inputs.
+\end{itemize}
+While \ssp{} also gives us a few other advantages over \dsp{}:
+\begin{enumerate}
+\item The functional, declarative, and typed structure enables
+  us to understand the stages conceptually.  (Even if one chooses
+  not to implement in a like manner.)
+\item It demonstrates the non obvious fact that one can
+  implement stages 2-4 and keep the ``state of evaluation'' of each
+  object identifier the same in each pass.
+\item We know exactly what is and isn't parsed, regardless of the
+  order in which one traverses the \lstcd{xref}.
+\item It is intrisically parallelizable due to the extensive use of
+  map-like combinators.
+\item The declarative nature of \ssp{} makes it very amenable to
+  modification: e.g., the simple addition of the \lstcd{validate}
+  operator.
+\end{enumerate}
 
 \subsection{Incremental Updates and Signatures: What A Tangled Web \note{0.3pp}}
 \label{sec:updates-and-signatures}
@@ -642,34 +650,37 @@ The key things to note are
 
 \subsection{Assessments}
 
-Currently this specification adheres to the PDF-2.0 standard but this
-may not be practical.
+Currently this specification adheres to the PDF 2.0 standard but this
+limits its use, as so many PDF tools allow multiple variances from the
+standard.
 %
-\todo{discourse on strict vs NCBUR/de-facto implementations ...}
-Determining if common extensions are truly unambigous and extending
-the spec \todo{... finish this thought.}
+However, the opportunity is for us to use our specification to encode
+some of these common extensions and to explore if the combination of
+these extensions are truly unambiguous.
 
-With our specification based approach, it would not be overly onerous
-to refactor our specification to support three variations of PDF:
-\begin{enumerate}
-\item strict PDF-2.0
-\item support common extensions that are unambiguous
-\item validate everything
-\end{enumerate}
+With our specification based approach, it would not be onerous
+to refactor our specification to support different PDF variations:
+\begin{itemize}
+\item strict PDF-2.0.
+\item strict PDF-2.0, validating everything.
+\item PDF-2.0 with some common extensions that are determined to be unambiguous.
+\end{itemize}
 
-The conciseness of the above specification is due to a few factors
+The conciseness of our specification is due to a few factors
 \begin{enumerate}
-\item an attempt to be as clear as possible
+\item our intention to make it as clear as possible,
 \item ignoring some ``engineering'' aspects (e.g., error
    messages, recovery, etc.)
 \item leaving out code for some of the simple, tedious functions.
 \end{enumerate}
-One line of future work would be to make this specification complete,
-in particular to implement the ``tedious parts'' and to link to
-implementations of primitive parsers.
+One line of future work would be to turn the specification into a
+\emph{reference implementation} by the addition of
+(1) code for the current, missing ``tedious parts'',
+(2) links to implementations of the primitive parsers, and
+(3) output of the DOM.
 
-Future work could involve further validation checks
-(1) processing Linearization data and ensuring consistency with the
+Future work might also involve further validation checks such as these:
+(1) processing linearization data and ensuring consistency with the
 non-linearized DOM;
 (2) processing both ``branches'' of a hybrid PDF and ensuring
 some form of constency between pre 1.5 readers and 1.5+ readers;
