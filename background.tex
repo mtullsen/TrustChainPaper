@@ -98,13 +98,13 @@ To briefly sketch what's going on in each stage:
   to whatever display or graphic format we choose.
 \end{itemize}
 
-An error in an earlier stage will affect the output of stages that follow.
-But note stages 2, 4.1, 4.2, and 4.3:
+Any error in an earlier stage will affect the output of stages that follow.
+But note stages 2, 3, 4.1, 4.2, and 4.3:
 these stages use inputs from the previous stage to determine where and
 how to parse segments of the PDF input file;
 errors that percolate into these stages can
 cause all forms of havoc (parsing wrong data, etc.).
-
+%
 The attentive reader will note that we have another instance of a \emph{Trust
 Chain}.  The subsequent stages of the parsing process are \emph{completely
 dependent} upon the earlier stages to properly parse and interpret the PDF
@@ -116,8 +116,9 @@ a single stage and give a \emph{semblance} of simplicity.
 Our argument in what follows---particularly in
 \cref{sec:single-pass-problems}---is
 that such an implementation will be overly
-complex and result in a nearly insurmountable task to assure that it
-actually implements the standard and terminates for all input files.
+complex and be a design for which it is highly intractable
+to determine that it implements the standard
+and to determine that it terminates for all input files.
 
 We think it is important to understand PDF parsing in terms of this
 \emph{Trust Chain} because
@@ -139,4 +140,5 @@ Although \emph{Validate candidate DOM} (stage 5) is both difficult and tedious
 and the \emph{Render DOM} stage has many complications of its own (e.g., fonts are
 a special challenge), we will focus on stages 1-4.
 We refer to these stages as pre-DOM parsing/computation; if anything
-goes wrong pre-DOM---and lots can go wrong---there's hell to pay. \mtnote{?!}
+goes wrong pre-DOM---and lots can go wrong---there's hell to pay.
+\todo{do we dare?!}

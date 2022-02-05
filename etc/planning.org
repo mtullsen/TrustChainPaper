@@ -209,8 +209,9 @@ SCHEDULED: <2022-02-05 Sat>
       validate that object definitions do not overlap (in their source bytes)
 
 * TODO tasks (from MT pt of view)
-** TODO [#A] ascii-ify diagram                                          :E1:
-** TODO [#B] Fix Stages 2 & 3                                           :E3:
+** TODO [#B] ascii-ify diagram                                          :E1:
+** TODO [#B] replace "object identifier" by \lstcd{ObjID} and the like?
+** TODO [#A] Fix Stages 2 & 3                                           :E3:
 
 - text AND spec
   - and find any places where we say/assume stage 3 does no input!
@@ -231,7 +232,7 @@ SCHEDULED: <2022-02-05 Sat>
     - an implem. that doesn't parse/read dead xrefs, dead objects
       should not be considered out of spec
   - one could/would parse *all* in a =validate=
-  
+
 ** TODO spec improvements
 *** TODO misc
 

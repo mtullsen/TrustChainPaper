@@ -3,8 +3,8 @@
 \section{Specifying the DOM's Foundations \note{4pp}}
 \label{sec:specifying}
 
-\subsection{Specifications}
-% REMEMBER: [terms: complies with standard, compatible with]
+\subsection{Specifying, Really!}
+% REMEMBER terms: complies with standard, compatible with
 
 What do we want from a PDF implementation?
 Among other things we want it to
@@ -40,16 +40,16 @@ The job of an implementor is challenging due to many factors:
     implementations are more or less relaxed)? And similarly,
     what are deemed to be acceptable, reasonable error recovery methods?
   (2) What is required to support backwards and forwards compatibility?
-  (3) What is done when redundant features are inconsistent: which, or
-    neither, has priority?
+  (3) What is done when redundant features are inconsistent with one
+    another: which, or neither, has priority?
     Similarly, what is done when the stated PDF version and the PDF
     constructs used don't match?
   (4) What is \emph{required} from the PDF writer versus
     what do we \emph{require} the PDF reader to check?
-  (5) If given an incorrect PDF, is the behavior undefined\footnote{
+  (5) If given an incorrect PDF, is the tool's behavior undefined\footnote{
       I.e., like ``undefined'' in the C programming language sense: the
       compiler can do anything it wants!
-    } or \emph{must} we detect and report this?
+    } or is the tool \emph{required} to detect and report this?
 \end{itemize}
 \mtnote{this last, (5), seems pretty key and
   feels like a major omission in the standard! If the answer is
@@ -75,14 +75,11 @@ level parsers (parsing integers, parsing XRef entries, etc.) and the
 processing that happens after the DOM is created (stages 5 \& 6).
 %
 Thus, the primitive parsers are assumed, not included in this spec,
-other formalisms\footnote{Such as daedalus, see \todo{}
-} would be better suited to specifying the parsers.
-\mtnote{need?: Also, for the sake of focusing on the tricky parts and ignoring
-  the tedious (not that it is always obvious which is which),
-  we do not show code for many of the simple, tedious parts.
-}
-See \cref{sec:appendix1} for the Haskell type signatures for the
-parsing primitives and various other functions.
+as other formalisms\footnote{Such as daedalus, see \todo{}
+} are better suited to specifying the parsers.
+See \cref{sec:appendix1} for a list of the primitive parsers
+with their type signatures.
+\todo{and various other functions ...: just ignore this?}
 %
 The full spec can be found online at \cite{daedalusrepo}.
 
@@ -91,8 +88,11 @@ The full spec can be found online at \cite{daedalusrepo}.
   Executable does not imply efficient, the specification is written
   primarily to be \emph{clear}.}.
   %
-  This is our motivation for choosing Haskell over pseudo-code,
-  English prose, and non-executable formalisms.  For the reader
+  We already have the standard, not always clear, not always
+  consistent. 
+  This is our motivation for choosing Haskell over English prose or
+  pseudo-code or other informal approaches.
+  For the reader
   without a reading knowledge of Haskell, we understand that parts of
   the specification could be a little obscure, but our hope is that a
   precise, formal specification may prove to be more useful than
@@ -127,7 +127,7 @@ validation of signatures.
   Are we supporting the validation of signatures (which radically
   changes things)?}
 
-\subsection{Stages 1 - 4, Preliminaries}
+\subsection{Preliminaries}
 
 %%%% begin: Hs code not in paper %%%%
 \iffalse
@@ -149,11 +149,12 @@ import           Streams
 
 What follows is the definition of \lstcd{pPDFDOM} which does the
 parsing \& computation for stages 1-4;
-it creates the \lstcd{DOM} relying on primitive parsers.
+relying on primitive parsers, it creates the \lstcd{DOM}.
+Here is its type signature
 \begin{code}
 pPDFDom :: P DOM
 \end{code}
-The above line is a type signature, it is saying that
+which indicates that
 \lstcd{pPDFDom} is a ``monadic parser'' \lstcd{P} that returns a
 value of type \lstcd{DOM}.
 In Haskell a monad can sequence many effectful constructs: global variables,
@@ -176,13 +177,17 @@ pPDFDom =
     do
     -- find '%PDF-x.y' at start of file, searching the first 1000 bytes:
     (version, headerOffset) <- findPDFHeader
+
     -- search backwards from EOF for 'startxref', gives up after 1000 bytes:
     (startxrefOff, xrefOff) <- findStartxrefThenParseToEOF
 \end{code}
 
-\haskellnote{The \lstcd{do} keyword indicates the start of monadic code.}
+\haskellnote{
+  The \lstcd{do} keyword indicates the start of monadic code.
+}
 The action \lstcd{findPDFHeader} has type \lstcd{P ((Int,Int),Offset)};
-it can fail if the header cannot be found or is malformed.
+it will ``return failure'' if the header cannot be found or is malformed.
+If any action fails, the whole parser fails.
 %
 Note also that the above two function calls have no data dependencies, they
 could be done in either order.
@@ -198,8 +203,8 @@ We will need to pass \lstcd{seek} to any actions that need to change
 the offset in the file.
 
 The code for \lstcd{findStartxrefThenParseToEOF} is
-not elucidated here as it is more tedious than instructive.
-So, in this case, we'll stick with an informal description:
+not shown here as it is more tedious than instructive.
+So, in this case, we'll describe it informally:
 \begin{enumerate}
 \item Find the ``EOF marker'' \lstcd{\%\%EOF} (near the end of the physical
   file)
@@ -221,9 +226,9 @@ So, in this case, we'll stick with an informal description:
         -- - this ensures no duplicate objectIds
         -- - we might parse and validate XRef entries at this point
     seek xrefEndOff
-       -- This seek is needed because pXrefRaw doesn't need to read
-       -- the contents of each XRef subsection, so let's leave the
-       -- current file read location after the end.
+       -- This seek is needed because pXrefRaw isn't required to read
+       -- the entries of each XRef subsection, so let's leave the
+       -- current file read location after the xref table.
 \end{code}
 \lstset{numbers=none}
 
@@ -236,7 +241,7 @@ semantic checks (line 4) that are not necessary to create the DOM but which
 could detect invalid or inconsistent PDFs.
 
 For this initial XRef table---even without parsing XRef subsections---we
-know the list of object ids and we can find the XRef entry for each object id.
+know the list of object ids and for each object identifier we can find the XRef entry.
 
 \begin{lstlisting}[style=meta]
  - [maybe some of this covered in previous section]
