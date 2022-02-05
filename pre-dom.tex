@@ -635,18 +635,44 @@ While \ssp{} also gives us a few other advantages over \dsp{}:
   operator.
 \end{enumerate}
 
-\subsection{Incremental Updates and Signatures: What A Tangled Web \note{0.3pp}}
+\subsection{Incremental Updates and Signatures: What A Tangled Web}
 \label{sec:updates-and-signatures}
 
-\todo{validating a PDF with a digital signature entails
-  identifying at which iteration of the PDF document the dig-sig was applied and
-  then validating the dig-sig in the context of that specific DOM and the
-  objects that were in effect at that instance in time.}
+PDF supports the ability to use digital signatures to sign documents
+as part of the PDF standard itself.  Signed documents can
+subsequently be signed or ``incrementally updated,'' repeatedly.
 
-\todo{digital signatures \emph{break} the
-  update abstraction [the abstraction that renderers can ignore the XRefs and
-    updates and need only access the DOM]
-}
+Digital signatures are just a special form of incremental update, and
+thus any PDF reader can just ignore the signature and process it as a
+trivial update.  This allows readers that don't support signatures to
+elegantly ignore them.
+
+However, when we \emph{do} have a digital signatures and a supporting
+reader, things get complicated, as evidenced by Shadow Attacks
+\cite{mladenovTrillionDollarRefund2019,ndsssymposiumNDSS2021Shadow2021}.
+%
+To validate a PDF with a digital signature entails identifying at
+which iteration of the PDF document the digital signature was applied
+and then validating the digital signature in the context of that
+specific DOM and the objects that were in effect at that instance in
+time.
+
+But this method completely \emph{breaks} the incremental update
+abstraction.  As we discussed, stages 2 and 3 handle all
+the incremental update processing and then the information is gone as
+it is unneeded by subsequent stages.
+% 
+This was a reasonable design until ``incremental updates'' were
+inadvisedly repurposed for signatures.  Now an incremental update has
+semantic content, and a reader supporting validation and display of
+signed PDFs will need to keep track of the contents of the DOM at each
+signature.
+
+Our specification does \emph{not} support signature validation or
+display, and it would be a non-trivial effort to do this.  However,
+this complication is going to be reasonable with our \ssp{} approach;
+whereas it is unclear whether the \dsp{} approach is able to support
+it at all.
 
 \subsection{Assessments}
 

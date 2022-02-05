@@ -117,8 +117,7 @@ I'm thinking
 
 - Bill advice: details if result is surprising to the reader
   
-
-* DONE msg to team
+** DONE msg to team
 
 - I did a little restructuring in the doc:
   - removed some sections
@@ -140,15 +139,15 @@ I'm thinking
   - Mark : move Peter's details from II.B to IV
   - Mark : finish up IV.
       
-* TODO misc
+* TODO re writing
+** TODO misc
 
 \pwnote{"schizo" is a SafeDocs term I believe, both "schizo files" AND "schizo objects". Polyglot is definitely pre-SafeDocs.}
 
-* TODO MT comments
+** TODO MT comments
 
 - parser combinators?
     
-* TODO re writing
 ** TODO finish section 4 and notify Bill
 SCHEDULED: <2022-02-05 Sat>
 
@@ -209,7 +208,7 @@ SCHEDULED: <2022-02-05 Sat>
       parsed objects, and cavities (bytes that are not used)
       validate that object definitions do not overlap (in their source bytes)
 
-* TODO MT tasks
+* TODO tasks (from MT pt of view)
 ** TODO [#A] ascii-ify diagram                                          :E1:
 ** TODO [#B] make stage 2 lazy, update stage 3 to reflect.              :E1:
 ** TODO spec improvements
@@ -252,7 +251,7 @@ validateA $
 - currently sketchy
 ***** DONE 4.F. Stage 4: Transform XRef Map to Object Map (DOM)     
 ***** DONE 4.G. A One Stage Version?                                 
-***** TODO 4.H. Incremental Updates and Signatures                   :E1:
+***** DONE 4.H. Incremental Updates and Signatures
 ***** DONE 4.I. Assessments
 **** TODO 5. Relevance to Other Formats [PW+?]                        :E2:
 - PW: stuff on ICC
