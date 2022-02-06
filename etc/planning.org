@@ -178,10 +178,10 @@ SCHEDULED: <2022-02-05 Sat>
 ** TODO get all the biblios filled in                                   :E2:
 ** TODO further tweak lstlisting!                                       :E0:
 ** TODO spell check                                                     :E1:
+- and diction, and Rogan's scripts
 ** TODO final review                                                    :E3:
 - acronyms defined
-- search for TODO, FIXME, "..."
-  
+- search for TODO, FIXME, "..."  
 ** TODO submit paper                                                    :E1:
 ** ----
 ** TODO misc orphans
@@ -339,8 +339,8 @@ validateA $
    - trailer dicts that aren't consistent between updates
 
 * TODO the spec (spec.hs)
-** s/XRefRaw/XRefTblRaw/
-** new merge updates
+** TODO s/XRefRaw/XRefTblRaw/
+** DONE new merge updates
 
 - Q. backwards same as forwards if we really check?
 
@@ -355,48 +355,6 @@ validateA $
     
 - when don't we need to even look at earlier Updates
   - we have filled "Size"
-  
-#+begin_src 
-
-combineUpdates
-  :: SEEK -> [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
-combineUpdates seek updates =
-    do
-    let (xref,dict):us = updates -- safe: updates never null
-    xrefEntries <- mapM (thawXRefEntry xref) (getObjIds xref)
-
-    let tbl0 = M.fromList xRefEntries
-    tblR  <- foldlM mergeUpdate tbl0 us
-    return (removeFrees tblR)
-
-mergeUpdate :: (Map ObjId XRefEntry)
-            -> (XRefRaw, TrailerDict)
-            -> P (Map ObjId XRefEntry)
-mergeUpdate map0 (xref,dict) =
-    do
-    let ois = getObjIds xref
-    newEntries <- forM (ois \\ M.keys map0) $
-                    \oi-> do
-                          entry <- thawXRefEntry xref oi
-                          return (oi,entry)
-    return (M.union map0 (M.toList newEntries))
-
-removeFrees m = M.mapMaybe
-                  (\x -> case x of Right y -> Just y
-                                   _       -> Nothing)
-                  m
-
-type XRefEntry = Free :+: (Offset :+: Type2Ref)
-
-thawXRefEntry :: RawXRef -> ObjId -> P XRefEntry
-thawXRefEntry = stub
-
-getObjIds :: XRefRaw -> [ObjId]
-getObjIds = stub
-
-#+end_src    
-
-  - really just want to thaw needed ObjId's
 
 ** BTW https://github.com/pdf-association/safedocs/issues/2
 ** TODO [#C] validateAction and cavities : dropped, any solution?

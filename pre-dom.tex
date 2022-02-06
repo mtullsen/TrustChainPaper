@@ -144,6 +144,7 @@ import           Control.Monad
 import           Data.Char
 import           Data.Foldable(foldlM)
 import qualified Data.IntSet as IntSet
+import           Data.List
 import qualified Data.Map as M
 import           Data.Map(Map)
 import           Types
@@ -408,61 +409,104 @@ So, here's where we are at this point in the computation:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 3: Combine Incremental Updates}
 
-\mttodo{for Size: either: implement enough to expose this or add verbiage}
-\mtnote{PW in sec 3.A: Each incremental update can add new objects, mark existing in-use objects as
-free, or reinstate previously freed objects.
-}
-\mttodo{address the above in spec: either add to spec OR indicate that
-  we are not ``refining'' this.}
-
+We process the updates from last (near EOF) to first (near start of file):
 \begin{code}
--- | combineUpdates updates - 
---   - for each update
---     - parses each XRef subsection into a list of XRef entries
---   - merges all the XRef tables into a single mapping
---     - when no errors/inconsistencies
-\end{code}
-\begin{code}
-combineUpdates
-  :: SEEK -> [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
+combineUpdates :: SEEK
+               -> [(XRefRaw, TrailerDict)] 
+               -> P (Map ObjId (Offset :+: Type2Ref))
 combineUpdates seek updates =
     do
-    -- updates' <- mapM pUpdate updates  
-    indices' <- mapM (createIndex . fst . stub) updates -- TODO
-    index    <- foldlM mergeIndices M.empty indices'
-    return index
+    let (xref,dict):us = updates -- safe because: null(updates)==False
+
+    -- parse all xref entries in last (near EOF) update:
+    xrefEntries <- mapM (thawXRefEntry seek xref) (getObjIds xref)
+
+    -- initial Map:
+    let tbl0 :: Map ObjId XRefEntry
+        tbl0 = M.fromList xrefEntries
+
+    -- merge each update into tbl0:
+    tbl1  <- foldlM (mergeUpdate seek) tbl0 us
+    return (removeFrees tbl1)
+
+type XRefEntry = Free :+: (Offset :+: Type2Ref)
 \end{code}
 
-\begin{lstlisting}[style=meta]
- - we've lost information:
-   - which update an object is part of
-   - object history
-   - object definitions that are no longer reachable
- - fails on
-   - malformed XRef entries
- - should detect (or fail) on
-   - incremental updates that are "weird/nonsensical"
-     - free-ing dead objects
-     - unconventional use of generation numbers
- - IF updates are defined by XRef STREAMS
-   - no problem: as we can fully parse XRef stream (w/ dict) as
-     there is no dependence of XRef STREAMS on DOM
-     - NOTE: clarificaton to PDF working group regarding this.
-   - we'll have Type2Ref's in addition to Offset's
-      
- - NOTE 
-   - when the latter, the ObjectId -> Offset must be available
-       - in current or previous (or next!) XRef stream
-         - BTW, pervasive design issue: must partial updates be valid?
+Each incremental update can add new objects, mark existing in-use objects as
+free, or update objects.  Note \lstcd{XRefEntry}.
+Two key design choices are (1) we process updates from last to first
+and (2) we only parse the \xref{} entries as needed.
 
-\mtnote{Stage 2 and 3 : To merge or not to merge.?}
+\begin{code}
+mergeUpdate :: SEEK
+            ->  (Map ObjId XRefEntry)
+            -> (XRefRaw, TrailerDict)
+            -> P (Map ObjId XRefEntry)
+mergeUpdate seek map0 (xref,dict) =
+    do
+    let objIds       = getObjIds xref
+        neededObjIds = objIds \\ M.keys map0
+                       -- set subtraction
 
-We might parse and validate XRef entries at this point
+    -- only parse (thaw) needed XRef entries:
+    newEntries <- forM neededObjIds
+                       (thawXRefEntry seek xref)
+    return (M.union map0 (M.fromList (newEntries :: [(ObjId,XRefEntry)] )))
 
-\end{lstlisting}
+data Free = Free  -- currently we are ignoring free objects
+\end{code}
+Note the type signatures of functions we are not showing:
+\begin{code}
+removeFrees :: Map k XRefEntry -> Map k (Offset :+: Type2Ref)
 
-\pwnote{and, depending on attack mode, referencing "dead objects" via a later
-incremental update}
+thawXRefEntry :: SEEK -> XRefRaw -> ObjId -> P (ObjId, XRefEntry)
+
+getObjIds :: XRefRaw -> [ObjId]
+\end{code}
+
+For simplicity, we have neglected to use the \lstcd{Size} key (from
+the trailer dictionaries) to constrain \objids{}.  Note these comments
+about \lstcd{Size} from the standard:
+\begin{itemize}
+  \item Any object in a cross-reference section whose number is
+    greater than this value shall be ignored and defined to be missing
+    by a PDF reader.
+  \item Equivalently, this value shall be 1 greater than the highest
+    object number defined in the PDF file.
+\end{itemize}
+
+Not only is this stage already complex, the
+possible---semantics changing---variations on
+\lstcd{mergeUpdate} are surprisingly many:
+\begin{itemize}
+\item There appear to be multiple ways to enforce \lstcd{< Size} as we
+  process individual updates.
+\item When all objects are defined (we can determine this using
+  \lstcd{Size}), we could stop processing previous updates.
+\item There are many \lstcd{validate} instances we might add,
+  some being unclear even what the standard would enforce:
+  \begin{itemize}
+  \item prohibit double frees
+  \item prohibit the update of unfree objects
+  \item prohibit updates that don't increment the generation number
+  \item prohibit freeing of non-existent \objids{}.
+  \item prohibit ``unconvential use'' of generation numbers.
+  \item validate that the offset of new objects in the update are
+    defined in the ``body region'' of the respective update (not point
+    to previous nor subsequent regions)
+  \end{itemize}
+\end{itemize}
+Once this stage is done, the chance to validate any of
+the above is gone.  Some may give us strong indications of suspicious
+PDFs or shadow attacks!
+
+As promised, we'll now discuss the separation of Stage 2 from Stage 3
+and this notion of \lstcd{XRefRaw}: we \emph{could} have merged the
+stages, but at the expense of forcing every implementation to do more
+parsing than it strictly needs to.  Our philosophy here is to capture
+a reasonably realistic implementation with our specification and put
+functionality that is in the realm of validation into \lstcd{validate}
+instances.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -815,6 +859,14 @@ some form of constency between pre 1.5 readers and 1.5+ readers;
 
 trailersConsistentAcrossUpdates :: [Update] -> Bool
 trailersConsistentAcrossUpdates = stub
+
+-- signatures above:
+removeFrees m = M.mapMaybe
+                  (\x -> case x of Right y -> Just y
+                                   _       -> Nothing)
+                  m
+thawXRefEntry = notImplementedYet
+getObjIds = notImplementedYet
 
 \end{code}
 \fi

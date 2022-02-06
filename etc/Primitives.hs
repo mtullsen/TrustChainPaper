@@ -2,6 +2,7 @@
 module Primitives where
 
 import           Control.Monad
+import qualified Data.Map as M
 import           Data.Map(Map)
 
 import           Types
