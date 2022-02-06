@@ -11,9 +11,40 @@
     \pwtodo{replace with better diagram}
 \end{figure}
 
-The overall structure of a PDF is shown in \cref{fig:pdf-structure}.
+PDF is a random-access file format that contains binary 8-bit data, line-based ASCII
+text data (terminated with various end-of-line sequences), and a fixed format ASCII 
+data format in different sections of a single file. The overall structure of a 
+traditional PDF file without any incremental updates is shown in \cref{fig:pdf-structure}.
+PDF 1.5 introduced more compact file structure capabilities known as cross-reference streams 
+and object streams, but this variation of PDF will be described later as it utilises the same
+concepts.
 
-\pwtodo{short paragraph: describe overall PDF doc structure}
+The PDF \emph{Header} sections contains the file identification marker as an ASCII
+text comment line \lstcd{\%PDF-} followed by the PDF version as ASCII digits. 
+An optional second comment line starting with \lstcd{\%}
+containing at least 4 bytes above 127 in value is recommended as it ensures 
+that PDF files are correctly identified as containing 8-bit binary data (\lstcd{\%\â\ã\Ï\Ó} above). 
+All file offsets in PDF file are from the \lstcd{\%} of \lstcd{\%PDF-x.y}.  
+
+The \emph{Linearization} section
+
+The \emph{Body} section is where PDF objects are defined.
+
+The \emph{Cross-reference Table} section begins with the \lstcd{xref} keyword. For a PDF file
+with no incremental updates, the next line will be a cross-reference sub-section text line comprising
+two integers in ASCII (\lstcd{0 32} in this example). The first 
+In traditional PDF this section contains fixed length 20-byte lines, where each line
+represents the byte offset to in an in-use object somewhere in the Body (lines that end in
+\lstcd{n}), or a singly linked list of free (unused) objects starting with object 0.  
+
+The \emph{Trailer} section is at the very end of every PDF file. 
+It is defined as the end-of-file comment line \lstcd{\%\%EOF} immediately
+preceded by the \lstcd{startxref} keyword followed by the file offset (decimal) to 
+the cross-reference table in ASCII (i.e. the byte position of the \lstcd{xref} keyword 
+from the the \lstcd{\%} of \lstcd{\%PDF-x.y}). Prior to this (but technically 
+defined as being immediately \emph{after} the cross-reference table) is the trailer dictionary
+identified by just the \lstcd{trailer} keyword, rather than the \lstcd{obj} and \lstcd{endobj}
+keywords used in the PDF Body section.
 
 \pwtodo{more detail}
 

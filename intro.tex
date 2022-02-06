@@ -96,8 +96,15 @@ semantic-level computation in Haskell.
 %
 This approach is explored within an industrial strength case study:
 validating and parsing the reference tables that are used to create 
-an unambiguous and trustworthy PDF DOM. Past work \cite{} has highlighted serious
-vulnerabilities 
+an unambiguous and trustworthy PDF DOM. Recent vulnerability research (
+\cite{rohlmannBreakingSpecificationPDF2021},
+\cite{mainkaShadowAttacksHiding2021}) highlighted widespread and serious 
+issues in relation to digital signatures and other attacks
+that utilized malicious cross-reference table manipulation. However this
+work did not attempt to methodically understand all root causes within the PDF
+file format specification, or extend to more formal methods. Thus we believe that 
+our work is novel in attempting to formally define and model the PDF "Trust Chain" that
+can make assurances about a PDF DOM.
 
 
 In general, using parser combinators is not new: such combinators are
@@ -150,7 +157,6 @@ Such cavities are a powerful mechanism for creating \emph{polyglot
 which themselves have been used in recent critical system security
 exploits \todo{cite iOS vuln}.
 
-\todo{short paragraph on PDF and its challenges - DONE above}
 \begin{lstlisting}[style=meta]
 - Creation of DOM ("document object model")
   - list of object definitions
@@ -189,7 +195,7 @@ exploits \todo{cite iOS vuln}.
 follows;
 %
 \Cref{sec:trust-chain} discusses the ``Trust Chain'', a key metaphor
-for understanding the intricacies of PDF parsing;
+for understanding the intricacies of PDF pre-DOM parsing;
 \Cref{sec:pdf} begins to dive into the PDF format, discussing PDF's
 complexities and vulnerabilities;
 \Cref{sec:specifying} goes into detail on our specification of the pre-DOM processing;
