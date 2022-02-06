@@ -51,6 +51,10 @@ Achieving the above will be challenging due to many factors:
       compiler can do anything it wants!
     } or is the tool \emph{required} to detect and report this?
 \end{itemize}
+Failure to faithfully implement the standard can result in ambiguities
+between implementations as well as direct vulnerabilities (such as
+Shadow Attacks or DOS attacks).
+
 \mtnote{this last, (5), seems pretty key and
   feels like a major omission in the standard! If the answer is
   yes, then there's nothing keeping an implementation from only
@@ -59,12 +63,9 @@ Achieving the above will be challenging due to many factors:
   in ``endobj''.  Is this reasonable?  Are there vulnerabilities that
   would exist in such implementations?
   }
-Failure to faithfully implement the standard can result in ambiguities
-between implementations as well as direct vulnerabilities (such as
-Shadow Attacks or DOS attacks).
 
 Writing a \emph{formal specification} is not going to solve all the above,
-but we believe it is a good first step toward clarifying the
+but we believe it is an important first step toward clarifying the
 standard, understanding the vulnerabilties, and aiding the
 implementors of PDF.
 
@@ -285,10 +286,59 @@ So, in this case, we'll describe it informally:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 2: Find \& Parse Incremental Updates}
 
+We have not yet parsed the trailer information, but we know where
+it starts.  Parsing the final XRef table and Trailer dictionary are
+done using this function:
+
 \lstset{numbers=right}
 \begin{code}
 type Update = (XRefRaw,TrailerDict)
 
+pIncUpdate_Traditional :: SEEK -> P Update
+pIncUpdate_Traditional seek =
+    do
+    (xrefRaw, xrefEndOff) <- pXrefRaw :: P (XRefRaw,Offset)
+    validate $
+      verifyXrefRaw xrefRaw
+        -- this ensures no duplicate objectIds
+    seek xrefEndOff
+       -- This seek is needed because pXrefRaw doesn't need to read
+       -- the entries of each XRef subsection, so let's leave the
+       -- current file read location after the xref table.
+
+    pSimpleWhiteSpace -- no comments allowed between XRef table and ..
+    keyword "trailer"
+    trailerDict  <- pDictionary
+    trailerDict' <- dictToTrailerDict trailerDict
+                    -- ensures dictionary has proper keys
+    return (xrefRaw, trailerDict')
+\end{code}
+\lstset{numbers=none}
+
+Note \lstcd{validate} on line 7: this is a special function that we
+use to demarcate semantic checks (line 8) that are not necessary to
+create the DOM but which could detect invalid or inconsistent PDFs.
+%
+The check could be used in a ``validate'' mode, but we wouldn't expect
+all implementations to necessarily implement the check.
+
+We have intentionally designed this to return \lstcd{XRefRaw} objects,
+% TODO: show defn?
+i.e., we find the subsections of the \xref{} table, but we do not
+parse the sequence of \xref{} entries in each subsection.
+(We will describe the motivations for this after
+we have explored stage 3.)
+%
+Note that, even for \lstcd{XRefRaw},
+we know the set of \objid{}'s and for each we can find the offset
+of its \xref{} entry.  This design relies on implementing
+the specification strictly: an \xref{} entry must have exactly 20 bytes.
+
+However, parsing the \xref{} table and trailer is just a special case
+of parsing all the incremental updates, as we do here:
+
+\lstset{numbers=right}
+\begin{code}
 parseAllIncUpdates :: SEEK -> Offset -> P [Update]
 parseAllIncUpdates seek offset =
   parseAllIncUpdates' IntSet.empty seek offset
@@ -301,89 +351,58 @@ parseAllIncUpdates' prevSet seek offset =
       do
       seek offset
       (xref,trailerDict) <- pIncUpdate seek
-      case trailerDict_getPrev trailerDict of 
-        Nothing        -> return [(xref,trailerDict)]
-        (Just offset') -> do
-                          us <- parseAllIncUpdates'
-                                  (IntSet.insert offset prevSet)
-                                  seek
-                                  offset'
-                          return ((xref,trailerDict):us)
+      case trailerDict_getPrev trailerDict of   -- lookup 'Prev' key
+        Nothing      -> -- no Prev key, we're done:
+                        return [(xref,trailerDict)]
+        Just offset' -> -- Prev key found, find updates starting at
+                        -- offset':
+                        do
+                        us <- parseAllIncUpdates'
+                                (IntSet.insert offset prevSet)
+                                seek
+                                offset'
+                        return ((xref,trailerDict):us)
 \end{code}
+\lstset{numbers=none}
 
-\todo{...}
+Half the complexity of the above code is to ensure that loops in
+the \lstcd{Prev} offsets don't result in the code going
+into an infinite loop: we keep track of the offsets of every update
+we have processed in the set \lstcd{prevSet}.
+What we are doing here is
+(1) \lstcd{seek}-ing to the \lstcd{offset} and parsing the update;
+(2) checking for a \lstcd{Prev} key, if no key we're done, otherwise
+    continue.
+
+Also, since we support both traditional (pre 1.5 PDF) and stream
+\xref{} tables:
 
 \begin{code}
 pIncUpdate :: SEEK -> P (XRefRaw,TrailerDict)
 pIncUpdate seek =
       pIncUpdate_Traditional seek
   .|. pIncUpdate_XrefStream seek
+      -- I.e., parse one or the other,
+      -- syntactically, they are mutually exclusive.
 
-pIncUpdate_Traditional :: SEEK -> P Update
-pIncUpdate_Traditional seek =
-    do
-    (xrefRaw, xrefEndOff) <- pXrefRaw :: P (XRefRaw,Offset)
-    validate $
-      verifyXrefRaw xrefRaw
-        -- - this ensures no duplicate objectIds
-    seek xrefEndOff
-       -- This seek is needed because pXrefRaw doesn't need to read
-       -- the entries of each XRef subsection, so let's leave the
-       -- current file read location after the xref table.
-
-    pSimpleWhiteSpace -- no comments allowed between XRef table and 
-    keyword "trailer"
-    trailerDict  <- pDictionary
-    trailerDict' <- dictToTrailerDict trailerDict
-    return (xrefRaw, trailerDict')
-\end{code}
-\lstset{numbers=none}
-
-\begin{code}
 pIncUpdate_XrefStream :: SEEK -> P (XRefRaw,TrailerDict)
-pIncUpdate_XrefStream _seek = notImplementedYet
+pIncUpdate_XrefStream seek = notImplementedYet
 \end{code}
 
-Note \lstcd{validate} in line FIXME, this is a special function that we apply to
-semantic checks (line 4) that are not necessary to create the DOM but which
-could detect invalid or inconsistent PDFs.
+The function \lstcd{pIncUpdate_XrefStream} is more
+complex than \lstcd{pIncUpdate_Traditional} but the resulting
+data is equivalent.  It also allows for determining the subsections
+without parsing the \xref{} entries.
 
-For this initial XRef table---even without parsing XRef subsections---we
-know the list of object ids and for each object identifier we can find the XRef entry.
-
-\begin{lstlisting}[style=meta]
- - [maybe some of this covered in previous section]
- - enforcing full standard compliance with 20 byte (only) XRef entries.
-    - currently 19,21 byte XRef entries are considered NCBUR!
- - if we were to allow 19-21 byte XRef entries, we'd need
-   to parse a lot more strictly and sooner.
- - nothing essential would change in our spec
-\end{lstlisting}
-
-\begin{lstlisting}[style=meta]
- - generally we aren't checking dictionary keys, but ...
- - pSimpleWhiteSpace - comments aren't allowed
- - if we don't do 'validate', we have cavities!
-\end{lstlisting}
-
-\mttodo{we have now parsed the trailer but ...}
-
-\begin{lstlisting}[style=meta]
-at this point
- - we know ALL the object ids in PDF
- - we have
-   - parsed/validated minimally
-   - rejected *some* invalid PDFs
-   - no PDF 'values' parsed except trailer dictionaries
- - we can (without further 'parsing' or reading of input)
-   - output trailer dictionaries
-   - output high level info wrt incremental updates
- - we've detected
-   - overlapping ObjIds in an XRef table (and ...?)
- - we have NOT
-   - parsed anything inessential to creating DOM
-   - parsed the contents of XRef entries
-\end{lstlisting}
+So, here's where we are at this point in the computation:
+\begin{itemize}
+\item We can determine all of the \objids in the PDF.
+\item We have not parsed any PDF values except trailer dictionaries.
+\item We have definitely rejected some PDFs by this point.
+\item We could output the trailer dictionaries or the list of
+  incremental updates.
+\item We have detected overlapping \objids in the \xref tables.
+\end{itemize}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -397,13 +416,13 @@ free, or reinstate previously freed objects.
   we are not ``refining'' this.}
 
 \begin{code}
--- FIXME: revise: HOW LAZY TO BE?
--- FIXME: should use Size ...
 -- | combineUpdates updates - 
 --   - for each update
 --     - parses each XRef subsection into a list of XRef entries
 --   - merges all the XRef tables into a single mapping
 --     - when no errors/inconsistencies
+\end{code}
+\begin{code}
 combineUpdates
   :: SEEK -> [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
 combineUpdates seek updates =
@@ -422,8 +441,6 @@ combineUpdates seek updates =
  - fails on
    - malformed XRef entries
  - should detect (or fail) on
-   - mixture of XRef table and XRef streams [PW?]
-   - trailer dicts that aren't consistent between updates
    - incremental updates that are "weird/nonsensical"
      - free-ing dead objects
      - unconventional use of generation numbers
@@ -505,14 +522,14 @@ We have a sufficiently complete \lstcd{DOM} in \lstcd{xrefs1} in which
 we can lookup the integers that are needed to finish decoding the
 streams we left undecoded.
 If we cannot find the referenced integer in the DOM, we have a true PDF
-error.  Any indirect \lstcd{Length} values are required to be at the
+error because any indirect \lstcd{Length} values are required to be at the
 top level.
 
 At this point, in \lstcd{xrefs2}, we still have \lstcd{ObjId}'s that point
 (via \lstcd{Type2Ref}) into \lstcd{ObjStm} streams.
 Only in stage 4.2 were we able to decode the stream inside of
 which is the object to be parsed.
-% this text is rather complicated/tedious!
+% TODO this last text is rather complicated/tedious!
 
 \mttodo{bring in some of the Alg. Data Type defs?}
 
@@ -520,7 +537,7 @@ So at this point, (1) we can compute body cavities \todo{define this} as
 we can parse all the top level objects, (2) object streams have been
 pre-processed, but we have not yet parsed the objects inside them.
 
-Finally, stage 4.3 computes the second from the first
+Finally, stage 4.3 computes \lstcd{domCandidate} from \lstcd{xrefs2}
 \begin{codeNoExecute}
   xrefs2       :: Map ObjId (TopLevelDef :+: Type2Ref) 
   domCandidate :: Map ObjId TopLevelDef
@@ -552,8 +569,10 @@ parsing\footnote{We wonder if this was the intention of the Standard!}.
 \subsection{Further Validation}
 \label{sec:validating}
 
-\mttodo{...}
+\mttodo{remove or fix the etc stuff}
 
+We have a few checks and validations that we are unable to do until
+the DOM is created:
 \begin{code}  
 finalValidations dom version updates =
     do    
@@ -568,9 +587,9 @@ finalValidations dom version updates =
         warn "trailer dictionary has unknown keys (per PDF 2.0)"
     validate $
       versionAndDomConsistent version' dom
+    
     validate $
       trailersConsistentAcrossUpdates updates
-    
 \end{code}
 
 Due to PDF-1.5 additions, we are now in the odd position that we
@@ -591,7 +610,7 @@ computation of the DOM.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{A One Stage Version?}
+\subsection{Exploring a One Stage Version}
 \label{sec:single-pass-problems}
 
 %%%%%%%%%%%%%%%
@@ -637,28 +656,29 @@ computation of the DOM.
       }
     }
   \end{myc}
-  \caption{An Imperative, Single Stage Parser.}
+  \caption{\dsp{}, A Single Stage, Imperative Parser.}
   \label{fig:dsp}
 \end{figure}
 %%%%%%%%%%%%%%%
 
 One might ask if it's possible to write a single stage version of the
-specification.  Can we do without so many stages?
+specification.  I.e., Can we do without so many stages?
 The answer is \emph{Yes, but at a cost we don't want to pay!}
-Let's refer to the above multi-stage specification as the \ssp{}
+Let's refer to the our multi-stage specification as the \ssp{}
 (staged) specification.
 %
 We will compare it to a single-stage specification\footnote{
   Which will not be so clear, but we see no way around this.
 }, the \dsp{}
-(dynamic) spec in which stage 1 is the same but stages 2, 3, and 4 are
+(dynamic) specification in which stage 1 is the same
+but stages 2, 3, and 4 are
 merged together.
 %
 In our experience, PDF tools generally work more like \dsp{} than \ssp{}.
 
 \dsp must be understood imperatively; see \cref{fig:dsp} for a sketch
 of a possible implementation in C-like notation.
-The key things to note about the C/pseudo-code are
+The key things to note about \dsp{} are
 \begin{itemize}
 \item \lstcd{XREF_ENTRY} and \lstcd{DOM_ENTRY} are both types that mutate progressively
    from unparsed/unknown to fully evaluated.

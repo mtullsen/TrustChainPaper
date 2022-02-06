@@ -299,7 +299,7 @@ validateA $
 ***** DONE 4.A. A Specification?
 ***** TODO 4.B. Preliminaries [update]                               :E1:
 ***** DONE 4.C. Stage 1: Find \& Parse Header and Trailer
-***** TODO 4.D. Stage 2: Find \& Parse Incremental Updates           :E1:
+***** DONE 4.D. Stage 2: Find \& Parse Incremental Updates        
 ***** TODO 4.E. Stage 3: Combine Incremental Updates                 :E1:
 ***** DONE 4.F. Stage 4: Transform XRef Map to Object Map (DOM)     
 ***** DONE 4.G. A One Stage Version?                                 
@@ -313,8 +313,7 @@ validateA $
 **** TODO Appendix
 ***** A. Primitive Functions
 ***** B. Details of Streams and Type 2 References
-
-** TODO thk re "key item (5)":
+** TODO [#A] thk re "key item (5)":
 
 - properties we want?
  : valid(pdf) => parseObj1(pdf) == rightvalue
@@ -322,7 +321,84 @@ validateA $
  : if valid(pdf) then parseObj1(pdf) == Good (rightvalue)
  :               else parseObj1(pdp) == Error _
 
+** TODO [#C] dropped text [pick up again?]
+
+\begin{lstlisting}[style=meta]
+ - [maybe some of this covered in previous section]
+ - enforcing full standard compliance with 20 byte (only) XRef entries.
+    - currently 19,21 byte XRef entries are considered NCBUR!
+ - if we were to allow 19-21 byte XRef entries, we'd need
+   to parse a lot more strictly and sooner.
+ - nothing essential would change in our spec
+\end{lstlisting}
+
+** TODO [#B] orphans [to add back in]
+
+ - should detect (or fail) on
+   - mixture of XRef table and XRef streams [PW?]
+   - trailer dicts that aren't consistent between updates
+
 * TODO the spec (spec.hs)
+** s/XRefRaw/XRefTblRaw/
+** new merge updates
+
+- Q. backwards same as forwards if we really check?
+
+- check for
+  - double frees
+  - references outside of associated body
+  - freelist makes sense
+
+- when don't we need to parse xref for a given ObjId
+  - ObjId > Size
+  - last to first and ObjId alreday freed or updated
+    
+- when don't we need to even look at earlier Updates
+  - we have filled "Size"
+  
+#+begin_src 
+
+combineUpdates
+  :: SEEK -> [(XRefRaw, TrailerDict)] -> P (Map ObjId (Offset :+: Type2Ref))
+combineUpdates seek updates =
+    do
+    let (xref,dict):us = updates -- safe: updates never null
+    xrefEntries <- mapM (thawXRefEntry xref) (getObjIds xref)
+
+    let tbl0 = M.fromList xRefEntries
+    tblR  <- foldlM mergeUpdate tbl0 us
+    return (removeFrees tblR)
+
+mergeUpdate :: (Map ObjId XRefEntry)
+            -> (XRefRaw, TrailerDict)
+            -> P (Map ObjId XRefEntry)
+mergeUpdate map0 (xref,dict) =
+    do
+    let ois = getObjIds xref
+    newEntries <- forM (ois \\ M.keys map0) $
+                    \oi-> do
+                          entry <- thawXRefEntry xref oi
+                          return (oi,entry)
+    return (M.union map0 (M.toList newEntries))
+
+removeFrees m = M.mapMaybe
+                  (\x -> case x of Right y -> Just y
+                                   _       -> Nothing)
+                  m
+
+type XRefEntry = Free :+: (Offset :+: Type2Ref)
+
+thawXRefEntry :: RawXRef -> ObjId -> P XRefEntry
+thawXRefEntry = stub
+
+getObjIds :: XRefRaw -> [ObjId]
+getObjIds = stub
+
+#+end_src    
+
+  - really just want to thaw needed ObjId's
+
+** BTW https://github.com/pdf-association/safedocs/issues/2
 ** TODO [#C] validateAction and cavities : dropped, any solution?
 
 Note \lstcd{validateAction}: it differs from \lstcd{validate} in that
@@ -333,9 +409,6 @@ its argument can have side-effects (fail or change the file reading point).
       do
       cs <- readToPrimitive startxrefOff -- get bytes up to `startxrefOff`
       return (all isSpace cs)
-
-** TODO [#A] fix spec: do we pass jmp everywhere that's needed?
-SCHEDULED: <2022-02-03 Thu>
 
 ** NOTE [#A] overview of pDOM
 
