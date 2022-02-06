@@ -62,7 +62,7 @@ a 20-byte fixed length. A subtly is also that Cross-Reference sections are the o
 
 
 \todo{PW - incremental update description}
-Each incremental update will normally append a Body, Cross-reference Table and Trailer sections to a PDF file with the entire original PDF remaining unchanged. The newly added incremental update trailer dictionary must also contain additional information referencing the immediately previous cross-reference table by byte offset. The Body of the incremental update will contain new objects, while the cross-reference table for the incremental update 
+Each incremental update will normally append a Body, Cross-reference Table, and Trailer sections to a PDF file with the entire original PDF remaining unchanged. The newly added incremental update trailer dictionary will contain additional information referencing the immediately previous cross-reference table by byte offset. The Body section of the incremental update will contain new objects, while the cross-reference table for the incremental update defines the byte offsets for those new objects and adds any  
 
 The \emph{Trailer} section is at the very end of every PDF file. 
 It is defined as the end-of-file comment line \lstcd{\%\%EOF} immediately
