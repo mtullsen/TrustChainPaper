@@ -16,6 +16,16 @@
 
 \input{prelude}
 
+\pagestyle{plain}  % get page numbering
+
+% BEGIN local definitions for text to insert
+\newcommand{\tc}{\emph{Trust Chain}}   % no emph? lower case? ...
+\newcommand{\pd}{\emph{parser differential}}
+\newcommand{\ssp}{$S$}  % static specification
+\newcommand{\dsp}{$D$}  % dynamic specification
+\newcommand{\rdloc}{\lstcd{readLocation}}
+% END local definitions 
+
 \begin{document}
 
 \date{}
@@ -33,10 +43,9 @@
 }
 
 \maketitle
+\thispagestyle{plain} % get page numbering
 
 \input{abstract}
-
-% \section{[Meta-Notes for Authors]}
 
 \begin{lstlisting}[style=meta]
 CONVENTION:
@@ -46,14 +55,17 @@ CONVENTION:
 
 \begin{lstlisting}[style=meta]
 META NOTES:  
-- aim for 12 pages (in 10pt)
+- aim for 12 pages (in 10pt) (langsec specifies no limit)
 
 TERMS (to actually use, and define when needed):
 - ``complies with standard'', ``compatible with standard''
 - Pre-DOM
 - XRef (capitalized thus)
 - Trust Chain (no quotes) [remove upper case?]
+- parser differential
 \end{lstlisting}
+
+\todo{PUT THIS SOMEWHERE: We use the term \pd{} to mean ....}
 
 % content:
 \input{intro}

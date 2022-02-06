@@ -30,6 +30,8 @@ type Offset = Int    -- offset from start of "PDF file" (not nec. file offset)
 type Len    = Int    -- used as a length
 
 
+type Version = (Int,Int)
+
 ---- types for xref and lower level ------------------------------------------
 
 type XRefRaw       = [SubSectionRaw]

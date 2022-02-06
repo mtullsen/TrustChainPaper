@@ -180,7 +180,9 @@ SCHEDULED: <2022-02-05 Sat>
 ** TODO spell check                                                     :E1:
 ** TODO final review                                                    :E3:
 - acronyms defined
-** TODO submission                                                      :E1:
+- search for TODO, FIXME, "..."
+  
+** TODO submit paper                                                    :E1:
 ** ----
 ** TODO misc orphans
 
@@ -213,6 +215,9 @@ TODO: remove $ from Hs code
       validate that object definitions do not overlap (in their source bytes)
 
 * TODO tasks (from MT pt of view)
+** TODO [#A] a paper for Daedalus?
+** TODO [#A] ask nls re darpa numbers
+
 ** TODO [#B] ascii-ify diagram                                          :E1:
 ** TODO [#B] replace "object identifier" by \lstcd{ObjID} and the like?
 ** TODO [#A] Fix Stages 2 & 3: text AND spec                                         :E3:
@@ -278,10 +283,7 @@ validateA $
 ***** DONE 4.B. Stages 1 - 4, Preliminaries
 ***** DONE 4.C. Stage 1: Find \& Parse Header and Trailer
 ***** TODO 4.D. Stage 2: Find \& Parse Incremental Updates           :E1:
-***** TODO 4.E. Stage 3: Combine Incremental Updates                 :E2:
-- rewrite to be trad & xref stream generic!
-- rewrite this & 4.D with LAZINESS in mind
-- currently sketchy
+***** TODO 4.E. Stage 3: Combine Incremental Updates                 :E1:
 ***** DONE 4.F. Stage 4: Transform XRef Map to Object Map (DOM)     
 ***** DONE 4.G. A One Stage Version?                                 
 ***** DONE 4.H. Incremental Updates and Signatures
