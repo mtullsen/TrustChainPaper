@@ -5,37 +5,64 @@
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.35\linewidth]{figures/pdf-structure.png}
+    \includegraphics[width=0.65\linewidth]{figures/pdf-structure.png}
     \caption{PDF File Structure.}
     \label{fig:pdf-structure}
-    \pwtodo{replace with better diagram}
 \end{figure}
 
 PDF is a random-access file format that contains binary 8-bit data, line-based ASCII
 text data (terminated with various end-of-line sequences), and a fixed format ASCII 
 data format in different sections of a single file. The overall structure of a 
-traditional PDF file without any incremental updates is shown in \cref{fig:pdf-structure}.
+traditional PDF file without any incremental updates is shown in \cref{fig:pdf-structure} and 
+described below, based on the official PDF Standard.
 PDF 1.5 introduced more compact file structure capabilities known as cross-reference streams 
-and object streams, but this variation of PDF will be described later as it utilises the same
-concepts.
+and object streams however since this builds on the following concepts, this modern 
+variation on the PDF file structure will be described later.
 
-The PDF \emph{Header} sections contains the file identification marker as an ASCII
+The PDF \emph{Header} section contains the file identification marker as an ASCII
 text comment line \lstcd{\%PDF-} followed by the PDF version as ASCII digits. 
-An optional second comment line starting with \lstcd{\%}
-containing at least 4 bytes above 127 in value is recommended as it ensures 
-that PDF files are correctly identified as containing 8-bit binary data (\lstcd{\%\â\ã\Ï\Ó} above). 
-All file offsets in PDF file are from the \lstcd{\%} of \lstcd{\%PDF-x.y}.  
+An optional second comment line (starting with \lstcd{\%})
+containing at least 4 bytes above 127 in value is recommended, as it ensures 
+that PDF files are not misidentified as 7-bit text files. 
+All file offsets in PDF file are from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}.  
 
-The \emph{Linearization} section
+The \emph{Linearization} section is an optional optimization section that enables what is commonly
+known as "fast web view". This section must occur within the first 1024 bytes of a PDF and contains
+data that enables a Linearization-aware PDF processor to quickly display the opening page of a PDF
+while the rest of a large PDF can download in the background.
+Linearizatiom data is also invalidated by incremental updates (since an update might change objects
+on the opening PDF page) and must therefore be checked and ignored.
+As not all PDF parsers support Linearization, it is a known form of "parser differential by design". 
+For the purposes of this paper, we will not consider Linearized PDF further.
 
-The \emph{Body} section is where PDF objects are defined.
+The \emph{Body} section is where all indirect PDF objects are defined. Indirect PDF objects
+are defined as those objects that have "a unique object identifier by which other objects can
+refer to it (for example, as an element of an array or as the value of a dictionary entry)."
+Any PDF object may be defined indirectly: integers, real numbers, strings, arrays, dictionaries, 
+streams, etc. Objects are defined by their object identifier (their object number and generation 
+number pair) followed by the keyword \lstcd{obj}. 
+The end of every object is defined by the keyword \lstcd{endobj}.
+In \cref{fig:pdf-structure}, object 9 is a real number (in ASCII) followed by a comment
+(introduced by \lstcd{\%}) and this is followed by object 12 which is a PDF literal string object
+(enclosed in \lstcd{(} and \lstcd{)}). The detailed syntax of PDF  
+Every indirect object is reached by knowing the file offset to the start of the ASCII integer 
+object number. This offset information for all indirect objects is stored in Cross-reference Tables.
 
 The \emph{Cross-reference Table} section begins with the \lstcd{xref} keyword. For a PDF file
 with no incremental updates, the next line will be a cross-reference sub-section text line comprising
-two integers in ASCII (\lstcd{0 32} in this example). The first 
-In traditional PDF this section contains fixed length 20-byte lines, where each line
-represents the byte offset to in an in-use object somewhere in the Body (lines that end in
-\lstcd{n}), or a singly linked list of free (unused) objects starting with object 0.  
+two integers in ASCII (\lstcd{0 32} in this example). The first number is an object identifier 
+and in the case of an original PDF this will always be 0. The second number is the number of
+objects in the cross-reference section.
+In traditional PDF each entry for an object contains a fixed length 20-byte line of text.
+The first 10 ASCII digits represent the byte offset to the object, followed by a single ASCII SPACE, 
+followed by 5 ASCII digits representing an object generation number. This is then followed by
+another single ASCII space and the keyword \lstcd{n} for in-use objects or \lstcd{f} for free objects.
+Finally the end-of-line sequence is defined to ensure that the entry for each objects has 
+a 20-byte fixed length. A subtly is also that Cross-Reference sections are the only section in PDF where comments are expressly prohibited.
+
+
+\todo{PW - incremental update description}
+Each incremental update will normally append a Body, Cross-reference Table and Trailer sections to a PDF file with the entire original PDF remaining unchanged. The newly added incremental update trailer dictionary must also contain additional information referencing the immediately previous cross-reference table by byte offset. The Body of the incremental update will contain new objects, while the cross-reference table for the incremental update 
 
 The \emph{Trailer} section is at the very end of every PDF file. 
 It is defined as the end-of-file comment line \lstcd{\%\%EOF} immediately
@@ -46,7 +73,14 @@ defined as being immediately \emph{after} the cross-reference table) is the trai
 identified by just the \lstcd{trailer} keyword, rather than the \lstcd{obj} and \lstcd{endobj}
 keywords used in the PDF Body section.
 
-\pwtodo{more detail}
+The above paragraphs describe the physical layout of a PDF, but the processing sequence may not be so apparent. The following paragraphs walk through the processing necessary to correctly parse a PDF file with incremental updates.
+
+PDF parsing begins by locating the PDF Header as it is not uncommon for PDF files to have 
+preamble bytes (such as HTTP header or HTML fragment). Thus the zero-offset byte is 
+determined from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}. Processing then continues by
+seeking to end-of-file and locating the end-of-file marker \lstcd{\%\%EOF}.
+
+\todo{PW - restart here}
 
 ... and then locate either the \lstcd{xref} keyword for
 traditional PDF cross-reference tables, or a PDF object that should be
