@@ -4,7 +4,7 @@
 % background: conventional grammars:
 The task of parsing may be viewed as receiving a document in an
 unstructured, serialized form, and building its structured
-representation. Furthermore, this structured representation must be a 
+representation. Furthermore, this structured representation must be a
 faithful representation of the given document.
 %
 For formats defined in conventional data-description languages that
@@ -33,7 +33,7 @@ of which may store a large set of fields.
 In such formats, it is infeasible to provide context-free definitions
 of well-formedness because data objects that must satisfy critical
 relations may not occur contiguously in a document: related objects
-may not form a tree-like hierarchy.
+may not form a tree-like hierarchy in the input stream.
 %
 Such formats typically introduce a notion of \emph{naming} or
 \emph{reference} by which objects may refer to each other.
@@ -56,21 +56,21 @@ to including a single, contiguous definition of context.
 While potentially straightforward, such a design would not support
 requirements of many practical formats, including PDF.
 %
-In many contexts, a critical feature of formats is to update a
-document incrementally by appending data: this is often best achieved
-by allowing the table of references to itself by updated with new,
-non-contiguous entries that effectively overwrite previous conflicting
-entries.
+A critical feature of many document formats is to update a
+document incrementally by only appending data. This is often achieved
+by allowing the table of references to itself to be updated with new,
+non-contiguous entries that effectively patch previous entries.
 %
-Additionally, such tables of references may be compressed using
-standard, but non-trivial, compression algorithms.
+While such updates may be considered as relatively straightforward concatenations to 
+the serialized document, such tables of references are sometimes also compressed 
+using standard, but non-trivial, compression algorithms.
 
 % potential solutions and why they fail:
 Context-free grammars and weaker formalisms are not suitable to define
 such formats in the full detail.
 %
-In the conventional setting in which a parser returns a semantic value
-that is then potentially transformed by further computation, which may
+In the conventional setting a parser returns a semantic value
+that is then potentially transformed by further computation, which 
 itself be defined in an attribute grammar or parser client logic.
 %
 While feasible, the main limitation of such an approach is that
