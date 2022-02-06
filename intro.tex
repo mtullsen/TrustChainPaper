@@ -42,7 +42,7 @@ A critical practical example of this design pattern---and the
 motivating example of our work---is the document object model of the
 \emph{Portable Document Format (PDF)}~\cite{isotc171sc2wg8ISO32000220202020};
 %
-PDF data objects include an object \emph{identifier}, by which other
+PDF data objects include an \emph{object identifier}, by which other
 objects may refer to them.
 
 % further complications: people want to do other fancy tricks with
@@ -80,7 +80,7 @@ unstructured data after computing partial contextual information;
 such parsing logic is exactly what should be expressed declaratively
 in a grammar and implemented by a generated parser.
 %
-Alternatively, in principle it could be feasible to express some
+Alternatively, it could be feasible to express some
 practical formats in fundamental grammar classes that are more
 expressive than those traditionally used to define formats, such as
 \emph{sensitive} grammars.
@@ -95,8 +95,10 @@ input and parsing a previously-captured input, combined using
 semantic-level computation in Haskell.
 %
 This approach is explored within an industrial strength case study:
-validating and parsing the reference table of the PDF DOM.
-%
+validating and parsing the reference tables that are used to create 
+an unambiguous and trustworthy PDF DOM.
+
+
 In general, using parser combinators is not new: such combinators are
 available widely available in the distributions of modern industrial
 strength languages~\todo{cite: Monadic parser combinators, Staged
@@ -104,24 +106,28 @@ strength languages~\todo{cite: Monadic parser combinators, Staged
 %
 Moreover, with the recent interest in formalizing practical formats
 and generating high-assurance parsers, such combinators have
-specifically been applied specifically to formalize components of the
+specifically been applied to formalize components of the
 PDF standard related to referential context.
 %
 However, our work is unique in that, to our knowledge, it constitutes
 the first attempt to use such combinators to formalize a comprehensive
-set of features used in PDF to define referential context,
-specifically incremental updates to reference tables and reference
-table compression within cross-reference streams.
-\pwnote{I think there is also an element of general file layout (such as cavities) as an incremental update implies it is actually incremental and thus byte offsets have some inferred semantics (cf. shadow attacks; new objects cannot be from earlier in the file or a future incremental update)} 
+set of features and integrity relationships in PDF pre-DOM processing 
+that define referential context, specifically cross reference tables, 
+incremental updates, and cross reference table compression within 
+cross-reference streams. PDF is a random-access binary file format that must be 
+processed from the most recent (latest) incremental update through earlier edits 
+back to the original document.  PDF cross-reference data defines byte offsets from the start of the file to
+the start byte for each PDF object. Object identifiers may also not 
+be unique, as incremental updates may redefine existing objects, or reinstate 
+objects that were previously marked as free (unused). Thus in order to correctly
+create a final PDF DOM graph it is necessary to process each appended incremental update
 
 % results:
-The results of our case study show that such features can apparently
-by formalized, although the resulting definition is somewhat more
-subtle than what may be implemented based on a natural interpretation
-of the PDF standard, or many extant documents. 
-\pwnote{Should we mention about here that past work on PDF has focused on the DOM, without considering how trustworthy or integral the DOM is?} 
+The results of our case study show that such features can by formalized, 
+although the resulting definition is somewhat more subtle than what may be 
+implemented based on a natural interpretation of the PDF standard, or many extant documents. 
 %
-However, we suspect that there is nothing in the format definition
+However, there is nothing in the format definition
 that requires the language of combinators that we applied: a key goal
 of our work is to provide this formalized definition as a worked case
 study, to be improved upon using definitions in other experimental
@@ -131,7 +137,7 @@ data definition languages as they are developed.
 Using our comprehensive formalization of referential context, we have
 developed several tools for assisting format developers to determine
 if their format may suffer from sophisticated threats to security that
-are intricately connected to the case of parsing and constructing object models,
+are intricately connected to the case of parsing, instantiation, and construction of object models,
 specifically detecting the presence of document \emph{cavities}
 segments of documents that do not affect the document's semantic
 value, and thus may store content that is completely unobservable to
