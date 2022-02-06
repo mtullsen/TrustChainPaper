@@ -96,7 +96,8 @@ semantic-level computation in Haskell.
 %
 This approach is explored within an industrial strength case study:
 validating and parsing the reference tables that are used to create 
-an unambiguous and trustworthy PDF DOM.
+an unambiguous and trustworthy PDF DOM. Past work \cite{} has highlighted serious
+vulnerabilities 
 
 
 In general, using parser combinators is not new: such combinators are
@@ -117,10 +118,11 @@ incremental updates, and cross reference table compression within
 cross-reference streams. PDF is a random-access binary file format that must be 
 processed from the most recent (latest) incremental update through earlier edits 
 back to the original document.  PDF cross-reference data defines byte offsets from the start of the file to
-the start byte for each PDF object. Object identifiers may also not 
+the start byte for each PDF object. PDF object identifiers may also not 
 be unique, as incremental updates may redefine existing objects, or reinstate 
 objects that were previously marked as free (unused). Thus in order to correctly
-create a final PDF DOM graph it is necessary to process each appended incremental update
+establish a final PDF DOM graph, it is necessary to process each appended incremental update
+in reverse order.
 
 % results:
 The results of our case study show that such features can by formalized, 
@@ -148,7 +150,7 @@ Such cavities are a powerful mechanism for creating \emph{polyglot
 which themselves have been used in recent critical system security
 exploits \todo{cite iOS vuln}.
 
-\todo{short paragraph on PDF and its challenges}
+\todo{short paragraph on PDF and its challenges - DONE above}
 \begin{lstlisting}[style=meta]
 - Creation of DOM ("document object model")
   - list of object definitions
@@ -166,7 +168,7 @@ exploits \todo{cite iOS vuln}.
   - "differential by design"!
 \end{lstlisting}
 \begin{lstlisting}[style=meta]
-- We must accurately create the DOM (a DAG, no cycles allowed)
+- We must accurately create the DOM 
   - while abstracting over XRef tables, XRef streams,
     hybrid files, incremental updates, linearization
   - while recovering from errors
