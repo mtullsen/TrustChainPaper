@@ -4,7 +4,8 @@
 % background: conventional grammars:
 The task of parsing may be viewed as receiving a document in an
 unstructured, serialized form, and building its structured
-representation. Furthermore, this structured representation must be a faithful representation of the given document.
+representation. Furthermore, this structured representation must be a 
+faithful representation of the given document.
 %
 For formats defined in conventional data-description languages that
 correspond closely to well-understood classes of the Chomsky hierarchy
@@ -26,7 +27,7 @@ definition critically do not hold for many practical formats of
 interest.
 %
 Many such formats define a \emph{Document Object Model}: i.e., the
-result of parsing a document is a graph between objects of data, each
+result of parsing a document is a graph between objects, each
 of which may store a large set of fields.
 %
 In such formats, it is infeasible to provide context-free definitions
@@ -117,7 +118,8 @@ table compression within cross-reference streams.
 The results of our case study show that such features can apparently
 by formalized, although the resulting definition is somewhat more
 subtle than what may be implemented based on a natural interpretation
-of the PDF standard, or many extant documents. \pwnote{Should we mention about here that past work on PDF has focused on the DOM, without considering how trustworthy or integral the DOM is?} 
+of the PDF standard, or many extant documents. 
+\pwnote{Should we mention about here that past work on PDF has focused on the DOM, without considering how trustworthy or integral the DOM is?} 
 %
 However, we suspect that there is nothing in the format definition
 that requires the language of combinators that we applied: a key goal
