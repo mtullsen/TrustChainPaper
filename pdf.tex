@@ -17,6 +17,51 @@ The overall structure of a PDF is shown in \cref{fig:pdf-structure}.
 
 \pwtodo{more detail}
 
+... and then locate either the \lstcd{xref} keyword for
+traditional PDF cross-reference tables, or a PDF object that should be
+a cross-reference stream.  In the case of traditional PDF
+cross-reference tables, after the cross reference table will be the
+trailer dictionary identified by the \lstcd{trailer} keyword or,
+alternatively for PDF 1.5 and later files with cross-reference
+streams, the trailer dictionary keys will be in the stream extent
+dictionary of the cross reference stream.
+
+... these are identified by a \lstcd{Prev} entry in either the trailer
+dictionary or the stream extent dictionary of a cross-reference stream. The
+value of the \lstcd{Prev} key is another byte offset to the immediately
+preceding incremental update which, again, can either be a traditional
+cross-reference table and to the start of the \lstcd{xref} keyword, or to a
+cross-reference stream. This process repeats, working from the most recent
+update back through time to the original PDF document.
+
+Of particular note is the \lstcd{Size} entry, which
+is one greater than the largest object number allocated in the PDF
+file.
+
+In this stage, data in each cross reference table must then be parsed to
+identify the byte offset to the start of each PDF object. Note also that PDF
+does not define the byte offset to the end of an object.
+
+There are two sets of
+objects in every PDF document: the in-use list of PDF objects and a free list
+of PDF objects. Object zero is always the start of the free list as it is not
+otherwise a valid object number.
+
+For incremental updates, PDF object numbering
+does not have to be sequential, with skipped object numbers assumed to be on
+the free list (although this is not stated explicitly in the PDF
+specification).
+
+Parsing depends on the form of the incremental update, with
+traditional cross-reference tables being simpler and largely independent of
+other processing. Cross-reference streams however are more complex as they are
+usually compressed and thus require the pre-DOM parser to "trust" the stream
+extent dictionary data.
+
+Each incremental update can add new objects, mark existing in-use objects as
+free, or reinstate previously freed objects.
+
+
 \mttodo{maybe: import the type definitions}
 
 \subsection{Root Causes of PDF Complexity}
@@ -34,14 +79,12 @@ so what makes PDF processing so much more complex?
   - DOM is a directed graph structure that allows cycles and arbitrary references (so not a DAG)
     - objects point to objects via byte offsets (cf. not by nested expressions such as XML)  
   - backwards parsing
-  - some parsing rules written as to be not relevant to parsers ("writer-only rules")
   - incremental updates as a set of deltas to be applied to the file, which change the DOM
     - (note: unlike HTML, PDF's DOM is fixed and cannot be altered by JS)
   - XRef tables ...
   - ... giving rise to cavities
     - giving rise to polyglots
   - dependent parsers
-  - <MORE?>
 \end{lstlisting}
 
 \subsection{\todo{para. needs home: ``data integrity relationships...''}}
@@ -57,7 +100,7 @@ so what makes PDF processing so much more complex?
 
 % ------------------------------------------------------------------------------
 \subsection{Vulnerabilities \note{1pp}}
-\label{sec:predom-vulnerabilities}
+\label{sec:vulnerabilities}
 
 % As will become even more apparent, there is a significant amount of
 % parsing and computation that needs to be done \emph{pre-DOM}.
@@ -95,6 +138,7 @@ I.e., the vulnerabilities occur \emph{pre-DOM}.
 - format may not be well-defined because the recursion is not
     "well-defined"
 \end{lstlisting}
+
 
 
 {\bf{Others}} \todo{Maybe PII/redaction issues - just 'cos you delete something in a PDF doesn't mean it is really deleted (thanks to incremental updates)!!!! }

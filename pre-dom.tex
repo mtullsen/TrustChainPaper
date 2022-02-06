@@ -183,7 +183,7 @@ a single effectful primitive monadic function\footnote{
     seekPrimitive :: Offset -> P ()
     seekPrimitive offset = <update readLocation to be 'offset'>
 \end{codeNoExecute}
-% TODO: 'readLocation' correct?
+\mttodo{readLocation equal \rdloc{}?}
 
 \haskellnote{
   The \lstcd{do} keyword indicates the start of monadic code.
@@ -194,6 +194,10 @@ The action \lstcd{pHeaderAndTrailer} has type \lstcd{P ((Int,Int),Offset)}.
 it will ``return failure'' if the header cannot be found or is malformed.
 If any action fails, the whole parser fails,
 
+\todo{FIXME:}
+For the sake of lucidity, we sometimes add \emph{type annotations} in
+the code, note in line 2 of the above that \lstcd{::P(XRefRaw,Offset)}
+indicates the type of the expression preceding it.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Overview}
@@ -306,6 +310,9 @@ parseAllIncUpdates' prevSet seek offset =
                                   offset'
                           return ((xref,trailerDict):us)
 \end{code}
+
+\todo{...}
+
 \begin{code}
 pIncUpdate :: SEEK -> P (XRefRaw,TrailerDict)
 pIncUpdate seek =
@@ -319,7 +326,6 @@ pIncUpdate_Traditional seek =
     validate $
       verifyXrefRaw xrefRaw
         -- - this ensures no duplicate objectIds
-        -- - we might parse and validate XRef entries at this point
     seek xrefEndOff
        -- This seek is needed because pXrefRaw doesn't need to read
        -- the entries of each XRef subsection, so let's leave the
@@ -338,12 +344,7 @@ pIncUpdate_XrefStream :: SEEK -> P (XRefRaw,TrailerDict)
 pIncUpdate_XrefStream _seek = notImplementedYet
 \end{code}
 
-\todo{FIXME:}
-For the sake of lucidity, we sometimes add \emph{type annotations} in
-the code, note in line 2 of the above that \lstcd{::P(XRefRaw,Offset)}
-indicates the type of the expression preceding it.
-%
-Note \lstcd{validate} in line 3, this is a special function that we apply to
+Note \lstcd{validate} in line FIXME, this is a special function that we apply to
 semantic checks (line 4) that are not necessary to create the DOM but which
 could detect invalid or inconsistent PDFs.
 
@@ -359,15 +360,6 @@ know the list of object ids and for each object identifier we can find the XRef 
  - nothing essential would change in our spec
 \end{lstlisting}
 
-\mttodo{this is traditional XRef specific, update!}
-
-Now to parsing more of the PDF trailer
-\begin{code}
-\end{code}
-
-Note \lstcd{validateAction}: it differs from \lstcd{validate} in that
-its argument can have side-effects (fail or change the file reading point).
-
 \begin{lstlisting}[style=meta]
  - generally we aren't checking dictionary keys, but ...
  - pSimpleWhiteSpace - comments aren't allowed
@@ -375,27 +367,6 @@ its argument can have side-effects (fail or change the file reading point).
 \end{lstlisting}
 
 \mttodo{we have now parsed the trailer but ...}
-
-\mttodo{integrate this text:}
-\begin{lstlisting}[style=meta]
-and then locate either the \lstcd{xref} keyword for
-traditional PDF cross-reference tables, or a PDF object that should be
-a cross-reference stream.  In the case of traditional PDF
-cross-reference tables, after the cross reference table will be the
-trailer dictionary identified by the \lstcd{trailer} keyword or,
-alternatively for PDF 1.5 and later files with cross-reference
-streams, the trailer dictionary keys will be in the stream extent
-dictionary of the cross reference stream.
-\end{lstlisting}
-
-\mttodo{integrate this text:}
-... these are identified by a \lstcd{Prev} entry in either the trailer
-dictionary or the stream extent dictionary of a cross-reference stream. The
-value of the \lstcd{Prev} key is another byte offset to the immediately
-preceding incremental update which, again, can either be a traditional
-cross-reference table and to the start of the \lstcd{xref} keyword, or to a
-cross-reference stream. This process repeats, working from the most recent
-update back through time to the original PDF document.
 
 \begin{lstlisting}[style=meta]
 at this point
@@ -418,28 +389,10 @@ at this point
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 3: Combine Incremental Updates}
 
-Of particular note is the \lstcd{Size} entry, which
-is one greater than the largest object number allocated in the PDF
-file.
-\mttodo{for last; either: implement enough to expose this or add verbiage}
-
-\mttodo{integrate PW's text:}
-In this stage, data in each cross reference table must then be parsed to
-identify the byte offset to the start of each PDF object. Note also that PDF
-does not define the byte offset to the end of an object. There are two sets of
-objects in every PDF document: the in-use list of PDF objects and a free list
-of PDF objects. Object zero is always the start of the free list as it is not
-otherwise a valid object number. For incremental updates, PDF object numbering
-does not have to be sequential, with skipped object numbers assumed to be on
-the free list (although this is not stated explicitly in the PDF
-specification). Parsing depends on the form of the incremental update, with
-traditional cross-reference tables being simpler and larger independent of
-other processing. Cross-reference streams however are more complex as they are
-usually compressed and thus require the pre-DOM parser to "trust" the stream
-extent dictionary data.
-
-Each incremental update can add new objects, mark existing in-use objects as
+\mttodo{for Size: either: implement enough to expose this or add verbiage}
+\mtnote{PW in sec 3.A: Each incremental update can add new objects, mark existing in-use objects as
 free, or reinstate previously freed objects.
+}
 \mttodo{address the above in spec: either add to spec OR indicate that
   we are not ``refining'' this.}
 
@@ -468,8 +421,8 @@ combineUpdates seek updates =
    - object definitions that are no longer reachable
  - fails on
    - malformed XRef entries
-   - mixture of XRef table and XRef streams [PW?]
  - should detect (or fail) on
+   - mixture of XRef table and XRef streams [PW?]
    - trailer dicts that aren't consistent between updates
    - incremental updates that are "weird/nonsensical"
      - free-ing dead objects
@@ -484,6 +437,11 @@ combineUpdates seek updates =
    - when the latter, the ObjectId -> Offset must be available
        - in current or previous (or next!) XRef stream
          - BTW, pervasive design issue: must partial updates be valid?
+
+\mtnote{Stage 2 and 3 : To merge or not to merge.?}
+
+We might parse and validate XRef entries at this point
+
 \end{lstlisting}
 
 \pwnote{and, depending on attack mode, referencing "dead objects" via a later
@@ -636,57 +594,71 @@ computation of the DOM.
 \subsection{A One Stage Version?}
 \label{sec:single-pass-problems}
 
-One might ask if one might implement the above as a single stage?
-Or another question, can we rewrite the specification to be a single stage?
+%%%%%%%%%%%%%%%
+\begin{figure}[t]
+  \centering
+  \begin{myc}
+    // xref and dom start with nothing in them:
+    //  - in reality, their sizes would be dynamically allocated.
+    XREF_ENTRY xref[Size];     
+    DOM_ENTRY  dom[Size];
+    
+    // 'dom' is updated dynamically, on demand, via 'deref':
+    PdfValue deref(ObjId oi) {
+      if (evald(dom[oi]))
+        return dom[oi];
+      else if (infiniteloopdetected())
+        quit ();      
+      else {
+        o = lookupOffsetInXref(oi); // updates xref[oi]
+        seek(o);
+        v = parseObject();
+        dom[oi] = v;
+        return v;
+      }
+      
+    PdfValue parseObject (){
+      ...
+      if (some Stream object) {
+        ...; len = deref(oi'); ... // need this to finish parsing!
+      }
+      ...
+    }
+    
+    OFFSET lookupOffsetInXref(oi) {
+      if xref_evald(xref[oi]) then
+        return xref[oi];
+      else {
+        // follow Prev pointers if not in top xref
+        //  - make sure no infinite loop in chasing Prev's
+        /* ... */
+        xref[oi] = offset;
+        return xref[oi];
+      }
+    }
+  \end{myc}
+  \caption{An Imperative, Single Stage Parser.}
+  \label{fig:dsp}
+\end{figure}
+%%%%%%%%%%%%%%%
+
+One might ask if it's possible to write a single stage version of the
+specification.  Can we do without so many stages?
 The answer is \emph{Yes, but at a cost we don't want to pay!}
 Let's refer to the above multi-stage specification as the \ssp{}
 (staged) specification.
 %
-We will compare it to a single-stage specification, the \dsp{}
+We will compare it to a single-stage specification\footnote{
+  Which will not be so clear, but we see no way around this.
+}, the \dsp{}
 (dynamic) spec in which stage 1 is the same but stages 2, 3, and 4 are
 merged together.
 %
 In our experience, PDF tools generally work more like \dsp{} than \ssp{}.
 
-\dsp must be understood imperatively; here's a sketch of a possible
-implementation in C-ish notation: \mttodo{put into figure; fixup lst rendering.}
-\begin{myc}
-  // xref and dom start with nothing in them.
-  // - their size would in reality be dynamically allocated.
-  XREF_ENTRY xref[Size];     
-  DOM_ENTRY dom[Size];
-  
-  // the DOM is updated dynamically, on demand, via the following
-  PdfValue deref(ObjId oi) {
-    if (evald(dom[oi]))
-      return dom[oi];
-    else if (infiniteloopdetected())
-      quit ();      
-    else {
-      o = getOffsetFromXref(xref, oi); // updates xref[oi]
-      seek(o);
-      v = parseObject;
-      dom[oi] = v;
-      return v;
-    }
-    
-  parseObject {
-    /* ... */ ; len = deref(oi'); /* ... */
-  }
-  
-  OFFSET getOffsetFromXref(xref,oi){
-    if xref_evald(xref[oi]) then
-      return xref[oi];
-    else {
-      // follow Prev pointers if not in top xref
-      //  - make sure no infinite loop in chasing Prev's
-      /* ... */
-      xref[oi] = offset;
-      return xref[oi];
-    }
-  }
-\end{myc}
-The key things to note about the pseudo-code are
+\dsp must be understood imperatively; see \cref{fig:dsp} for a sketch
+of a possible implementation in C-like notation.
+The key things to note about the C/pseudo-code are
 \begin{itemize}
 \item \lstcd{XREF_ENTRY} and \lstcd{DOM_ENTRY} are both types that mutate progressively
    from unparsed/unknown to fully evaluated.
@@ -699,7 +671,7 @@ Also to note about \dsp{}:
   less of the input file and accepts more input files.  it is
   naturally ``lax'': it would for instance allow a \lstcd{Length} to
   be stored in an \lstcd{ObjStm} stream as long as an infinite loop
-  wasn't detected.  However, we could extend (and complicate) \dsp{}
+  wasn't detected.  It would be possible to extend (and complicate) \dsp{}
   to approximate \ssp{} better.
   % E.g.,
   %  - have a =derefLength= / =derefFromUncompressed=
@@ -713,10 +685,10 @@ We believe that \ssp{} is clearly preferable to \dsp{} for these two
 simple reasons:
 \begin{itemize}
 \item It corresponds to the standard, and does so obviously.
-\item It does not use general recursion, so it is obvious that this
+\item It does not use general recursion, so it is obvious that \ssp{}
   algorithm terminates on all inputs.
 \end{itemize}
-While \ssp{} also gives us a few other advantages over \dsp{}:
+\ssp{} gives us a few other advantages over \dsp{}:
 \begin{enumerate}
 \item The functional, declarative, and typed structure enables
   us to understand the stages conceptually.  (Even if one chooses

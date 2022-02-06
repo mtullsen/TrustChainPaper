@@ -176,7 +176,7 @@ SCHEDULED: <2022-02-05 Sat>
    - at least 1 other example of the principle
    - ICC, etc.
 ** TODO get all the biblios filled in                                   :E2:
-** TODO adjust lstlisting!                                              :E0:
+** TODO further tweak lstlisting!                                       :E0:
 ** TODO spell check                                                     :E1:
 ** TODO final review                                                    :E3:
 - acronyms defined
@@ -215,8 +215,9 @@ TODO: remove $ from Hs code
       validate that object definitions do not overlap (in their source bytes)
 
 * TODO tasks (from MT pt of view)
-** TODO [#A] a paper for Daedalus?
-** TODO [#A] ask nls re darpa numbers
+** TODO [#A] Q. a paper for Daedalus?
+** TODO [#A] Q. ask nls re darpa numbers
+SCHEDULED: <2022-02-05 Sat>
 
 ** TODO [#B] ascii-ify diagram                                          :E1:
 ** TODO [#B] replace "object identifier" by \lstcd{ObjID} and the like?
@@ -270,6 +271,22 @@ TODO: remove $ from Hs code
 validateA $
   parse every object in ObjStms
 
+** NOTE [#A] meta thoughts (theme, focus, audience)
+
+- assume PDF expert? no, though will be hard going
+  - no way our text will be sufficient!
+  - so, how can we convey *content* to non-experts?! 
+
+- assume LangSec kinda person
+  - understand security implications of input formats!!
+     
+- assume Hs expert? no, hopefully computer scientists can read well enough
+  
+- lessons
+  - file offsets
+  - unintended/surprising complexity
+  - termination: know?
+          
 ** TODO [#A] paper writing
 **** WAIT 1. Introduction [WH]
 **** DONE 2. The PDF Trust Chain
@@ -280,7 +297,7 @@ validateA $
 **** WAIT 3.C. Vulnerabilities 
 **** TODO 4. Specifying the DOM's Foundations
 ***** DONE 4.A. A Specification?
-***** DONE 4.B. Stages 1 - 4, Preliminaries
+***** TODO 4.B. Preliminaries [update]                               :E1:
 ***** DONE 4.C. Stage 1: Find \& Parse Header and Trailer
 ***** TODO 4.D. Stage 2: Find \& Parse Incremental Updates           :E1:
 ***** TODO 4.E. Stage 3: Combine Incremental Updates                 :E1:
@@ -306,14 +323,16 @@ validateA $
  :               else parseObj1(pdp) == Error _
 
 * TODO the spec (spec.hs)
-** TODO [#C] this dropped, any solution?
+** TODO [#C] validateAction and cavities : dropped, any solution?
+
+Note \lstcd{validateAction}: it differs from \lstcd{validate} in that
+its argument can have side-effects (fail or change the file reading point).
 
     validateAction $
       -- ensures nothing in the cavity between dictionary and ``startxref''
       do
       cs <- readToPrimitive startxrefOff -- get bytes up to `startxrefOff`
       return (all isSpace cs)
-
 
 ** TODO [#A] fix spec: do we pass jmp everywhere that's needed?
 SCHEDULED: <2022-02-03 Thu>
