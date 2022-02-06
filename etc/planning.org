@@ -150,7 +150,8 @@ I'm thinking
     
 ** TODO [#A] finish section 4 and notify Bill
 SCHEDULED: <2022-02-05 Sat>
-
+** TODO add xspace
+see v2v/PapersWritten/CmpctPaper/prelude.tex
 ** NOTE misc/old-ish
 
 - cavities - ??

@@ -93,7 +93,7 @@ The full spec can be found online at \cite{daedalusrepo}.
   Executable does not imply efficient, the specification is written
   primarily to be \emph{clear}.}.
   %
-  We already have the PDF standard: not always clear, not always
+  We already have the PDF standard: which is not always clear, not always
   consistent. 
   This is our motivation for choosing Haskell over English prose or
   pseudo-code or other informal approaches.
@@ -110,27 +110,19 @@ The full spec can be found online at \cite{daedalusrepo}.
   
 \item Our specification hides no difficulties: one could implement a PDF parser
   by writing the omitted functions, but the spec stands complete, as
-  is\footnote{One caveat: the addition of support for \emph{some} features
-  could require some re-design.  E.g., signature validation, as discussed in
-  \cref{sec:updates-and-signatures} would require non-trivial changes.
-  }!
+  is!
+  % \footnote{One caveat: the addition of support for \emph{some} features
+  % could require some re-design.  E.g., signature validation, as discussed in
+  % \cref{sec:updates-and-signatures} would require non-trivial changes.
+  % }
 \end{itemize}
-
-% need to say: These structures are not necessarily concrete values--e.g. parsed
-% XRef table--but they do exist `conceptually'.
 
 This spec supports PDF 2.0, including compressed objects and XRef streams.
 %
 It (safely) ignores linearization data, and in hybrid XRef PDFs
-it ignores the traditional xrefs for pre 1.5 readers.
+it ignores the traditional \xref{} tables designed for pre PDF 1.5 readers.
 It processes signatures (as incremental updates) but it does not support
 validation of signatures.
-
-\mtnote{brings up issues:
-  How much validation to do?
-  Are we specifying a renderer or a text-extractor?
-  Are we supporting the validation of signatures (which radically
-  changes things)?}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -155,60 +147,67 @@ import           Streams
 \fi
 %%%% end: Hs code not in paper %%%%
 
-\mttodo{the P monad; monads; move ... into here}
+In this section we define \lstcd{pPDFDom} which does the parsing \&
+computation for stages 1-4.
+% 
+Refer to \cref{fig:spec} for its top level definition (compare to
+\cref{fig:pdf-trust-chain}).  We'll define the component stages in the
+following sections.
 
-What follows is the definition of \lstcd{pPDFDOM} which does the
-parsing \& computation for stages 1-4;
-relying on primitive parsers, it creates the \lstcd{DOM}.
-Here is its type signature
-\begin{codeNoExecute}
-pPDFDom :: P DOM
-\end{codeNoExecute}
-which indicates that
-\lstcd{pPDFDom} is a ``monadic parser'' \lstcd{P} that returns a
+Line 1 is \lstcd{pPDFDom}'s type signature, indicating 
+that it is a ``monadic parser'' \lstcd{P} that returns a
 value of type \lstcd{DOM}.
-\note{The Monads: all you need to know!}
 
-A monad is a way to sequence effectful constructs in a purely
-functional manner ... \todo{Exception/maybe modad}
-In Haskell a monad can sequence many effectful constructs: global variables,
-and etc. However, \lstcd{P} is a simple monad that effectively has one
-read-only variable (the PDF file being read), and one mutable variable
-\rdloc{}, the offset in the file where reading (i.e., the primitive parsing)
-occurs.
-I.e., we have
-a single effectful primitive monadic function\footnote{
-  We'll use the term ``action'' to refer to a monadic function:
+Monads don't need to be complex, this is what you need to know
+for this paper:
+\begin{itemize}
+  \item A monad is a way to sequence effectful constructs in a purely
+    functional manner; effects being global variables (or mutable
+    state), exceptions, or I/O.
+  \item Since Haskell is purely functional, we have a simple monad
+    \lstcd{P} that captures, under the hood, our desired effects.
+  \item Our \lstcd{P} monad supports
+    \begin{itemize}
+    \item one read-only variable (the PDF file being read)
+    \item one mutable variable \rdloc{}, the offset in the file where
+      reading (i.e., the primitive parsing) occurs; we update it
+      with
+  \begin{codeNoExecute}
+  seekPrimitive :: Offset -> P ()
+  seekPrimitive off = <update readLocation with 'off'>
+  \end{codeNoExecute}
+      \mttodo{readLocation equals \rdloc{}?}  and it is accessed
+      implicitly by the primitive parsers in \lstcd{P}.
+    \item Exceptions (i.e., the \lstcd{Maybe} monad): any action
+      may fail, failure propagates naturally without the need for
+      throwing/catching exceptions.
+    \end{itemize}
+\item We use the \lstcd{do} syntactic sugar to easily sequence
+  monadic actions.
+  E.g.,
+  \begin{codeNoExecute}
+  topAction :: P Int
+  topAction = do
+              result1 <- action1 args1...
+              let x = <PURELY-FUNCTIONAL-EXPRESSION>
+                  f x = <FUNCTION> -- not an action
+              result2 <- action2 result1 args2...
+              return (anyPureFunction result2)
+  \end{codeNoExecute}
+  We use the term ``action'' to refer to a monadic function:
   i.e., a function having a type scheme of ``\lstcd{a -> P b}''.
-}:
-\begin{codeNoExecute}
-    seekPrimitive :: Offset -> P ()
-    seekPrimitive offset = <update readLocation to be 'offset'>
-\end{codeNoExecute}
-\mttodo{readLocation equal \rdloc{}?}
+\item Important note: any action can fail and stop the parsing,
+  and the use of the \lstcd{x <- expr} ``bind'' syntax indicates
+  that \lstcd{expr} is an action.
+\end{itemize}
 
-\haskellnote{
-  The \lstcd{do} keyword indicates the start of monadic code.
-}
-
-The action \lstcd{pHeaderAndTrailer} has type \lstcd{P ((Int,Int),Offset)}.
-\todo{FIXME!}
-it will ``return failure'' if the header cannot be found or is malformed.
-If any action fails, the whole parser fails,
-
-\todo{FIXME:}
-For the sake of lucidity, we sometimes add \emph{type annotations} in
-the code, note in line 2 of the above that \lstcd{::P(XRefRaw,Offset)}
-indicates the type of the expression preceding it.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Overview}
-
-Refer to \cref{fig:spec} for definition of \lstcd{pPDFDom} (compare to \cref{fig:pdf-trust-chain}).
-We'll define the component stages in the following sections.
+To further elucidate the code, we sometimes add \emph{type
+annotations} on expressions in the code, note lines 8, 11, 14 in
+\cref{fig:spec}.
 
 \begin{figure}[t]
 \centering
+\lstset{numbers=right}
 \begin{code}
 pPDFDom :: P DOM
 pPDFDom =
@@ -336,8 +335,7 @@ of its \xref{} entry.  This design relies on implementing
 the specification strictly: an \xref{} entry must have exactly 20 bytes.
 
 However, parsing the \xref{} table and trailer is just a special case
-of parsing all the incremental updates, as we do here:
-
+of parsing \emph{all} the incremental updates, which we show here:
 \lstset{numbers=right}
 \begin{code}
 parseAllIncUpdates :: SEEK -> Offset -> P [Update]
@@ -397,12 +395,12 @@ without parsing the \xref{} entries.
 
 So, here's where we are at this point in the computation:
 \begin{itemize}
-\item We can determine all of the \objids in the PDF.
+\item We can determine all of the \objids{} in the PDF.
 \item We have not parsed any PDF values except trailer dictionaries.
 \item We have definitely rejected some PDFs by this point.
 \item We could output the trailer dictionaries or the list of
   incremental updates.
-\item We have detected overlapping \objids in the \xref tables.
+\item We have detected overlapping \objids{} in the \xref{} tables.
 \end{itemize}
 
 
