@@ -1,16 +1,16 @@
-% walk through the format definition in technical detail:
-\section{Specifying PDF: Goals and Approach}
-\label{sec:spec-goals}
+\section{Specifying the PDF DOM's Foundations}
+\label{sec:specifying}
 
-\todo{NEED STILL?:
 This section %
 states our goals in producing a formal partial definition of PDF
 (\Cref{sec:spec-goals}) and then presents the specification's core
 definitions (\Cref{sec:core}), followed by its definitions of each
 stage of the PDF Trust Chain (\Crefrange{sec:stage-1}{sec:stage-4}).
 %
-\Cref{sec:results-analysis} analyses the resulting specification.
-}
+\Cref{sec:assessing} analyses the resulting specification.
+
+\subsection{Specifying PDF: Goals and Approach}
+\label{sec:spec-goals}
 
 % REMEMBER terms: complies with standard, compatible with
 Ideally, a PDF implementation should:
@@ -140,9 +140,6 @@ it ignores the traditional \xref{} tables designed for pre PDF 1.5 readers.
 It processes signatures (as incremental updates) but it does not support
 validation of signatures.
 
-\section{Specifying the PDF DOM's Foundations \note{4pp}}
-\label{sec:specifying}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Core definitions}
 \label{sec:core}
@@ -178,8 +175,8 @@ describe a surprising variety of data containers.
 For the purposes of this paper, it suffices to note that:
 \begin{itemize}
   \item A monad is a way to sequence effectful constructs in a purely
-    functional manner; effects are global variables (or mutable
-    state), exceptions, I/O, or etc.
+    functional manner; effects can be global variables (or mutable
+    state), exceptions, I/O, and etc.
   \item We use the \lstcd{P} monad
     that captures, under the hood, our desired effects.
   \item The \lstcd{P} monad supports
