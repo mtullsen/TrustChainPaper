@@ -217,7 +217,14 @@ Such cavities can be used to hold data in an alternate format giving rise to pol
 to hold \emph{shellcode} that might be naively loaded into memory and then exploited 
 in vulnerable parsers.
 In addition, various descriptions in the PDF Standard require "parsing backwards" which is 
-an unnatural programming language idiom. The PDF specification also requires multiple
+an unnatural programming language idiom. Furthermore, some explicit pre-DOM requirements
+in the PDF Standard
+refer to bytes \emph{before} a given byte offset and that parsers are highly unlikely to check. 
+Our investigations reveal that these requirements are effectively "writer requirements" (unparsers) to
+support better file reconstruction and recovery in the event of later data corruption. 
+However if these requirements are never checked or enforced then it is possible to use them as attack
+vectors.  
+The PDF specification also requires multiple
 dialects and computation (such as stream decompression).
 
 If a PDF file accidentally or maliciously fails to adhere to this set of complex PDF file structure
@@ -254,15 +261,20 @@ ensure the PDF Trust Chain is robust prior to DOM processing.
 % As will become even more apparent, there is a significant amount of
 % parsing and computation that needs to be done \emph{pre-DOM}.
 
-Given our recent points about the \emph{PDF Trust Chain}
-(\cref{sec:trust-chain}),
-it should not surprise us that many PDF attack vectors
-involve some aspect of breaking the \emph{DOM} abstraction.
+The majority of prior work researching PDF vulnerabilities starts with a pre-existing PDF DOM,
+completely ignoring pre-DOM parsing and processing. This work typically looks for
+JavaScript streams or strings, action objects, URL strings, or file attachment objects that 
+can lurk in various places throughout the PDF DOM. Prior work in privacy has identified that
+incremental updates obviously pose a risk for redaction and data scrubbing workflows if not processed correctly.
+Given our recent points about the \emph{PDF Trust Chain} (\cref{sec:trust-chain}), it should not surprise us that some PDF attack vectors involve aspects of breaking the \emph{DOM} abstraction.
 i.e., the vulnerabilities occur \emph{pre-DOM}.
 
 {\bf{Shadow Attacks}} \todo{...}
 
-{\bf{Parser Differentials}} are a real threat as attackers leverage the differences to present different information to different individuals (where the individual can be a human or a machine). Parser differentials arise due to a combination of parser weaknesses and unexpected inputs
+{\bf{Parser Differentials}} are a real threat as attackers leverage differences in output
+to present different information to different individuals (where the individual be a human
+or a machine). Parser differentials arise due to a combination of parser weaknesses, 
+parser permissiveness and unexpected input.
 \begin{lstlisting}[style=meta]
   - writer errors
   - parser differentials
@@ -287,5 +299,18 @@ that does impact processing (e.g. in comments or strings, in freed or unreferenc
     "well-defined"
 \end{lstlisting}
 
-{\bf{Others}} \todo{Maybe PII/redaction issues - just 'cos you delete something in a PDF doesn't mean it is really deleted (thanks to incremental updates)!!!! }
+It should also be no surprise that due to complexity and subtleties of the PDF Standard described above,
+extant data exhibits many errors in cross-reference tables and related pre-DOM context information.
+To date, there has not been a comprehensive analysis of PDF file structure faults in extant data
+caused by defects in PDF writers. One core reason is that there tooling is lacking that can report
+all technical variations from the PDF Standard. However analysis of open-source PDF parser code bases
+does highlight several permissive features related to pre-DOM processing:
 
+\begin{itemize}
+    \item deviation from the required 20-byte fixed cross-reference table entry, with support for
+    19- and 21-byte variations due to additional whitespace or incorrect line endings;
+    \item errors in byte offsets to indirect PDF objects and objects in object streams;
+    \item errors with \lstcd{startxref} byte offsets;
+    \item incorrect trailer dictionary data (such as \lstcd{Size}), leading to implementations 
+    making their own independent decisions;  
+\end{itemize}
