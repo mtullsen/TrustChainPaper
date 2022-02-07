@@ -33,7 +33,12 @@ data that enables a Linearization-aware PDF processor to quickly display the ope
 while the rest of a large PDF can download in the background.
 Linearizatiom data is also invalidated by incremental updates (since an update might change objects
 on the opening PDF page) and must therefore be checked and ignored.
-As not all PDF parsers support Linearization, it is a known form of "parser differential by design". 
+%
+Because not all PDF parsers support Linearization, it is a known form
+of ``parser differential by design," where a \emph{parser
+  differential} is a semantically meaningful difference in the result
+of two document processors when run on the same document.
+%
 For the purposes of this paper, we will not consider Linearized PDF further.
 
 The \emph{Body} section is where all indirect PDF objects are defined. Indirect PDF objects
