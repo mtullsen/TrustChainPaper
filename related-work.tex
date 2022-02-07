@@ -1,12 +1,6 @@
 \section{Related Work}
 \label{sec:rel-work}
 
-\todo{Refer to these and others:
-  pdf-insecurity.org publications,
-  https://itextpdf.com/en/blog/technical-notes/investigating-pdf-shadow-attacks-depth-pdf-security-using-itext-part-3,
-  K. Koptyra and M. R. Ogiela, “Distributed Steganography in PDF Files - Secrets Hidden in Modified Pages,” Entropy, vol. 22, no. 6, p. 600, May 2020, doi: 10.3390/e22060600.
-}
-
 % defining the PDF standard:
 The PDF Association maintains the primary effort to specify the PDF
 format, which is done semi-formally in the PDF standard ISO 32000, and has now
@@ -25,9 +19,9 @@ of the key features used to define referential context, including
 cross-reference streams and incremental updates.
 
 % DOM/security attacks:
-A wealth of recent work has discovered methods for subverting the
-end-to-end guarantees of document integrity that are provided by
-digital signatures in
+A wealth of recent work has discovered methods (named \emph{Shadow
+  Attacks}) for subverting the end-to-end guarantees of document
+integrity that are provided by digital signatures in
 PDF~\cite{mullerPracticalDecryptionExFiltration2019,mladenovTrillionDollarRefund2019,mullerProcessingDangerousPaths2021,ndsssymposiumNDSS2021Shadow2021,rohlmannBreakingSpecificationPDF2021}.
 %
 Many of these attacks rely on mutating the referential structure of a
@@ -37,9 +31,19 @@ updates;
 to our knowledge, the attacks published to date only perform basic
 updates to the DOM, and do not rely on nuanced features of semantics
 of cross-reference streams.
+%
+Recent work~\cite{itextShadowAttack} has also introduced automated
+tools for determining if a given PDF document may likely be extended
+to form a Shadow Attack, which perform an analysis of a given
+document's DOM to identify patterns that indicate that the document
+has likely been crafted in order to perform a Shadow Attack.
+%
+The search for such patterns does not involve a rigorous definition of
+data structures used to refer to objects in the DOM, which is provided
+by our approach.
 
 % parser combinators:
-Parser combinators are a well-known abstraction for constructing
+Parser combinators are a well-studied abstraction for constructing
 parsers programmatically and are available as libraries for several
 industrial-strength languages, including the \texttt{parsec}
 library~\cite{leijen2001parsec} originally implemented for Haskell and
