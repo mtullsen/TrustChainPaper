@@ -2,6 +2,7 @@
 \label{sec:pdf}
 
 \subsection{PDF Structure}
+\label{sec:pdfstructure}
 
 \begin{figure}[t]
     \centering
@@ -92,16 +93,31 @@ defines changes to objects made by the incremental update. This may include free
 objects in the original PDF by adding them to the free list (the actual indirect PDF objects in
 the original PDF file are not actually deleted), and/or the addition of new objects. 
 
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.65\linewidth]{figures/xrefstm.png}
+    \caption{Example of a PDF 1.5 cross-reference stream.}
+    \label{fig:XRefStm}
+\end{figure}
+
 As previously mentioned, PDF 1.5 introduced cross-reference streams and object streams as a means
 to overcome physical file size limitations imposed by the 10-digit byte offset in the traditional
 cross-reference tables.
 Such files replace the cross-reference table section (including the \lstcd{xref} keyword) 
-with a PDF stream object containing binary data. 
+with a PDF stream object containing binary data, as shown in \cref{fig:XRefStm}. 
 Like all streams in PDF, cross-reference streams may also be compressed with algorithms such as FLATE 
 to further reduce file size. If a cross-reference stream is used, then the Trailer section is also no
 longer used. Instead the context-defining key/value pairs are added to the stream extent dictionary of the cross-reference stream.
 
-Another optimization added by PDF 1.5 were object streams. It can be appreciated that a large PDF will
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.65\linewidth]{figures/ObjStm.png}
+    \caption{Example of a PDF 1.5 object stream and its contents.}
+    \label{fig:ObjStm}
+\end{figure}
+
+Another optimization added by PDF 1.5 were object streams as illustrated in \cref{fig:ObjStm}.
+It can be appreciated that a large PDF will
 undoubtedly have many indirect objects and thus the repeated use of the object identifier pair with  \lstcd{obj} and \lstcd{endobj} keywords can become a significant size burden. Object streams are
 compressible text streams "... in which a sequence of indirect objects may be stored, as an 
 alternative to their being stored at the outermost PDF file level". 
@@ -110,9 +126,11 @@ By using stream compression algorithms, the text-based data can be drastically r
 If object streams are used then cross-reference streams must also be used, however cross-reference 
 streams may also be used by themselves with the traditional Body section.
 
-It noted above because both cross-reference streams and object streams are standard PDF streams they 
-benefit from stream compression. However this also means that parsers are then also highly 
+As noted above because both cross-reference streams and object streams are standard PDF streams, they 
+can benefit from stream compression. However this also means that parsers are then also  
 susceptible to "ZIP bomb" attacks and handling of semantic errors (invalid stream extent dictionaries) during pre-DOM processing!
+
+A further complication is the concept of "hybrid-reference" PDF files, where both traditional cross-reference tables and cross-reference streams co-exist in the same PDF so as to provide some semblance of support for non-PDF 1.5 aware parsers. This complication is not addressed further in this paper.
 
 There is no limit to the number or types of incremental updates that can be added to a PDF file. Later
 updates may also "undo" changes from any previous incremental updates by restoring (changing to in-use)
@@ -120,10 +138,11 @@ previously feed objects. For incremental updates, PDF object numbering
 does not have to be sequential, with skipped object numbers assumed to be on
 the free list (although this is not stated explicitly in the PDF Standard).
 
-In effect, incremental updates form a timeline of all changes made to a PDF with parsing starting
-with the most recent change.
+In effect, incremental updates form a timeline of all changes made to a PDF, with parsing starting
+at the end of the file with the most recent change back to the original document at the to of the file.
 
 \subsection{Parsing PDF File Structure}
+\label{sec:parsingfile}
 
 The above paragraphs describe the physical layout of a PDF, but the processing sequence may not be so apparent. The following paragraphs describe the processing necessary to correctly parse a PDF file with incremental updates.
 
@@ -146,62 +165,78 @@ extent dictionary data.
 The parser must then locate either the \lstcd{xref} keyword for
 traditional PDF cross-reference tables, or a PDF object that should be
 a cross-reference stream, identified by \lstcd{x y obj} tokens. 
-A parser can only determine if the PDF object \emph{is} a
+A parser must then determine if the PDF object is a
 semantically valid cross-reference stream by further parsing the stream extent dictionary and 
-validating the necessary key/value pairs and also recognizing the \lstcd{stream} keyword after the dictionary end token \lstcd{>>}. 
+validating the necessary key/value pairs and also recognizing the \lstcd{stream} keyword after the dictionary end token \lstcd{>>} and the \lstcd{endstream} keyword (see \cref{fig:XRefStm}). 
 
 In the case of traditional PDF
 cross-reference tables, after the cross reference table will be the
-trailer dictionary identified by the \lstcd{trailer} keyword or,
-alternatively for PDF 1.5 and later files with cross-reference
+trailer dictionary identified by the \lstcd{trailer} keyword. 
+Note that this algorithm is at
+odds with the file structure as defined in the PDF Standard: the Trailer Section is defined
+to contain the trailer dictionary and \lstcd{startxref} keyword, yet the parsing algorithm
+requires locating the first trailer \emph{after} the end of the cross-reference table 
+(versus the last trailer dictionary above the \lstcd{startxref} keyword). 
+Alternatively for PDF 1.5 and later files with cross-reference
 streams, the trailer dictionary keys should be in the stream extent
-dictionary of the cross reference stream. Note that this algorithm is at
-odds with the file structure defined in the PDF Standard: the Trailer Section is defined
-to contain the trailer dictionary and \lstcd{startxref} keyword, yet the processing algorithm
-requires locating the first trailer \emph{after} the end of the cross-reference table. 
+dictionary of the cross reference stream. 
 
-... these are identified by a \lstcd{Prev} entry in either the trailer
-dictionary or the stream extent dictionary of a cross-reference stream. The
-value of the \lstcd{Prev} key is another byte offset to the immediately
-preceding incremental update which, again, can either be a traditional
+Any previous cross-reference data is identified by the value of the \lstcd{Prev} entry in either
+the trailer dictionary or the stream extent dictionary of a cross-reference stream. The
+value of the \lstcd{Prev} key the byte offset to the immediately
+preceding cross-reference table which, again, can either be a traditional
 cross-reference table and to the start of the \lstcd{xref} keyword, or to a
-cross-reference stream. This process repeats, working from the most recent
+cross-reference stream. This process repeats, working from the most recent incremental
 update back through time to the original PDF document.
 
-Of particular note is the \lstcd{Size} entry, which
-is one greater than the largest object number allocated in the PDF
-file.
+In each incremental update, the trailer dictionary is required to duplicate all keys from the previous
+trailer and update accordingly. Of particular note is the \lstcd{Size} entry, which must be
+one greater than the largest object number allocated in the PDF file. Objects with numbers greater
+than \lstcd{Size} are defined to be the special PDF \lstcd{null} object.
 
-In this stage, data in each cross reference table must then be parsed to
-identify the byte offset to the start of each PDF object. Note also that PDF
-does not define the byte offset to the end of an object.
+Data in each cross reference table must be parsed to
+identify the byte offset to the start of each PDF object, whether this be a file offset to an indirect object in a Body section, or a relative object position within an object stream (and where the object position is transformed to a byte offset within the object stream from the first line of text in the object stream). Note also that with traditional PDF cross-reference tables there is no definition for the byte offset to the end of an object, however for cross-reference streams this can be pre-determined.
 
 \mttodo{maybe: import the type definitions}
 
 \subsection{Root Causes of PDF Complexity}
+\label{sec:rootcause}
 
 Most data formats can be described by much simpler mechanisms;
 most language processors (e.g., a Python parser) can be described and parsed by
 textbook methods (e.g., the old \emph{lex} and \emph{yacc} are sufficient for
 most language processors);
 so what makes PDF processing so much more complex?
-\begin{lstlisting}[style=meta]
-  - indirect offsets
-    - which may recursively point to other indirect offsets
-    - need programming language
-      (or a 'seek' in the data definition lang)
-  - DOM is a directed graph structure that allows cycles and arbitrary references (so not a DAG)
-    - objects point to objects via byte offsets (cf. not by nested expressions such as XML)  
-  - backwards parsing
-  - incremental updates as a set of deltas to be applied to the file, which change the DOM
-    - (note: unlike HTML, PDF's DOM is fixed and cannot be altered by JS)
-  - XRef tables ...
-  - ... giving rise to cavities
-    - giving rise to polyglots
-  - dependent parsers
-\end{lstlisting}
 
-\subsection{\todo{para. needs home: ``data integrity relationships...''}}
+As described above, PDF uses random access to byte offsets to then parse lines of text,
+which may then switch to binary data parsing. 
+In some, but not all, cases the end of an object can be known, but in the most common case 
+of traditional cross-reference tables only forward parsing can determine the end of an object. 
+This gives rise to a phenomena we call \emph{cavities} where not every byte in a PDF file is parsed.
+Such cavities can be used to hold data in an alternate format giving rise to polyglots, or potentially
+to hold \emph{shellcode} that might be naively loaded into memory and then exploited 
+in vulnerable parsers.
+In addition, various descriptions in the PDF Standard require "parsing backwards" which is 
+an unnatural programming language idiom. The PDF specification also requires multiple
+dialects and computation (such as stream decompression).
+
+If a PDF file accidentally or maliciously fails to adhere to this set of complex PDF file structure
+rules, or a parser contains bugs, PDF parsers will typically silently attempt to recover
+by reconstructing the cross-reference table information. 
+This is not defined by the PDF file format Standard so 
+ad-hoc algorithms are used. Typical reconstruction algorithms parse from the start of a PDF 
+file, searching for indirect PDF objects (\lstcd{x y obj ... endobj}). This can clearly result
+in ambiguous reconstruction of a PDF DOM and is highly likely to lead to parser differentials.
+
+The resultant PDF DOM created by a set of indirect PDF objects forms a directed graph. 
+Each PDF object is a vertex and indirect references between objects forming the directed edges. It is 
+specifically \emph{not} acyclic as PDF formally defines concepts such as parent references to 
+pages and other objects. This is different to many XML-based file formats because XML naturally forces hierarchical relationships via nesting of tags.
+
+The PDF Standard defines very few explicit data integrity relationships for pre-DOM parsing. 
+Our work has been to critically review the under-appreciated and under-studied pre-DOM PDF
+file structure using formal methods to identify data integrity relationships that can 
+ensure the PDF Trust Chain is robust prior to DOM processing.
 
 \todo{we should use the concept of "data integrity relationships" being the
   essence of the necessary context. e.g. PDF incremental updates are appended to
@@ -221,13 +256,13 @@ so what makes PDF processing so much more complex?
 
 Given our recent points about the \emph{PDF Trust Chain}
 (\cref{sec:trust-chain}),
-it should not surprise us that most of the PDF attack vectors
+it should not surprise us that many PDF attack vectors
 involve some aspect of breaking the \emph{DOM} abstraction.
-I.e., the vulnerabilities occur \emph{pre-DOM}.
+i.e., the vulnerabilities occur \emph{pre-DOM}.
 
 {\bf{Shadow Attacks}} \todo{...}
 
-{\bf{Schizophrenia}} \todo{should define what we mean by schizo - is this the same thing that gives rise to parser differentials or a feature of of the syntax or layout of PDF?}
+{\bf{Parser Differentials}} are a real threat as attackers leverage the differences to present different information to different individuals (where the individual can be a human or a machine). Parser differentials arise due to a combination of parser weaknesses and unexpected inputs
 \begin{lstlisting}[style=meta]
   - writer errors
   - parser differentials
@@ -236,14 +271,13 @@ I.e., the vulnerabilities occur \emph{pre-DOM}.
   - blind faith in incremental updates (Shadow Attacks)
 \end{lstlisting}
 
-{\bf{Polyglots}} 
-\todo{... arising from cavities and permissive implementations and ...}
-\begin{lstlisting}[style=meta]
-- Multiple places for hidden/unused/malicious data in PDF
-  - non-obvious places, unnoticed when "simply parsing"
-  - e.g., shadow-attacks
-  - dead bytes, dead objects, dead updates, dead linearization sections, etc.
-\end{lstlisting}
+{\bf{Polyglots}} are a potential threat in any system or workflow which relies on different parsers
+at different stages. If a firewall product determines a file to be of file type \emph{X} and then only 
+scans for vulnerabilities relevant to file type \emph{X}, but later software decides the same file 
+is file type \emph{Y}, an organization is then vulnerable. Polyglots arise from the creative use of
+cavities, permissive implementations, 
+and other blind spots in a file format specification where arbitrary data can be placed 
+that does impact processing (e.g. in comments or strings, in freed or unreferenced objects, etc.).
 
 {\bf{Denial of Service (DOS)}} 
 %
@@ -252,8 +286,6 @@ I.e., the vulnerabilities occur \emph{pre-DOM}.
 - format may not be well-defined because the recursion is not
     "well-defined"
 \end{lstlisting}
-
-
 
 {\bf{Others}} \todo{Maybe PII/redaction issues - just 'cos you delete something in a PDF doesn't mean it is really deleted (thanks to incremental updates)!!!! }
 
