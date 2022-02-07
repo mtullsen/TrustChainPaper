@@ -529,7 +529,13 @@ Given that some of the properties may be indicators of shadow attacks or PDFs th
 As promised, we'll now discuss the separation of Stage 2 from Stage 3
 and this notion of \lstcd{XRefRaw}: we \emph{could} have merged the
 stages, but at the expense of forcing every implementation to do more
-parsing than it strictly needs to.  Our philosophy here is to capture
+parsing than it strictly needs to.
+%
+While Stages 2 and 3 could feasibly be defined as a single stage, it would effectively force every compliant to parse and validate to a degree that may not be needed by many applications.
+%
+Our specification was designed to include as much validation 
+
+Our philosophy here is to capture
 a reasonably realistic implementation with our specification and put
 functionality that is in the realm of validation into \lstcd{validate}
 instances.
