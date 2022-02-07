@@ -68,9 +68,11 @@ via \emph{linearization}.
 
 % security consequences::
 Difficulties in expressing the structure and semantics of references
-continue to result in critical security vulnerabilities, in addition
-to serious format ambiguities, which may cause different parties to
-assign wildly different semantic interpretations to the same document.
+continue to result in critical security vulnerabilities.
+%
+The may induce \emph{ambiguities}, which may cause different parties
+to assign wildly different semantic interpretations to the same
+document.
 %
 Recently discovered attacks that compromise the integrity and
 usability of digital
@@ -78,9 +80,9 @@ signatures~\cite{rohlmannBreakingSpecificationPDF2021,
   mainkaShadowAttacksHiding2021} use maliciously crafted
 cross-reference tables.
 %
-Document \emph{cavities}---segments of syntactically valid but
-unreferenced data objects---may store content that is completely
-unobservable to parser clients.
+Document \emph{cavities}---segments of a document that are not
+reflected in its semantic interpretation---may store content that is
+completely unobservable to parser clients.
 %
 Such cavities are a powerful mechanism for creating \emph{polyglot
   files} (i.e., files that belong to multiple, unexpected formats),
@@ -88,27 +90,19 @@ which themselves have been used in recent critical system security
 exploits~\cite{psychicPaper}.
 
 % potential solutions and why they fail:
-Context-free grammars and weaker formalisms are not suitable to define
-and subsequently analyze such formats in the full detail.
+Context-free grammars are not suitable to define such formats in full
+detail.
 %
-In the conventional setting a parser returns a semantic value
-that is then potentially transformed by further computation, which 
-itself be defined in an attribute grammar or parser client logic.
+In the conventional setting, a parser returns a semantic value that is
+then potentially transformed by further computation, which itself be
+defined in an attribute grammar or parser client logic.
 %
-While feasible, the main limitation of such an approach is that
-computation on semantic values must then itself effectively parse
-unstructured data after computing partial contextual information;
+The main limitation of such an approach is that computation on
+semantic values must then itself effectively parse unstructured data
+after computing partial contextual information;
 %
 such parsing logic is exactly what should be expressed declaratively
 in a grammar and implemented by a generated parser.
-%
-Alternatively, it could be feasible to express some practical formats
-in fundamental grammar classes that are more expressive than those
-traditionally used to define formats, such as context-\emph{sensitive}
-grammars.
-%
-However, for such a general class, bounds on parsing performance are
-too loose to ensure acceptable practical performance.
 
 % our solution: very careful parser combinators:
 This paper explores a third approach: parser combinators that include
@@ -156,14 +150,13 @@ necessary to process each appended incremental update in reverse
 order.
 
 % results:
-The results of our case study show that such features can by
-formalized effectively.
+Our case study shows that such features can by formalized effectively.
 %
-We have found that the resulting definition is more subtle than what
-may be often be implemented by inspecting the PDF standard or many
-extant documents: in the process of producing our definition, we
-raised several issues with the current PDF standard which have been
-acknowledged and addressed by the PDF Association and the ISO.
+The resulting definition is more subtle than what may be often be
+implemented by inspecting the PDF standard or many extant documents:
+in the process of producing our definition, we raised several issues
+with the current PDF standard which have been acknowledged and
+addressed by the PDF Association and the ISO.
 %
 However, there is nothing in the format definition that requires the
 specific language of combinators employed: a key goal of our work is
@@ -177,7 +170,7 @@ definition languages as they are developed.
 \paragraph*{Organization} The rest of this paper is organized as
 follows;
 %
-\Cref{sec:trust-chain} presents the ``Trust Chain'', a key metaphor
+\Cref{sec:trust-chain} presents the ``Trust Chain,'' a key metaphor
 for understanding the intricacies of PDF pre-DOM parsing;
 %
 \Cref{sec:pdf} reviews complexities and associated vulnerabilities in

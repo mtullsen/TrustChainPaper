@@ -1,33 +1,44 @@
-% A literate Haskell file
-
-\section{Specifying the DOM's Foundations \note{4pp}}
+% walk through the format definition in technical detail:
+\section{Specifying the PDF DOM's Foundations \note{4pp}}
 \label{sec:specifying}
+%
+This section %
+states our goals in producing a formal partial definition of PDF
+(\Cref{sec:spec-goals}) and then presents the specification's core
+definitions (\Cref{sec:core}), followed by its definitions of each
+stage of the PDF Trust Chain (\Crefrange{sec:stage-1}{sec:stage-4}).
+%
+\Cref{sec:results-analysis} analyses the resulting specification.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{A Specification?}
+\subsection{Requirements of a Specification}
+\label{sec:spec-goals}
 % REMEMBER terms: complies with standard, compatible with
-
-What do we want from a PDF implementation?
-Among other things we want it to
+Ideally, a PDF implementation should:
 \begin{itemize}
-\item comply with the standard,
+\item comply with the PDF standard,
 \item when not fully supporting the standard, do so gracefully,
 \item support common PDF malformations
   to be compatible with extant PDFs, but \emph{without} introducing ambiguities
   or causing other unintended consequences,
-\item and all the while, contain minimal bugs and stay resilient against all attacks.
+\item and all the while, contain minimal bugs and stay resilient
+  against all attacks.
 \end{itemize}
 Achieving the above will be challenging due to many factors:
 \begin{itemize}
 \item The intrinsic complexity of PDF:
   PDF is a \emph{less than ideal} design that reflects 27 years of
   an evolving standard.
+  %
   PDF has multiple redundant features.
-  PDF is architected to allow for efficient implementations of
+  %
+  PDF is explicitly designed to facilitate efficient processing of
   large files (``efficiency hacks'').
+  %
   PDF involves multiple sublanguages and embedded formats.
-  PDF contains complex parsing needs:
-  E.g., searching backwards, embedded file offsets.
+  %
+  PDF contains complex parsing needs, such as backwards searching and
+  embedded file offsets.
 \item Lack of formality in standard. Thus, implementators
   need more effort to understand it and comply with it.
   Implementations commonly over implement, under implement,
@@ -46,10 +57,7 @@ Achieving the above will be challenging due to many factors:
     constructs used don't match?
   (4) What is \emph{required} from the PDF writer versus
     what do we \emph{require} the PDF reader to check?
-  (5) If given an incorrect PDF, is the tool's behavior undefined\footnote{
-      I.e., like ``undefined'' in the C programming language sense: the
-      compiler can do anything it wants!
-    } or is the tool \emph{required} to detect and report this?
+  (5) Behavior when given in incorrect PDF.
 \end{itemize}
 Failure to faithfully implement the standard can result in ambiguities
 between implementations as well as direct vulnerabilities (such as
@@ -62,24 +70,30 @@ Shadow Attacks or DOS attacks).
   IS a good PDF.  Thus, we have the tool that only reads the 'e'
   in ``endobj''.  Is this reasonable?  Are there vulnerabilities that
   would exist in such implementations?
-  }
-
-Writing a \emph{formal specification} is not going to solve all the above,
-but we believe it is an important first step toward clarifying the
-standard, understanding the vulnerabilties, and aiding the
-implementors of PDF.
-
-We use Haskell\footnote{
-Haskell is a statically typed, pure, lazy functional programming
-language~\cite{jones2003haskell}.
 }
-as a specification language for our specification.
+
+% define formal specification:
+A \emph{formal specification} of a format does not immediately resolve
+all of the above issues, but it is a critical artifact for clarifying
+the standard, understanding the vulnerabilties, and aiding
+implementors of PDF processors.
 %
+In this work, we have produced a specification of one component of PDF
+in the Haskell programming language~\cite{jones2003haskell}.
+%
+A detailed presentation of Haskell's features is beyond the scope of
+this paper, so we note only that it is a statically typed, pure,
+functional programming language with a lazy;
+%
+we review its other features throughout the paper when they are
+relevant.
+
+% say more about the spec's scope:
 The scope of our specification is the gap between the low level
 parsers (parsing integers, parsing XRef entries, etc.) and the
 processing that happens after the DOM is created (stages 5 and 6).
 %
-I.e., stages 1 - 4.
+I.e., stages 1--4.
 %
 Primitive parsers are assumed, not included in this spec, as other
 formalisms, such as the \emph{DaeDaLus Data Description
@@ -93,9 +107,8 @@ The full specification of DaeDaLus is publicly available
 online~\cite{daedalusrepo}.
 
 \begin{itemize}
-\item Our specification is formal and executable\footnote{
-  Executable does not imply efficient, the specification is written
-  primarily to be \emph{clear}.}.
+\item Our specification is formal and executable (though not
+  necessarily efficient).
   %
   We already have the PDF standard: which is not always clear, not always
   consistent. 
@@ -130,7 +143,8 @@ validation of signatures.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Preliminaries}
+\subsection{Core definitions}
+\label{sec:core}
 %%%% begin: Hs code not in paper %%%%
 \iffalse
 \begin{code}
@@ -151,26 +165,23 @@ import           Streams
 \fi
 %%%% end: Hs code not in paper %%%%
 
-In this section we define \lstcd{pPDFDom} which does the parsing \&
-computation for stages 1-4.
+\lstcd{pPDFDom} (\cref{fig:spec}) implements stages 1 through 4 (illustrated in \cref{fig:pdf-trust-chain}).
 % 
-Refer to \cref{fig:spec} for its top level definition (compare to
-\cref{fig:pdf-trust-chain}).  We'll define the component stages in the
-following sections.
-
-Line 1 is \lstcd{pPDFDom}'s type signature, indicating 
-that it is a ``monadic parser'' \lstcd{P} that returns a
-value of type \lstcd{DOM}.
-
-Monads don't need to be complex, this is what you need to know
-for this paper:
+Line 1 contains \lstcd{pPDFDom}'s type signature, indicating that it
+is a ``monadic parser'' \lstcd{P} that returns a value of type
+\lstcd{DOM}.
+%
+In general, monads are a rich class of parameterized types that
+describe a surprising variety of data containers.
+%
+For the purposes of this paper, it suffices to note that:
 \begin{itemize}
   \item A monad is a way to sequence effectful constructs in a purely
     functional manner; effects being global variables (or mutable
     state), exceptions, or I/O.
-  \item Since Haskell is purely functional, we have a simple monad
+  \item Because Haskell is purely functional, we have a simple monad
     \lstcd{P} that captures, under the hood, our desired effects.
-  \item Our \lstcd{P} monad supports
+  \item The \lstcd{P} monad supports
     \begin{itemize}
     \item one read-only variable (the PDF file being read)
     \item one mutable variable \rdloc{}, the offset in the file where
@@ -198,16 +209,16 @@ for this paper:
               result2 <- action2 result1 args2...
               return (anyPureFunction result2)
   \end{codeNoExecute}
-  We use the term ``action'' to refer to a monadic function:
-  i.e., a function having a type scheme of ``\lstcd{a -> P b}''.
+  The term ``action'' refers to a monadic function: i.e., a function
+  having a type scheme of ``\lstcd{a -> P b}''.
 \item Important note: any action can fail and stop the parsing,
   and the use of the \lstcd{x <- expr} ``bind'' syntax indicates
   that \lstcd{expr} is an action.
 \end{itemize}
 
 To further elucidate the code, we sometimes add \emph{type
-annotations} on expressions in the code, note lines 8, 11, 14 in
-\cref{fig:spec}.
+  annotations} on expressions in the code (see \cref{fig:spec} lines
+8, 11, and 14).
 
 \begin{figure}[t]
 \centering
@@ -231,15 +242,17 @@ pPDFDom =
     finalValidations dom version updates
     return dom
 \end{code}
-\caption{Stages 1-4 Specified.}
+\caption{A formalization of stages 1--4.}
 \label{fig:spec}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Stage 1: Find \& Parse Header and Trailer}
+\subsection{Stage 1: Find and Parse the Header and Trailer}
+\label{sec:stage-1}
 
-Here is the stage 1 code:
+% give the code for stage 1:
+The definition of stage 1 is as follows:
 \begin{code}
 findHeaderAndTrailer :: P (SEEK, Offset, Version)
 findHeaderAndTrailer =
@@ -256,15 +269,20 @@ findHeaderAndTrailer =
 type SEEK = Offset -> P () -- type of seek
 \end{code}
 
-The first thing to note is the two magic numbers 1000 and 1001, neither of
-these are specified by the PDF standard. They should be reasonably
-small.  Thus, we immediately see our first ambiguity in the standard,
-and an opportunity for a \pd{}.
-
-A non-obvious feature of PDF is that file offsets are in relation, not
-to the beginning of the file, but to the beginning of the \emph{PDF header}.
+Neither of the magic numbers $1000$ or $1001$ are specified precisely
+by the PDF standard, which requires only that they be numeric values
+that are ``reasonably small'' \todo{is this a quote?}.
 %
-The definition of the action \lstcd{seek} abstracts over this problem once and for all.
+This is an immediate cause of ambiguity in the standard (and thus an
+invitation for \pd{} in conformant document processors).
+
+File offsets in a PDF are not defined in relation to the beginning of
+the file, as might be expected, but instead to the beginning of the
+\emph{PDF header};
+%
+the \lstcd{seek} provides a clean abstraction that defines this
+aspect.
+%
 But we will need to pass \lstcd{seek} to all the actions that need to
 ``seek'' in the PDF file (note this being done in \cref{fig:spec}).
 
@@ -275,20 +293,21 @@ dependencies, thus they could be written in either order.
 
 The code for \lstcd{findStartxrefThenParseToEOF} is
 omitted, as it is more tedious than instructive.
-So, in this case, we'll describe it informally:
+%
+Informally, it:
 \begin{enumerate}
-\item Find the ``EOF marker'' \lstcd{\%\%EOF} (near the end of the physical
-  file)
-\item "Backwards parse" to find the last \lstcd{startxref}
-  keyword followed by an end-of-line sequence.
-\item Parse the integer value encoded as a sequence of ASCII bytes
+\item Finds the ``EOF marker'' \lstcd{\%\%EOF} (near the end of the physical
+  file);
+\item Parses ``backwards" to find the last \lstcd{startxref} keyword
+  followed by an end-of-line sequence;
+\item Parses the integer value encoded as a sequence of ASCII bytes
   (this represents the byte offset in the PDF file, which as noted
   above is adjusted for any preamble to the Header).
 \end{enumerate}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Stage 2: Find \& Parse Incremental Updates}
+\subsection{Stage 2: Find and Parse Incremental Updates}
+\label{sec:stage-2}
 
 We have not yet parsed the trailer information, but we know where
 it starts.  Parsing the final XRef table and Trailer dictionary are
@@ -513,6 +532,7 @@ instances.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
+\label{sec:stage-4}
 
 Getting this stage right was a key motivation for writing our
 specification, and it turned out to be surprisingly complicated.
@@ -645,7 +665,7 @@ can check that the created \lstcd{dom} is consistent with
 \lstcd{version'},
 % 
 we cannot use \lstcd{version'} to validate any of the other processing
-in stages 1-4.
+in stages 1--4.
 %
 For instance, one would like to verify that Object Streams are not
 used when the version is PDF-1.4 or earlier.
@@ -656,7 +676,7 @@ computation of the DOM.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Exploring a One Stage Version}
+\subsection{Comparison with a definition containing only one stage}
 \label{sec:single-pass-problems}
 
 %%%%%%%%%%%%%%%
@@ -814,11 +834,31 @@ this at all.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Assessments}
+\subsection{Analysis of results}
+\label{sec:results-analysis}
 
-Currently this specification adheres to the PDF 2.0 standard but this
-limits its use, as so many PDF tools allow multiple variances from the
-standard.
+% claim conformance to the spec:
+The specification as presented adheres to the PDF 2.0 standard.
+% bugs found in the standard:
+In the process of producing the format definition described above, we
+raised multiple issues concerning the PDF standard with the
+ISO~\cite{isotc171sc2wg8ISO32000220202020}, specifically an issues
+concerning the definition of cross-reference streams.
+%
+In the process, we raised several other issues related to the
+definition of cross-reference streams that were acknowledged by PDFA
+and have since been resolved, including %
+\textbf{(1)} requirements for object numbers in cross-reference
+subsections~\cite{pdfIssue146} and %
+\textbf{(2)} corrections to the denotation of the \texttt{XRefStm}
+field of a trailer dictionary~\cite{pdfIssue147}.
+
+\todo{Peter: confirm that these issues are related to the paper}
+
+% handling de-facto specs:
+The specification's conformance to the standard arguably
+limits its applicability given that many PDF tools allow multiple
+variances from the standard.
 %
 However, the opportunity for us is to use our specification to encode
 some of these common extensions and to explore if the combination of
@@ -831,26 +871,36 @@ to refactor our specification to support different PDF variations:
 \item strict PDF-2.0, validating everything.
 \item PDF-2.0 with some common extensions that are determined to be unambiguous.
 \end{itemize}
+%
+\todo{what is it about the spec that would make this easy?}
 
-The conciseness of our specification is due to a few factors
+% discuss concision:
+Our specification owes its concision to multiple factors:
 \begin{enumerate}
 \item our intention to make it as clear as possible,
 \item ignoring some ``engineering'' aspects (e.g., informative error
    messages, recovery, etc.), and
 \item omitting code for some of the simple, tedious functions.
 \end{enumerate}
-One line of future work would be to turn the specification into a
-\emph{reference implementation} by the addition of
-(1) code for the current, missing ``tedious parts'',
-(2) links to implementations of the primitive parsers, and
-(3) outputting of the DOM.
+The current specification could be extended to form a complete
+\emph{reference implementation} by extending it to include
+%
+\textbf{(1)} implementations of relatively minor features that were
+not the focus of the current work;
+%
+\textbf{(2)} implementations of all parsers referenced as primitives; and
+%
+\textbf{(3)} computation that generates the document's DOM.
 
-Future work might also involve adding further validation checks such as these:
-(1) processing linearization data and ensuring consistency with the
-non-linearized DOM;
-(2) processing both ``branches'' of a hybrid PDF and ensuring
-some form of constency between pre 1.5 readers and 1.5+ readers;
-(3) adding signature validation, see \cref{sec:updates-and-signatures}.
+% future work:
+Future work might also involve adding further validation checks,
+including %
+\textbf{(1)} processing linearization data and ensuring consistency
+with the non-linearized DOM; %
+\textbf{(2)} processing both ``branches'' of a hybrid PDF and ensuring
+some form of constency between pre 1.5 readers and 1.5+ readers; %
+\textbf{(3)} adding signature validation, see
+\cref{sec:updates-and-signatures}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -874,20 +924,3 @@ getObjIds = notImplementedYet
 \fi
 %%%% end: Hs code not in paper %%%%
 
-% specs bugs that we uncovered:
-\subsection{Practical consequences}
-\label{sec:consequences}
-%
-In the process of producing the format definition described above, we
-raised multiple issues concerning the PDF standard with the
-ISO~\cite{isotc171sc2wg8ISO32000220202020}, specifically an issues
-concerning the definition of cross-reference streams.
-%
-In the process, we raised several other issues related to the
-definition of cross-reference streams that were acknowledged by PDFA
-and have since been resolved, including %
-\textbf{(1)} requirements for object numbers in cross-reference
-subsections~\cite{pdfIssue146} and %
-\textbf{(2)} corrections to the denotation of the \texttt{XRefStm} field of a trailer dictionary~\cite{pdfIssue147}.
-
-\todo{Peter: confirm that these issues are related to the paper}
