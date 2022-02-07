@@ -2,6 +2,15 @@
 ** NOTE Effort: 2wks
 ** TODO [#A] submit Trust Chain paper to Langsec
 DEADLINE: <2022-02-07 Mon -30d>
+** APPT meeting <2022-02-07 Mon 15:00>
+
+- agenda
+  - abstract/intro
+  - "contextual data"
+  - desire to shorten?
+  - parser combinators (?)
+  - page by page
+
 ** APPT meeting <2022-01-19 Wed 15:00-16:00>
 
 - overleaf
@@ -152,6 +161,36 @@ I'm thinking
 SCHEDULED: <2022-02-05 Sat>
 ** TODO add xspace
 see v2v/PapersWritten/CmpctPaper/prelude.tex
+** TODO [#A] thk re "key item (5)" AND laziness
+
+- (5) 
+  - resurrect missing text [other missing text]?
+  - motivates 'laziness', goal
+    : spec(pdf) = ERROR  => impl(pdf) == ERROR
+    : implem(pdf) passes => spec(pdf) passes
+  - 
+    : spec-validate(pdf)==TRUE => impl(pdf) passes
+    
+  - due to two factors:
+    - many dependencies and parallelism
+    - redundant features
+
+- properties we want?
+ : valid(pdf) => parseObj1(pdf) == rightvalue
+
+ : if valid(pdf) then parseObj1(pdf) == Good (rightvalue)
+ :               else parseObj1(pdp) == Error _
+
+** TODO mt: update section 4 w/ Bill's suggestions                      :E1:
+** TODO get all the biblios filled in                                   :E1:
+** TODO further tweak lstlisting!                                       :E0:
+** TODO spell check                                                     :E1:
+- and diction, and Rogan's scripts
+** TODO final review                                                    :E3:
+- acronyms defined
+- search for TODO, FIXME, "..."  
+** TODO submit paper                                                    :E1:
+** ----
 ** NOTE misc/old-ish
 
 - cavities - ??
@@ -176,15 +215,6 @@ see v2v/PapersWritten/CmpctPaper/prelude.tex
       - limitations of informal (english) standards
    - at least 1 other example of the principle
    - ICC, etc.
-** TODO get all the biblios filled in                                   :E2:
-** TODO further tweak lstlisting!                                       :E0:
-** TODO spell check                                                     :E1:
-- and diction, and Rogan's scripts
-** TODO final review                                                    :E3:
-- acronyms defined
-- search for TODO, FIXME, "..."  
-** TODO submit paper                                                    :E1:
-** ----
 ** TODO misc orphans
 
 to give better error messages or passing around the info to do further
@@ -217,12 +247,74 @@ TODO: remove $ from Hs code
 
 * TODO tasks (from MT pt of view)
 ** TODO [#A] Q. a paper for Daedalus?
-** TODO [#A] Q. ask nls re darpa numbers
-SCHEDULED: <2022-02-05 Sat>
-
 ** TODO [#B] ascii-ify diagram                                          :E1:
 ** TODO [#B] replace "object identifier" by \lstcd{ObjID} and the like?
-** TODO [#A] Fix Stages 2 & 3: text AND spec                                         :E3:
+** TODO [#C] spec improvements
+*** TODO misc
+
+validateA $
+  parse every object in ObjStms
+
+** NOTE [#A] meta thoughts (theme, focus, audience)
+
+- assume PDF expert? no, though will be hard going
+  - no way our text will be sufficient!
+  - so, how can we convey *content* to non-experts?! 
+
+- assume LangSec kinda person
+  - understand security implications of input formats!!
+     
+- assume Hs expert? no, hopefully computer scientists can read well enough
+  
+- lessons
+  - file offsets
+  - unintended/surprising complexity
+  - termination: know?
+          
+** DONE [#A] paper writing outline
+**** WAIT 1. Introduction [WH]
+**** DONE 2. The PDF Trust Chain
+**** WAIT 3. PDF: Structure, Complexity, Vulnerabilities [PW?]
+**** WAIT 3.A. PDF Structure
+**** WAIT 3.B. Root Causes of PDF Complexity
+**** WAIT 3.x \todo{para. needs home:}
+**** WAIT 3.C. Vulnerabilities 
+**** TODO 4. Specifying the DOM's Foundations
+***** DONE 4.A. A Specification?
+***** TODO 4.B. Preliminaries [update]                               :E1:
+***** DONE 4.C. Stage 1: Find \& Parse Header and Trailer
+***** DONE 4.D. Stage 2: Find \& Parse Incremental Updates        
+***** TODO 4.E. Stage 3: Combine Incremental Updates                 :E1:
+***** DONE 4.F. Stage 4: Transform XRef Map to Object Map (DOM)     
+***** DONE 4.G. A One Stage Version?                                 
+***** DONE 4.H. Incremental Updates and Signatures
+***** DONE 4.I. Assessments
+**** TODO 5. Relevance to Other Formats [PW+?]                        :E2:
+- PW: stuff on ICC
+- more?
+**** DONE 6. Related Work
+**** WAIT 7. Conclusion [WH]
+**** TODO Appendix
+***** A. Primitive Functions
+***** B. Details of Streams and Type 2 References
+** TODO [#C] dropped text [pick up again?]
+
+\begin{lstlisting}[style=meta]
+ - [maybe some of this covered in previous section]
+ - enforcing full standard compliance with 20 byte (only) XRef entries.
+    - currently 19,21 byte XRef entries are considered NCBUR!
+ - if we were to allow 19-21 byte XRef entries, we'd need
+   to parse a lot more strictly and sooner.
+ - nothing essential would change in our spec
+\end{lstlisting}
+
+** TODO [#B] orphans [to add back in]
+
+ - should detect (or fail) on
+   - mixture of XRef table and XRef streams [PW?]
+   - trailer dicts that aren't consistent between updates
+
+** DONE Fix Stages 2 & 3: text AND spec                                 :E3:
 
 - note that 2 and 3 *might* be merged/fused.
   - but sem. difference
@@ -266,78 +358,9 @@ SCHEDULED: <2022-02-05 Sat>
       should not be considered out of spec
   - one could/would parse *all* in a =validate=
 
-** TODO spec improvements
-*** TODO misc
-
-validateA $
-  parse every object in ObjStms
-
-** NOTE [#A] meta thoughts (theme, focus, audience)
-
-- assume PDF expert? no, though will be hard going
-  - no way our text will be sufficient!
-  - so, how can we convey *content* to non-experts?! 
-
-- assume LangSec kinda person
-  - understand security implications of input formats!!
-     
-- assume Hs expert? no, hopefully computer scientists can read well enough
-  
-- lessons
-  - file offsets
-  - unintended/surprising complexity
-  - termination: know?
-          
-** TODO [#A] paper writing
-**** WAIT 1. Introduction [WH]
-**** DONE 2. The PDF Trust Chain
-**** WAIT 3. PDF: Structure, Complexity, Vulnerabilities [PW?]
-**** WAIT 3.A. PDF Structure
-**** WAIT 3.B. Root Causes of PDF Complexity
-**** WAIT 3.x \todo{para. needs home:}
-**** WAIT 3.C. Vulnerabilities 
-**** TODO 4. Specifying the DOM's Foundations
-***** DONE 4.A. A Specification?
-***** TODO 4.B. Preliminaries [update]                               :E1:
-***** DONE 4.C. Stage 1: Find \& Parse Header and Trailer
-***** DONE 4.D. Stage 2: Find \& Parse Incremental Updates        
-***** TODO 4.E. Stage 3: Combine Incremental Updates                 :E1:
-***** DONE 4.F. Stage 4: Transform XRef Map to Object Map (DOM)     
-***** DONE 4.G. A One Stage Version?                                 
-***** DONE 4.H. Incremental Updates and Signatures
-***** DONE 4.I. Assessments
-**** TODO 5. Relevance to Other Formats [PW+?]                        :E2:
-- PW: stuff on ICC
-- more?
-**** DONE 6. Related Work
-**** WAIT 7. Conclusion [WH]
-**** TODO Appendix
-***** A. Primitive Functions
-***** B. Details of Streams and Type 2 References
-** TODO [#A] thk re "key item (5)":
-
-- properties we want?
- : valid(pdf) => parseObj1(pdf) == rightvalue
-
- : if valid(pdf) then parseObj1(pdf) == Good (rightvalue)
- :               else parseObj1(pdp) == Error _
-
-** TODO [#C] dropped text [pick up again?]
-
-\begin{lstlisting}[style=meta]
- - [maybe some of this covered in previous section]
- - enforcing full standard compliance with 20 byte (only) XRef entries.
-    - currently 19,21 byte XRef entries are considered NCBUR!
- - if we were to allow 19-21 byte XRef entries, we'd need
-   to parse a lot more strictly and sooner.
- - nothing essential would change in our spec
-\end{lstlisting}
-
-** TODO [#B] orphans [to add back in]
-
- - should detect (or fail) on
-   - mixture of XRef table and XRef streams [PW?]
-   - trailer dicts that aren't consistent between updates
+* TODO by final submission
+** TODO [#A] Q. ask nls re darpa numbers
+SCHEDULED: <2022-02-05 Sat>
 
 * TODO the spec (spec.hs)
 ** TODO s/XRefRaw/XRefTblRaw/
