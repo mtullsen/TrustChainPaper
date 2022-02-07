@@ -2,60 +2,33 @@
 % Re-allow e.g. the \thanks command.
 \IEEEoverridecommandlockouts
 
+\usepackage[dvipsnames]{xcolor}
 % to be able to draw some self-contained figs
 \usepackage{tikz}
 \usepackage{amsmath}
 \usepackage{minted}
-\usepackage[utf8]{inputenc}
-% \usepackage{todo}
+% \usepackage[utf8]{inputenc}
 \usepackage{csquotes}
 \usepackage{amsthm}
 \usepackage{siunitx}
 \usepackage[caption=false]{subfig}
 \usepackage{listings}
-\lstset{
-  basicstyle=\scriptsize\ttfamily,
-  mathescape=true,
-  %numbers=left,
-  aboveskip=\medskipamount,
-  belowskip=\smallskipamount,
-  numberstyle=\tiny,
-  %stepnumber=2,
-  numbersep=10pt,
-  tabsize=2,
-  extendedchars=true,
-  breaklines=false,
-  keywordstyle=\color{black}
-  }
-\newcommand{\lstcd}[1]{\lstinline[basicstyle=\ttfamily\small]{#1}}
 
-% this style is used for long/verbatim notes (not text) in the paper
-\lstdefinestyle{meta}
-  {basicstyle=\tiny\ttfamily\color{magenta}}
+\input{prelude}
 
-\usepackage{hyperref}
-\usepackage[capitalise]{cleveref}
-  % i.e., you use '\cref{x}' rather than "Figure \ref{x}"
-% inlined bib file
-\usepackage{filecontents}
+\pagestyle{plain}  % get page numbering
 
-% SYSTEM OF ANNOTATIONS:
-\newcommand{\info}[1]{\textcolor{blue}{[[#1]]}}
-\newcommand{\note}[1]{\noteYes{#1}}  
-\newcommand{\noteNo}[1]{}  % way to remove all notes.
-\newcommand{\noteYes}[1]{\textcolor{red}{[[#1]]}}
-\newcommand{\todo}[1]{\note{TODO: #1}}
-\newcommand{\todoa}[1]{\todo{[\#A]: #1}}
-\newcommand{\todob}[1]{\todo{[\#B]: #1}}
-\newcommand{\todoc}[1]{\todo{[\#C]: #1}}
-\newcommand{\old}[1]{\textcolor{orange}{[[OLD: #1]]}}
-
-
-\newcommand{\paragraphsection}[1]{\vspace{7pt}\noindent{\textit{#1}}}
-  % use this for "Initial Results" or for sections at the lowest level.
-  % TODO: is the formatting sufficiently smaller than level 2 sections?
- 
-\sisetup{group-separator={,}, group-minimum-digits=4}
+% BEGIN local definitions for text to insert
+\newcommand{\tc}{\emph{Trust Chain}}   % no emph? lower case? ...
+\newcommand{\pd}{\emph{parser differential}}
+\newcommand{\ssp}{$S$}  % static specification
+\newcommand{\dsp}{$D$}  % dynamic specification
+\newcommand{\rdloc}{\lstcd{readLocation}}
+\newcommand{\xref}{\lstcd{XRef}} 
+% \newcommand{\objid}{\emph{object identifier}} % or ...
+\newcommand{\objid}{\lstcd{ObjId}}
+\newcommand{\objids}{\lstcd{ObjId}'s} % ?
+% END local definitions 
 
 \begin{document}
 
@@ -65,19 +38,18 @@
 \title{Strengthening Weak Links in the PDF Trust Chain}
 
 \author{
-    \IEEEauthorblockN{ Mark Tullsen, William Harris}%
+    \IEEEauthorblockN{ William Harris, Mark Tullsen }%
     \IEEEauthorblockA{\small Galois, Inc.\\
-    \texttt{\{tullsen, wrharris\}@galois.com}} \and
+    \texttt{\{wrharris, tullsen\}@galois.com}} \and
     \IEEEauthorblockN{Peter Wyatt}
     \IEEEauthorblockA{\small PDF Association\\
     \texttt{peter.wyatt@pdf.org}}
 }
 
 \maketitle
+\thispagestyle{plain} % get page numbering
 
 \input{abstract}
-
-% \section{[Meta-Notes for Authors]}
 
 \begin{lstlisting}[style=meta]
 CONVENTION:
@@ -87,36 +59,28 @@ CONVENTION:
 
 \begin{lstlisting}[style=meta]
 META NOTES:  
-- shoot for 12 pages
-- challenge: figuring out how much detail to go into, e.g., xref
-- the idiom
-  - details (e.g., in PDF)
-  - general principles
-    - E.g., such as
-      - cavities
-      - trust-chain 
-      - redundant-data [highlight]
-        - E.g., Size, we don't want to *invisibly*
-          null-out obj. nums > Size
-      - file-offsets in format
-      - schizophrenia / polyglot
-      - limitations of informal (english) standards
-   - at least 1 other example of the principle
-   - ICC, etc.
+- aim for 12 pages (in 10pt) (langsec specifies no limit)
+
 TERMS (to actually use, and define when needed):
-- complies with standard, compatible with standard
+- ``complies with standard'', ``compatible with standard''
 - Pre-DOM
-- ?? for the repetitious use of ``parsing and computation''
+- XRef (capitalized thus)
+- Trust Chain (no quotes) [remove upper case?]
+- parser differential
 \end{lstlisting}
+
+\todo{PUT THIS SOMEWHERE: We use the term \pd{} to mean ....}
 
 % content:
 \input{intro}
 
 \input{background}
 
+\input{pdf}
+
 \input{pre-dom}
 
-\input{securing-pre-dom}
+\input{other-formats}
 
 \input{related-work}
 
@@ -125,8 +89,8 @@ TERMS (to actually use, and define when needed):
 % ------------------------------------------------------------------------------
 \section*{Acknowledgements}
 
-This research was supported by the SafeDocs program under HR0011-19-C-0073 and HR001119C0079.
-\todo{check these!}
+This research was supported by DARPA awards HR001119C0073 and
+HR001119C0079.
 
 % ----------------------------------------------------------------------------
 \bibliographystyle{plain}
@@ -138,5 +102,9 @@ This research was supported by the SafeDocs program under HR0011-19-C-0073 and H
   %  - TA1's last LangSec paper
   % local.bib
   %  - all other references here
+
+\appendix
+
+\input{appendix1}
 
 \end{document}

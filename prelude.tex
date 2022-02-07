@@ -1,0 +1,137 @@
+%%%% listings pkg: %%%%
+
+% \lstloadlanguages{Haskell}
+
+\lstset{
+  basicstyle=\scriptsize\ttfamily,
+  %mathescape=true,
+  %numbers=left,
+  mathescape=false,
+  aboveskip=\medskipamount,
+  belowskip=\smallskipamount,
+  showspaces=false,
+  keywordstyle=,
+  numberstyle=\tiny,
+  numbersep=0pt,
+  %stepnumber=2,
+  tabsize=2,
+  %extendedchars=true,
+  breaklines=false,
+  %keywordstyle=\color{black}
+  }
+  % TODO this inherited or not from other lstnewenvironment
+\newcommand{\lstcd}[1]{\lstinline[basicstyle=\ttfamily\footnotesize]{#1}}
+
+% this style is used for long/verbatim notes (not text) in the paper
+\lstdefinestyle{meta}
+  {basicstyle=\scriptsize\ttfamily\color{magenta}}
+
+\lstnewenvironment{myc}
+    {\lstset{}%
+      \csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname}
+    \lstset{
+      basicstyle=\scriptsize\ttfamily,
+      mathescape=false,
+      language=C,
+      lineskip=1pt,
+      showspaces=false,
+      keywordstyle=,
+      flexiblecolumns=false,
+      basewidth={0.5em,0.45em}
+    }
+
+\lstnewenvironment{code}
+    {\lstset{}%
+      \csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname}
+    \lstset{
+      mathescape=false,
+      language=Haskell,
+      lineskip=1pt,
+      showspaces=false,
+      numbersep=0pt,
+      keywordstyle=,
+      basicstyle=\scriptsize\ttfamily,
+      flexiblecolumns=false,
+      basewidth={0.5em,0.45em},
+      literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+               {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+               {\\\\}{{\char`\\\char`\\}}1
+               {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+               {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2 
+          %     {\ .\ }{{$\circ$}}2
+               {>>}{{>>}}2 {>>=}{{>>=}}2
+               {|}{{$\mid$}}1               
+    }
+    % literate haskell assumes \begin{code}
+
+% when we don't want Haskell to execute the code in paper:
+% Alts    
+%   \newenvironment{codeNoExecute}{\code}{\endcode} 
+%   \let\codeNoExecute\code
+%   \let\endcodeNoExecute\endcode
+%   the below, just duplicated from above:
+\lstnewenvironment{codeNoExecute}
+    {\lstset{}%
+      \csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname}
+    \lstset{
+      mathescape=false,
+      language=Haskell,
+      lineskip=1pt,
+      showspaces=false,
+      keywordstyle=,
+      basicstyle=\scriptsize\ttfamily,
+      flexiblecolumns=false,
+      basewidth={0.5em,0.45em},
+      literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+               {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+               {\\\\}{{\char`\\\char`\\}}1
+               {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+               {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2 
+           %   {\ .\ }{{$\circ$}}2
+               {>>}{{>>}}2 {>>=}{{>>=}}2
+               {|}{{$\mid$}}1               
+    }
+    % literate haskell assumes \begin{code}
+
+    
+\usepackage{hyperref}
+\usepackage[capitalise]{cleveref}
+  % i.e., you use '\cref{x}' rather than "Figure \ref{x}"
+% inlined bib file
+\usepackage{filecontents}
+
+% SYSTEM OF ANNOTATIONS:
+
+\newcommand{\pwnote}[1]{\textcolor{blue}{[PW: #1]}}
+\newcommand{\mtnote}[1]{\textcolor{BlueGreen}{[MT: #1]}}
+\newcommand{\whnote}[1]{\textcolor{Cyan}{[WH: #1]}}
+\newcommand{\wwnote}[1]{\textcolor{orange}{[WW: #1]}}
+
+\newcommand{\pwtodo}[1]{\pwnote{TODO: #1}}
+\newcommand{\mttodo}[1]{\mtnote{TODO: #1}}
+\newcommand{\whtodo}[1]{\whnote{TODO: #1}}
+
+
+\newcommand{\info}[1]{\textcolor{brown}{[[#1]]}}
+\newcommand{\note}[1]{\noteYes{#1}}  
+\newcommand{\noteNo}[1]{}  % way to remove all notes.
+\newcommand{\noteYes}[1]{\textcolor{red}{[[#1]]}}
+\newcommand{\todo}[1]{\note{TODO: #1}}
+\newcommand{\todoa}[1]{\todo{[\#A]: #1}}
+\newcommand{\todob}[1]{\todo{[\#B]: #1}}
+\newcommand{\todoc}[1]{\todo{[\#C]: #1}}
+\newcommand{\old}[1]{\textcolor{orange}{[[OLD: #1]]}}
+
+\newcommand{\haskellnote}[1]{#1}
+  % ever add formatting to? Just used to indicate notes to non-Haskellers
+\newcommand{\keypoint}[1]{{\bf{#1}}}
+  % TODO: boxed frame maybe?
+\newcommand{\paragraphsection}[1]{\vspace{7pt}\noindent{\textit{#1}}}
+  % use this for "Initial Results" or for sections at the lowest level.
+  % TODO: is the formatting sufficiently smaller than level 2 sections?
+ 
+\sisetup{group-separator={,}, group-minimum-digits=4}
+

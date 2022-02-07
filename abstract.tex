@@ -3,33 +3,37 @@
   % context:
   Conventional data-description languages, such as context-free
   grammars, naturally define formats in which the semantic
-  interpretation of a large segment of input depends hierarchically on
+  interpretation of an input segment can depend hierarchically on
   the semantic interpretations of its sub-segments.
   %
   They cannot be applied to many practical and security-critical
   formats---including the Portable Document Format (PDF)---in which
   the interpretation of a segment as a \emph{Document Object Model
     (DOM)} graph depends on a concept of reference and complex
-  contextual data that binds data objects to references.
+  contextual data that binds references to data objects.
+
   %
-  Such referential context itself must often be defined
-  discontinuously and compressed, to satisfy practical constraints on
-  usability and performance.
+  Such referential context itself is defined
+  discontinuously, and is often compressed, to satisfy practical constraints on
+  usability and performance. The integrity of these references and their context must be ensured 
+  so that an unambiguous DOM graph is established from a basis of trust.
 
   % result:
   This paper describes a case study of a critical instance of such a
   design, namely the construction of PDF \emph{cross-reference tables},
-  in the presence of incremental updates and cross-reference streams.
+  in the presence of potentially multiple incremental updates and multiple 
+  complex dialects expressing these references.
   %
-  Over the course of case study, we found that the full definition of
-  cross-reference tables contains several subtleties that could be
-  mis-implemented by natural implementations, but which can
+  Over the course of our case study, we found that the full definition of
+  cross-reference data in PDF contains several subtleties that are
+  interpreted differently by natural implementations, but which can
   nevertheless be formalized using parser combinators in a
   data-definition language with constructs for explicitly capturing
   and updating input streams.
   %
   Our definition has served as a foundation for implementing format
-  security analyses that arise naturally in the presence of DOM's,
+  security analyses that arise naturally while instantiating and constructing DOM's,
   including the analysis of document \emph{cavities} that may store
   unexamined data used to construct file \emph{polyglots}.
+
 \end{abstract}

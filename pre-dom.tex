@@ -1,49 +1,893 @@
-% ------------------------------------------------------------------------------
+% A literate Haskell file
+
 \section{Specifying the DOM's Foundations \note{4pp}}
 \label{sec:specifying}
 
-\todo{somewhere we need to compare with the monolithic approach that APPEARS
-  to not have multiple phases.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{A Specification?}
+% REMEMBER terms: complies with standard, compatible with
 
-\subsection{[Motivating Specification]}
-% REMEMBER: [terms: complies with standard, compatible with]
+What do we want from a PDF implementation?
+Among other things we want it to
+\begin{itemize}
+\item comply with the standard,
+\item when not fully supporting the standard, do so gracefully,
+\item support common PDF malformations
+  to be compatible with extant PDFs, but \emph{without} introducing ambiguities
+  or causing other unintended consequences,
+\item and all the while, contain minimal bugs and stay resilient against all attacks.
+\end{itemize}
+Achieving the above will be challenging due to many factors:
+\begin{itemize}
+\item The intrinsic complexity of PDF:
+  PDF is a \emph{less than ideal} design that reflects 27 years of
+  an evolving standard.
+  PDF has multiple redundant features.
+  PDF is architected to allow for efficient implementations of
+  large files (``efficiency hacks'').
+  PDF involves multiple sublanguages and embedded formats.
+  PDF contains complex parsing needs:
+  E.g., searching backwards, embedded file offsets.
+\item Lack of formality in standard. Thus, implementators
+  need more effort to understand it and comply with it.
+  Implementations commonly over implement, under implement,
+  and wrongly implement the standard.
+  Because writing a PDF implementation from scratch is a large effort,
+  implementors are incentivized to patch existing code (correct or not).
+\item The standard defines one thing: \emph{What is a valid PDF?},
+  and leaves other decisions to the implementation:
+  (1) What should absolutely \emph{not} be allowed (because in the real world
+    implementations are more or less relaxed)? And similarly,
+    what are deemed to be acceptable, reasonable error recovery methods?
+  (2) What is required to support backwards and forwards compatibility?
+  (3) What is done when redundant features are inconsistent with one
+    another: which, or neither, has priority?
+    Similarly, what is done when the stated PDF version and the PDF
+    constructs used don't match?
+  (4) What is \emph{required} from the PDF writer versus
+    what do we \emph{require} the PDF reader to check?
+  (5) If given an incorrect PDF, is the tool's behavior undefined\footnote{
+      I.e., like ``undefined'' in the C programming language sense: the
+      compiler can do anything it wants!
+    } or is the tool \emph{required} to detect and report this?
+\end{itemize}
+Failure to faithfully implement the standard can result in ambiguities
+between implementations as well as direct vulnerabilities (such as
+Shadow Attacks or DOS attacks).
 
-\begin{lstlisting}[style=meta]
-- an implementation
-  - should follow the standard
-  - should safely support less than standard
-  - pragmatically support some common extant data malformations
-  - should carefully support more than the standard
-  - should not "inf. loop"
-    - lots of opportunities - failure to notice digitally signed PDFs that have been tampered! 
-      - elaborate?
-\end{lstlisting}
+\mtnote{this last, (5), seems pretty key and
+  feels like a major omission in the standard! If the answer is
+  yes, then there's nothing keeping an implementation from only
+  doing enough to ``work on good pdfs'' without even checking that it
+  IS a good PDF.  Thus, we have the tool that only reads the 'e'
+  in ``endobj''.  Is this reasonable?  Are there vulnerabilities that
+  would exist in such implementations?
+  }
 
-\begin{lstlisting}[style=meta]
-- Lack of formality in standard. Thus, implementations:
-  - are more effort
-  - over implement, under implement, wrongly implement
-  - backwards and forwards compatibility
-  - "backwards parsing"
-  - some requirements will not be checked by PDF readers ("writer only" file requirements) 
-  - patch existing vs implement from scratch
-- No definition of acceptable, reasonable error recovery
-- Less than ideal design that reflects 27 years of an evolving standard
-- Pre-DOM processing
-  - is where many parsing errors & recovery occur
-  - is non-trivial
-  - involves multiple interdependent features and subtle dialects
-  - involves multiple redundant features
-    - schizophrenic if these features aren't mutually consistent
-\end{lstlisting}
+Writing a \emph{formal specification} is not going to solve all the above,
+but we believe it is an important first step toward clarifying the
+standard, understanding the vulnerabilties, and aiding the
+implementors of PDF.
 
-\subsection{The pre-DOM constructs}
-\todo{Hmmm: how much detail to go into?
-      How will reader understand next section if we say nothing?
+We use Haskell\footnote{
+Haskell is a statically typed, pure, lazy functional programming
+language~\cite{jones2003haskell}.
 }
+as a specification language for our specification.
+%
+The scope of our specification is the gap between the low level
+parsers (parsing integers, parsing XRef entries, etc.) and the
+processing that happens after the DOM is created (stages 5 and 6).
+%
+I.e., stages 1 - 4.
+%
+Primitive parsers are assumed, not included in this spec, as other
+formalisms, such as the \emph{DaeDaLus Data Description
+  Language}~\cite{daedalusrepo}, are better suited to specifying the
+primitive parsers.
+%
+See \cref{sec:appendix1} for a list of the primitive parsers
+with their type signatures.
+%
+The full specification of DaeDaLus is publicly available
+online~\cite{daedalusrepo}.
 
-\subsection{Specifying pre-DOM components}
-\begin{lstlisting}[style=meta]
-- presented
-- going into PDF details, as needed (this section or separate section?)
-\end{lstlisting}
+\begin{itemize}
+\item Our specification is formal and executable\footnote{
+  Executable does not imply efficient, the specification is written
+  primarily to be \emph{clear}.}.
+  %
+  We already have the PDF standard: which is not always clear, not always
+  consistent. 
+  This is our motivation for choosing Haskell over English prose or
+  pseudo-code or other informal approaches.
+  For the reader
+  without a reading knowledge of Haskell, we understand that parts of
+  the specification could be a little obscure, but our hope is that a
+  precise, formal specification may prove to be more useful than
+  pseudo-code or the like!
+  
+\item Our specification is purely functional: no ad hoc global variables are
+  hidden, the data-dependencies in the spec fully represent all the
+  data-dependencies.  Motivated by the Trust Chain issues
+  (\cref{sec:trust-chain}), our objective was to capture all dependencies.
+  
+\item Our specification hides no difficulties: one could implement a PDF parser
+  by writing the omitted functions, but the spec stands complete, as
+  is!
+  % \footnote{One caveat: the addition of support for \emph{some} features
+  % could require some re-design.  E.g., signature validation, as discussed in
+  % \cref{sec:updates-and-signatures} would require non-trivial changes.
+  % }
+\end{itemize}
+
+This spec supports PDF 2.0, including compressed objects and XRef streams.
+%
+It (safely) ignores linearization data, and in hybrid XRef PDFs
+it ignores the traditional \xref{} tables designed for pre PDF 1.5 readers.
+It processes signatures (as incremental updates) but it does not support
+validation of signatures.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Preliminaries}
+%%%% begin: Hs code not in paper %%%%
+\iffalse
+\begin{code}
+{-# LANGUAGE EmptyDataDecls, TypeOperators, LambdaCase #-}
+module Spec where
+import           Control.Monad
+import           Data.Char
+import           Data.Foldable(foldlM)
+import qualified Data.IntSet as IntSet
+import           Data.List
+import qualified Data.Map as M
+import           Data.Map(Map)
+import           Types
+import           Utils
+import           Primitives
+import           Streams
+\end{code}
+\fi
+%%%% end: Hs code not in paper %%%%
+
+In this section we define \lstcd{pPDFDom} which does the parsing \&
+computation for stages 1-4.
+% 
+Refer to \cref{fig:spec} for its top level definition (compare to
+\cref{fig:pdf-trust-chain}).  We'll define the component stages in the
+following sections.
+
+Line 1 is \lstcd{pPDFDom}'s type signature, indicating 
+that it is a ``monadic parser'' \lstcd{P} that returns a
+value of type \lstcd{DOM}.
+
+Monads don't need to be complex, this is what you need to know
+for this paper:
+\begin{itemize}
+  \item A monad is a way to sequence effectful constructs in a purely
+    functional manner; effects being global variables (or mutable
+    state), exceptions, or I/O.
+  \item Since Haskell is purely functional, we have a simple monad
+    \lstcd{P} that captures, under the hood, our desired effects.
+  \item Our \lstcd{P} monad supports
+    \begin{itemize}
+    \item one read-only variable (the PDF file being read)
+    \item one mutable variable \rdloc{}, the offset in the file where
+      reading (i.e., the primitive parsing) occurs; we update it
+      with
+  \begin{codeNoExecute}
+  seekPrimitive :: Offset -> P ()
+  seekPrimitive off = <update readLocation with 'off'>
+  \end{codeNoExecute}
+      \mttodo{readLocation equals \rdloc{}?}  and it is accessed
+      implicitly by the primitive parsers in \lstcd{P}.
+    \item Exceptions (i.e., the \lstcd{Maybe} monad): any action
+      may fail, failure propagates naturally without the need for
+      throwing/catching exceptions.
+    \end{itemize}
+\item We use the \lstcd{do} syntactic sugar to easily sequence
+  monadic actions.
+  E.g.,
+  \begin{codeNoExecute}
+  topAction :: P Int
+  topAction = do
+              result1 <- action1 args1...
+              let x = <PURELY-FUNCTIONAL-EXPRESSION>
+                  f x = <FUNCTION> -- not an action
+              result2 <- action2 result1 args2...
+              return (anyPureFunction result2)
+  \end{codeNoExecute}
+  We use the term ``action'' to refer to a monadic function:
+  i.e., a function having a type scheme of ``\lstcd{a -> P b}''.
+\item Important note: any action can fail and stop the parsing,
+  and the use of the \lstcd{x <- expr} ``bind'' syntax indicates
+  that \lstcd{expr} is an action.
+\end{itemize}
+
+To further elucidate the code, we sometimes add \emph{type
+annotations} on expressions in the code, note lines 8, 11, 14 in
+\cref{fig:spec}.
+
+\begin{figure}[t]
+\centering
+\lstset{numbers=right}
+\begin{code}
+pPDFDom :: P DOM
+pPDFDom =
+    do
+    -- Stage 1:
+    (seek,xrefOffset,version) <- findHeaderAndTrailer
+    -- Stage 2:
+    updates <- parseAllIncUpdates seek xrefOffset
+               :: P [(XRefRaw, TrailerDict)]
+    -- Stage 3: combine all the updates to get a single xref table
+    xrefs <- combineUpdates seek updates
+             :: P (Map ObjId (Offset :+: Type2Ref))
+    -- Stage 4:
+    dom <- transformXRefMapToObjectMap seek xrefs
+           :: P DOM
+    -- final checks and validations:
+    finalValidations dom version updates
+    return dom
+\end{code}
+\caption{Stages 1-4 Specified.}
+\label{fig:spec}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stage 1: Find \& Parse Header and Trailer}
+
+Here is the stage 1 code:
+\begin{code}
+findHeaderAndTrailer :: P (SEEK, Offset, Version)
+findHeaderAndTrailer =
+    do
+    -- find "%PDF-x.y" near start of file, searching the first 1000 bytes:
+    (version, headerOffset) <- findPDFHeader 1000
+
+    -- search backwards from EOF for 'startxref', gives up after 1001 bytes:
+    xrefOff <- findStartxrefThenParseToEOF 1001
+    
+    let seek n = seekPrimitive (headerOffset+n)
+    return (seek, xrefOff, version)
+    
+type SEEK = Offset -> P () -- type of seek
+\end{code}
+
+The first thing to note is the two magic numbers 1000 and 1001, neither of
+these are specified by the PDF standard. They should be reasonably
+small.  Thus, we immediately see our first ambiguity in the standard,
+and an opportunity for a \pd{}.
+
+A non-obvious feature of PDF is that file offsets are in relation, not
+to the beginning of the file, but to the beginning of the \emph{PDF header}.
+%
+The definition of the action \lstcd{seek} abstracts over this problem once and for all.
+But we will need to pass \lstcd{seek} to all the actions that need to
+``seek'' in the PDF file (note this being done in \cref{fig:spec}).
+
+Note that the two function calls (lines 5 and 8) have no data
+dependencies, thus they could be written in either order.
+\haskellnote{The spec has no global variables beyond \rdloc{} and neither function
+  depends on it.}
+
+The code for \lstcd{findStartxrefThenParseToEOF} is
+omitted, as it is more tedious than instructive.
+So, in this case, we'll describe it informally:
+\begin{enumerate}
+\item Find the ``EOF marker'' \lstcd{\%\%EOF} (near the end of the physical
+  file)
+\item "Backwards parse" to find the last \lstcd{startxref}
+  keyword followed by an end-of-line sequence.
+\item Parse the integer value encoded as a sequence of ASCII bytes
+  (this represents the byte offset in the PDF file, which as noted
+  above is adjusted for any preamble to the Header).
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stage 2: Find \& Parse Incremental Updates}
+
+We have not yet parsed the trailer information, but we know where
+it starts.  Parsing the final XRef table and Trailer dictionary are
+done using this function:
+
+\lstset{numbers=right}
+\begin{code}
+type Update = (XRefRaw,TrailerDict)
+
+pIncUpdate_Traditional :: SEEK -> P Update
+pIncUpdate_Traditional seek =
+    do
+    (xrefRaw, xrefEndOff) <- pXrefRaw :: P (XRefRaw,Offset)
+    validate $
+      verifyXrefRaw xrefRaw
+        -- this ensures no duplicate objectIds
+    seek xrefEndOff
+       -- This seek is needed because pXrefRaw doesn't need to read
+       -- the entries of each XRef subsection, so let's leave the
+       -- current file read location after the xref table.
+
+    pSimpleWhiteSpace -- no comments allowed between XRef table and ..
+    keyword "trailer"
+    trailerDict  <- pDictionary
+    trailerDict' <- dictToTrailerDict trailerDict
+                    -- ensures dictionary has proper keys
+    return (xrefRaw, trailerDict')
+\end{code}
+\lstset{numbers=none}
+
+Note \lstcd{validate} on line 7: this is a special function that we
+use to demarcate semantic checks (line 8) that are not necessary to
+create the DOM but which could detect invalid or inconsistent PDFs.
+%
+The check could be used in a ``validate'' mode, but we wouldn't expect
+all implementations to necessarily implement the check.
+
+We have intentionally designed this to return \lstcd{XRefRaw} objects,
+% TODO: show defn?
+i.e., we find the subsections of the \xref{} table, but we do not
+parse the sequence of \xref{} entries in each subsection.
+(We will describe the motivations for this after
+we have explored stage 3.)
+%
+Note that, even for \lstcd{XRefRaw},
+we know the set of \objid{}'s and for each we can find the offset
+of its \xref{} entry.  This design relies on implementing
+the specification strictly: an \xref{} entry must have exactly 20 bytes.
+
+However, parsing the \xref{} table and trailer is just a special case
+of parsing \emph{all} the incremental updates, which we show here:
+\lstset{numbers=right}
+\begin{code}
+parseAllIncUpdates :: SEEK -> Offset -> P [Update]
+parseAllIncUpdates seek offset =
+  parseAllIncUpdates' IntSet.empty seek offset
+
+parseAllIncUpdates' :: IntSet.IntSet -> SEEK -> Offset -> P [Update]
+parseAllIncUpdates' prevSet seek offset =
+    if offset `IntSet.member` prevSet then
+      error "recursive incremental updates"
+    else
+      do
+      seek offset
+      (xref,trailerDict) <- pIncUpdate seek
+      case trailerDict_getPrev trailerDict of   -- lookup 'Prev' key
+        Nothing      -> -- no Prev key, we're done:
+                        return [(xref,trailerDict)]
+        Just offset' -> -- Prev key found, find updates starting at
+                        -- offset':
+                        do
+                        us <- parseAllIncUpdates'
+                                (IntSet.insert offset prevSet)
+                                seek
+                                offset'
+                        return ((xref,trailerDict):us)
+\end{code}
+\lstset{numbers=none}
+
+Half the complexity of the above code is to ensure that loops in
+the \lstcd{Prev} offsets don't result in the code going
+into an infinite loop: we keep track of the offsets of every update
+we have processed in the set \lstcd{prevSet}.
+What we are doing here is
+(1) \lstcd{seek}-ing to the \lstcd{offset} and parsing the update;
+(2) checking for a \lstcd{Prev} key, if no key we're done, otherwise
+    continue.
+
+Also, since we support both traditional (pre 1.5 PDF) and stream
+\xref{} tables:
+
+\begin{code}
+pIncUpdate :: SEEK -> P (XRefRaw,TrailerDict)
+pIncUpdate seek =
+      pIncUpdate_Traditional seek
+  .|. pIncUpdate_XrefStream seek
+      -- I.e., parse one or the other,
+      -- syntactically, they are mutually exclusive.
+
+pIncUpdate_XrefStream :: SEEK -> P (XRefRaw,TrailerDict)
+pIncUpdate_XrefStream seek = notImplementedYet
+\end{code}
+
+The function \lstcd{pIncUpdate_XrefStream} is more
+complex than \lstcd{pIncUpdate_Traditional} but the resulting
+data is equivalent.  It also allows for determining the subsections
+without parsing the \xref{} entries.
+
+So, here's where we are at this point in the computation:
+\begin{itemize}
+\item We can determine all of the \objids{} in the PDF.
+\item We have not parsed any PDF values except trailer dictionaries.
+\item We have definitely rejected some PDFs by this point.
+\item We could output the trailer dictionaries or the list of
+  incremental updates.
+\item We have detected overlapping \objids{} in the \xref{} tables.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stage 3: Combine Incremental Updates}
+
+We process the updates from last (near EOF) to first (near start of file):
+\begin{code}
+combineUpdates :: SEEK
+               -> [(XRefRaw, TrailerDict)] 
+               -> P (Map ObjId (Offset :+: Type2Ref))
+combineUpdates seek updates =
+    do
+    let (xref,dict):us = updates -- safe because: null(updates)==False
+
+    -- parse all xref entries in last (near EOF) update:
+    xrefEntries <- mapM (thawXRefEntry seek xref) (getObjIds xref)
+
+    -- initial Map:
+    let tbl0 :: Map ObjId XRefEntry
+        tbl0 = M.fromList xrefEntries
+
+    -- merge each update into tbl0:
+    tbl1  <- foldlM (mergeUpdate seek) tbl0 us
+    return (removeFrees tbl1)
+
+type XRefEntry = Free :+: (Offset :+: Type2Ref)
+\end{code}
+
+Each incremental update can add new objects, mark existing in-use objects as
+free, or update objects.  Note \lstcd{XRefEntry}.
+Two key design choices are (1) we process updates from last to first
+and (2) we only parse the \xref{} entries as needed.
+
+\begin{code}
+mergeUpdate :: SEEK
+            ->  (Map ObjId XRefEntry)
+            -> (XRefRaw, TrailerDict)
+            -> P (Map ObjId XRefEntry)
+mergeUpdate seek map0 (xref,dict) =
+    do
+    let objIds       = getObjIds xref
+        neededObjIds = objIds \\ M.keys map0
+                       -- set subtraction
+
+    -- only parse (thaw) needed XRef entries:
+    newEntries <- forM neededObjIds
+                       (thawXRefEntry seek xref)
+    return (M.union map0 (M.fromList (newEntries :: [(ObjId,XRefEntry)] )))
+
+data Free = Free  -- currently we are ignoring free objects
+\end{code}
+Note the type signatures of functions we are not showing:
+\begin{code}
+removeFrees :: Map k XRefEntry -> Map k (Offset :+: Type2Ref)
+
+thawXRefEntry :: SEEK -> XRefRaw -> ObjId -> P (ObjId, XRefEntry)
+
+getObjIds :: XRefRaw -> [ObjId]
+\end{code}
+
+For simplicity, we have neglected to use the \lstcd{Size} key (from
+the trailer dictionaries) to constrain \objids{}.  Note these comments
+about \lstcd{Size} from the standard:
+\begin{itemize}
+  \item Any object in a cross-reference section whose number is
+    greater than this value shall be ignored and defined to be missing
+    by a PDF reader.
+  \item Equivalently, this value shall be 1 greater than the highest
+    object number defined in the PDF file.
+\end{itemize}
+
+Not only is this stage already complex, the
+possible---semantics changing---variations on
+\lstcd{mergeUpdate} are surprisingly many:
+\begin{itemize}
+\item There appear to be multiple ways to enforce \lstcd{< Size} as we
+  process individual updates.
+\item When all objects are defined (we can determine this using
+  \lstcd{Size}), we could stop processing previous updates.
+\item There are many \lstcd{validate} instances we might add,
+  some being unclear even what the standard would enforce:
+  \begin{itemize}
+  \item prohibit double frees
+  \item prohibit the update of unfree objects
+  \item prohibit updates that don't increment the generation number
+  \item prohibit freeing of non-existent \objids{}.
+  \item prohibit ``unconvential use'' of generation numbers.
+  \item validate that the offset of new objects in the update are
+    defined in the ``body region'' of the respective update (not point
+    to previous nor subsequent regions)
+  \end{itemize}
+\end{itemize}
+Once this stage is done, the chance to validate any of
+the above is gone.  Some may give us strong indications of suspicious
+PDFs or shadow attacks!
+
+As promised, we'll now discuss the separation of Stage 2 from Stage 3
+and this notion of \lstcd{XRefRaw}: we \emph{could} have merged the
+stages, but at the expense of forcing every implementation to do more
+parsing than it strictly needs to.  Our philosophy here is to capture
+a reasonably realistic implementation with our specification and put
+functionality that is in the realm of validation into \lstcd{validate}
+instances.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
+
+Getting this stage right was a key motivation for writing our
+specification, and it turned out to be surprisingly complicated.
+\begin{code}
+transformXRefMapToObjectMap
+  :: SEEK -> Map ObjId (Offset :+: Type2Ref) -> P DOM
+transformXRefMapToObjectMap seek xrefs0 = do
+\end{code}
+It has three separate stages all of which do some reading/parsing of
+the file. Stage 4.1
+transforms \lstcd{xrefs0} into \lstcd{xrefs1}, note the types:
+\begin{codeNoExecute}
+  xrefs0 :: Map ObjId (Offset               :+: Type2Ref) 
+  xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
+\end{codeNoExecute}
+\haskellnote{
+We are using the infix type operator \lstcd{a :+: b} as a synonym for
+\lstcd{Either a b}, \lstcd{Either} is the Haskell sum type having two constructors
+\lstcd{Left} and \lstcd{Right}.
+}
+%
+We look up traditional \lstcd{XRef}'s and parses the objects,
+see line 3
+\begin{code}
+    -- Stage 4.1: parse all uncompressed objects
+    xrefs1 <- mapM
+                (mMapLeft (\o-> do {seek o; pTopLevelDef_UnDecStm}))
+                xrefs0
+\end{code}
+We can't do more in stage 4.1 because we can't yet decode
+object streams nor can we decode streams: in both cases these top
+level objects \emph{cannot} always be parsed without looking up
+integers in the DOM: as \lstcd{Length} keys and similar might contain
+indirect references to top level integers.
+\keypoint{
+  In PDF we need to lookup and parse some objects in the DOM
+  before we can parse other objects in the DOM!}
+% TODO: ^ rewrite to make clearer.
+
+Stage 4.2 further refines the xref map, computing the second from the first
+\begin{codeNoExecute}
+  xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
+  xrefs2 :: Map ObjId (TopLevelDef          :+: Type2Ref) 
+\end{codeNoExecute}
+in this code
+\begin{code}
+    -- Stage 4.2: decode stream bytes, pre-process ObjStm streams
+    xrefs2 <- mapM
+                (mMapLeft (extractStreamData xrefs1))
+                xrefs1
+\end{code}
+We have a sufficiently complete \lstcd{DOM} in \lstcd{xrefs1} in which
+we can lookup the integers that are needed to finish decoding the
+streams we left undecoded.
+If we cannot find the referenced integer in the DOM, we have a true PDF
+error because any indirect \lstcd{Length} values are required to be at the
+top level.
+
+At this point, in \lstcd{xrefs2}, we still have \lstcd{ObjId}'s that point
+(via \lstcd{Type2Ref}) into \lstcd{ObjStm} streams.
+Only in stage 4.2 were we able to decode the stream inside of
+which is the object to be parsed.
+% TODO this last text is rather complicated/tedious!
+
+\mttodo{bring in some of the Alg. Data Type defs?}
+
+So at this point, (1) we can compute body cavities \todo{define this} as
+we can parse all the top level objects, (2) object streams have been
+pre-processed, but we have not yet parsed the objects inside them.
+
+Finally, stage 4.3 computes \lstcd{domCandidate} from \lstcd{xrefs2}
+\begin{codeNoExecute}
+  xrefs2       :: Map ObjId (TopLevelDef :+: Type2Ref) 
+  domCandidate :: Map ObjId TopLevelDef
+\end{codeNoExecute}
+using the same pattern we've been seeing but now we no longer have 
+the sum, we have a mapping from \lstcd{ObjId}'s to PDF Values:
+\begin{code}
+    -- Stage 4.3: resolve Type 2 references
+    domCandidate <- mapM
+                     (return `either` derefType2Ref xrefs2)
+                     xrefs2
+    return domCandidate
+\end{code}
+
+At this point every object referenced via the XRef table has been
+correctly parsed. However, (1) object definitions in the PDF body
+area that are not ``XRef referenced'' are neither read nor parsed,
+% 
+(2) objects inside an \lstcd{ObjStm} stream that are not ``XRef
+referenced'' are also neither read nor parsed.
+
+Note that the \emph{Catalog Dictionary} (which has the optional
+\lstcd{Version} key) may have been in an Object stream, so in general
+we may not know till this point which version of PDF we are
+parsing\footnote{We wonder if this was the intention of the Standard!}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Further Validation}
+\label{sec:validating}
+
+\mttodo{remove or fix the etc stuff}
+
+We have a few checks and validations that we are unable to do until
+the DOM is created:
+\begin{code}  
+finalValidations dom version updates =
+    do    
+    version' <- updateVersionFromCatalogDict dom version
+    let etc = stub "extra keys in the trailer dict" :: Dict -- TODO!
+
+    if version' > (2,0) then
+      warn "PDF file has version greater than 2.0"
+    else
+      -- version' <= (2,0)
+      when (not (null etc)) $
+        warn "trailer dictionary has unknown keys (per PDF 2.0)"
+    validate $
+      versionAndDomConsistent version' dom
+    
+    validate $
+      trailersConsistentAcrossUpdates updates
+\end{code}
+
+Due to PDF-1.5 additions, we are now in the odd position that we
+cannot determine the PDF version until after we have created the DOM.
+So although we
+can check that the created \lstcd{dom} is consistent with
+\lstcd{version'},
+% 
+we cannot use \lstcd{version'} to validate any of the other processing
+in stages 1-4.
+%
+For instance, one would like to verify that Object Streams are not
+used when the version is PDF-1.4 or earlier.
+%
+Such a check would be possible if we were to update the spec to pass
+more information through the stages so we could verify more after
+computation of the DOM.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Exploring a One Stage Version}
+\label{sec:single-pass-problems}
+
+%%%%%%%%%%%%%%%
+\begin{figure}[t]
+  \centering
+  \begin{myc}
+    // xref and dom start with nothing in them:
+    //  - in reality, their sizes would be dynamically allocated.
+    XREF_ENTRY xref[Size];     
+    DOM_ENTRY  dom[Size];
+    
+    // 'dom' is updated dynamically, on demand, via 'deref':
+    PdfValue deref(ObjId oi) {
+      if (evald(dom[oi]))
+        return dom[oi];
+      else if (infiniteloopdetected())
+        quit ();      
+      else {
+        o = lookupOffsetInXref(oi); // updates xref[oi]
+        seek(o);
+        v = parseObject();
+        dom[oi] = v;
+        return v;
+      }
+      
+    PdfValue parseObject (){
+      ...
+      if (some Stream object) {
+        ...; len = deref(oi'); ... // need this to finish parsing!
+      }
+      ...
+    }
+    
+    OFFSET lookupOffsetInXref(oi) {
+      if xref_evald(xref[oi]) then
+        return xref[oi];
+      else {
+        // follow Prev pointers if not in top xref
+        //  - make sure no infinite loop in chasing Prev's
+        /* ... */
+        xref[oi] = offset;
+        return xref[oi];
+      }
+    }
+  \end{myc}
+  \caption{\dsp{}, A Single Stage, Imperative Parser.}
+  \label{fig:dsp}
+\end{figure}
+%%%%%%%%%%%%%%%
+
+One might ask if it's possible to write a single stage version of the
+specification.  I.e., Can we do without so many stages?
+The answer is \emph{Yes, but at a cost we don't want to pay!}
+Let's refer to the our multi-stage specification as the \ssp{}
+(staged) specification.
+%
+We will compare it to a single-stage specification\footnote{
+  Which will not be so clear, but we see no way around this.
+}, the \dsp{}
+(dynamic) specification in which stage 1 is the same
+but stages 2, 3, and 4 are
+merged together.
+%
+In our experience, PDF tools generally work more like \dsp{} than \ssp{}.
+
+\dsp must be understood imperatively; see \cref{fig:dsp} for a sketch
+of a possible implementation in C-like notation.
+The key things to note about \dsp{} are
+\begin{itemize}
+\item \lstcd{XREF_ENTRY} and \lstcd{DOM_ENTRY} are both types that mutate progressively
+   from unparsed/unknown to fully evaluated.
+\item \lstcd{deref()} and \lstcd{parseObject()} are mutually recursive functions.
+\item implementing \lstcd{infiniteLoopDetected()} is non-trivial.
+\end{itemize}
+Also to note about \dsp{}:
+\begin{itemize}
+\item it is \emph{not} equivalent to \ssp{}: \dsp{} potentially reads
+  less of the input file and accepts more input files.  it is
+  naturally ``lax'': it would for instance allow a \lstcd{Length} to
+  be stored in an \lstcd{ObjStm} stream as long as an infinite loop
+  wasn't detected.  It would be possible to extend (and complicate) \dsp{}
+  to approximate \ssp{} better.
+  % E.g.,
+  %  - have a =derefLength= / =derefFromUncompressed=
+  %  - More complicated than just this, because this won't catch error if we
+  %    luck out and when we request the length it is already decoded.
+\item it is nicely lazy if the PDF tool doesn't need to \lstcd{deref}
+  every object identifiers, even more lazy than \ssp{}.
+\end{itemize}
+
+We believe that \ssp{} is clearly preferable to \dsp{} for these two
+simple reasons:
+\begin{itemize}
+\item It corresponds to the standard, and does so obviously.
+\item It does not use general recursion, so it is obvious that \ssp{}
+  algorithm terminates on all inputs.
+\end{itemize}
+\ssp{} gives us a few other advantages over \dsp{}:
+\begin{enumerate}
+\item The functional, declarative, and typed structure enables
+  us to understand the stages conceptually.  (Even if one chooses
+  not to implement in a like manner.)
+\item It demonstrates the non obvious fact that one can
+  implement stages 2-4 and keep the ``state of evaluation'' of each
+  object identifier the same in each pass.
+\item We know exactly what is and isn't parsed, regardless of the
+  order in which one traverses the \lstcd{xref}.
+\item It is intrisically parallelizable due to the extensive use of
+  map-like combinators.
+\item The declarative nature of \ssp{} makes it very amenable to
+  modification: e.g., the simple addition of the \lstcd{validate}
+  operator.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Incremental Updates and Signatures: What A Tangled Web}
+\label{sec:updates-and-signatures}
+
+PDF supports the ability to use digital signatures to sign documents
+as part of the PDF standard itself.  Signed documents can
+subsequently be signed or ``incrementally updated,'' repeatedly.
+
+Digital signatures are just a special form of incremental update, and
+thus any PDF reader can just ignore the signature and process it as a
+trivial update.  This allows readers that don't support signatures to
+elegantly ignore them.
+
+However, when we \emph{do} have a digital signatures and a supporting
+reader, things get complicated, as evidenced by Shadow Attacks
+\cite{mladenovTrillionDollarRefund2019,ndsssymposiumNDSS2021Shadow2021}.
+%
+To validate a PDF with a digital signature entails identifying at
+which iteration of the PDF document the digital signature was applied
+and then validating the digital signature in the context of that
+specific DOM and the objects that were in effect at that instance in
+time.
+
+But this method completely \emph{breaks} the incremental update
+abstraction.  As we discussed, stages 2 and 3 handle all
+the incremental update processing and then the information is gone as
+it is unneeded by subsequent stages.
+% 
+This was a reasonable design until ``incremental updates'' were
+inadvisedly repurposed for signatures.  Now an incremental update has
+semantic content, and a reader supporting validation and display of
+signed PDFs will need to keep track of the contents of the DOM at each
+signature.
+
+Our specification does \emph{not} support signature validation or
+display, and it would be a non-trivial effort to do this.  However,
+this complication is going to be reasonable with our \ssp{} approach;
+whereas it is unclear whether the \dsp{} approach is able to support
+this at all.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Assessments}
+
+Currently this specification adheres to the PDF 2.0 standard but this
+limits its use, as so many PDF tools allow multiple variances from the
+standard.
+%
+However, the opportunity for us is to use our specification to encode
+some of these common extensions and to explore if the combination of
+these extensions are truly unambiguous.
+
+With our specification based approach, it would not be onerous
+to refactor our specification to support different PDF variations:
+\begin{itemize}
+\item strict PDF-2.0.
+\item strict PDF-2.0, validating everything.
+\item PDF-2.0 with some common extensions that are determined to be unambiguous.
+\end{itemize}
+
+The conciseness of our specification is due to a few factors
+\begin{enumerate}
+\item our intention to make it as clear as possible,
+\item ignoring some ``engineering'' aspects (e.g., informative error
+   messages, recovery, etc.), and
+\item omitting code for some of the simple, tedious functions.
+\end{enumerate}
+One line of future work would be to turn the specification into a
+\emph{reference implementation} by the addition of
+(1) code for the current, missing ``tedious parts'',
+(2) links to implementations of the primitive parsers, and
+(3) outputting of the DOM.
+
+Future work might also involve adding further validation checks such as these:
+(1) processing linearization data and ensuring consistency with the
+non-linearized DOM;
+(2) processing both ``branches'' of a hybrid PDF and ensuring
+some form of constency between pre 1.5 readers and 1.5+ readers;
+(3) adding signature validation, see \cref{sec:updates-and-signatures}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% not implemented functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% begin: Hs code not in paper %%%%
+\iffalse
+\begin{code}
+
+trailersConsistentAcrossUpdates :: [Update] -> Bool
+trailersConsistentAcrossUpdates = stub
+
+-- signatures above:
+removeFrees m = M.mapMaybe
+                  (\x -> case x of Right y -> Just y
+                                   _       -> Nothing)
+                  m
+thawXRefEntry = notImplementedYet
+getObjIds = notImplementedYet
+
+\end{code}
+\fi
+%%%% end: Hs code not in paper %%%%
+
+% specs bugs that we uncovered:
+\subsection{Practical consequences}
+\label{sec:consequences}
+%
+In the process of producing the format definition described above, we
+raised multiple issues concerning the PDF standard with the
+ISO~\cite{isotc171sc2wg8ISO32000220202020}, specifically an issues
+concerning the definition of cross-reference streams.
+%
+In the process, we raised several other issues related to the
+definition of cross-reference streams that were acknowledged by PDFA
+and have since been resolved, including %
+\textbf{(1)} requirements for object numbers in cross-reference
+subsections~\cite{pdfIssue146} and %
+\textbf{(2)} corrections to the denotation of the \texttt{XRefStm} field of a trailer dictionary~\cite{pdfIssue147}.
+
+\todo{Peter: confirm that these issues are related to the paper}
