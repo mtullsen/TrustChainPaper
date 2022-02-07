@@ -266,27 +266,24 @@ ensure the PDF Trust Chain is robust prior to DOM processing.
 % As will become even more apparent, there is a significant amount of
 % parsing and computation that needs to be done \emph{pre-DOM}.
 
-The majority of prior work researching PDF vulnerabilities starts with a pre-existing PDF DOM,
+The majority of prior work researching PDF vulnerabilities start with a pre-existing PDF DOM,
 completely ignoring pre-DOM parsing and processing. This work typically looks for
 JavaScript streams or strings, action objects, URL strings, or file attachment objects that 
-can lurk in various places throughout the PDF DOM. Prior work in privacy has identified that
-incremental updates obviously pose a risk for redaction and data scrubbing workflows if not processed correctly.
-Given our recent points about the \emph{PDF Trust Chain} (\cref{sec:trust-chain}), it should not surprise us that some PDF attack vectors involve aspects of breaking the \emph{DOM} abstraction.
+can lurk in various places throughout the PDF DOM. Machine-learning approaches so far have not  
+used feature vectors based on the underlying PDF pre-DOM file structure. 
+Prior work in privacy has identified that incremental updates obviously pose a risk for complete
+redaction and data scrubbing workflows if not processed correctly.
+Given our recent points about the \emph{PDF Trust Chain} (\cref{sec:trust-chain}), it should not 
+surprise us that some PDF attack vectors involve aspects of breaking the \emph{DOM} abstraction.
 i.e., the vulnerabilities occur \emph{pre-DOM}.
 
-{\bf{Shadow Attacks}} \todo{...}
+{\bf{Shadow Attacks}} were first identified by 
 
 {\bf{Parser Differentials}} are a real threat as attackers leverage differences in output
-to present different information to different individuals (where the individual be a human
-or a machine). Parser differentials arise due to a combination of parser weaknesses, 
-parser permissiveness and unexpected input.
-\begin{lstlisting}[style=meta]
-  - writer errors
-  - parser differentials
-    - e.g., ignoring XRef tables
-  - recovering parsers !!
-  - blind faith in incremental updates (Shadow Attacks)
-\end{lstlisting}
+to present different information to different individuals, where the individual might be a human
+or a machine. Parser differentials arise due to a combination of parser weaknesses, 
+parser permissiveness, and unexpected input. In the case of PDF pre-DOM file structure, we have been
+able to easily demonstrate parser differentials.
 
 {\bf{Polyglots}} are a potential threat in any system or workflow which relies on different parsers
 at different stages. If a firewall product determines a file to be of file type \emph{X} and then only 
@@ -303,6 +300,8 @@ that does impact processing (e.g. in comments or strings, in freed or unreferenc
 - format may not be well-defined because the recursion is not
     "well-defined"
 \end{lstlisting}
+
+{\bf{Supply Chain attacks}} are generalization of \emph{Shadow Attacks}
 
 It should also be no surprise that due to complexity and subtleties of the PDF Standard described above,
 extant data exhibits many errors in cross-reference tables and related pre-DOM context information.
