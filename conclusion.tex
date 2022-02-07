@@ -1,6 +1,29 @@
 % ------------------------------------------------------------------------------
 \section{Conclusion \note{1.5pp}}
 \label{sec:conclusion}
+%
+Data formats that define a document object model often rely on a rich
+notion of referential context: data structures that identify data
+objects, which are used by data objects to refer to each other.
+%
+Because referential context is itself is a rich data format, there is
+a natural motivation to reuse powerful abstractions defined in the
+format for organizing data to define the structure of context itself;
+%
+done imprecisely, this invites circular definitions and ambiguities,
+along with incorrect implementations in practical processors.
+
+%
+In this paper, we have performed a detailed study of a critical aspect
+of PDF's definition of referential context as cross-reference tables.
+%
+Our work has resulted in a novel machine-readable definition of the
+format's more complicated features for defining cross-reference
+streams, namely incremental updates and cross-reference streams.
+%
+Our work has resulted in an open issue concerning cross-reference
+streams submitted to the \emph{International Organization for
+  Standardization (ISO)}.
 
 \subsection{Contributions}
 
