@@ -1,7 +1,8 @@
 % walk through the format definition in technical detail:
-\section{Specifying the PDF DOM's Foundations \note{4pp}}
-\label{sec:specifying}
-%
+\section{Specifying PDF: Goals and Approach}
+\label{sec:spec-goals}
+
+\todo{NEED STILL?:
 This section %
 states our goals in producing a formal partial definition of PDF
 (\Cref{sec:spec-goals}) and then presents the specification's core
@@ -9,10 +10,8 @@ definitions (\Cref{sec:core}), followed by its definitions of each
 stage of the PDF Trust Chain (\Crefrange{sec:stage-1}{sec:stage-4}).
 %
 \Cref{sec:results-analysis} analyses the resulting specification.
+}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Requirements of a Specification}
-\label{sec:spec-goals}
 % REMEMBER terms: complies with standard, compatible with
 Ideally, a PDF implementation should:
 \begin{itemize}
@@ -141,6 +140,8 @@ it ignores the traditional \xref{} tables designed for pre PDF 1.5 readers.
 It processes signatures (as incremental updates) but it does not support
 validation of signatures.
 
+\section{Specifying the PDF DOM's Foundations \note{4pp}}
+\label{sec:specifying}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Core definitions}
@@ -177,10 +178,10 @@ describe a surprising variety of data containers.
 For the purposes of this paper, it suffices to note that:
 \begin{itemize}
   \item A monad is a way to sequence effectful constructs in a purely
-    functional manner; effects being global variables (or mutable
-    state), exceptions, or I/O.
-  \item Because Haskell is purely functional, we have a simple monad
-    \lstcd{P} that captures, under the hood, our desired effects.
+    functional manner; effects are global variables (or mutable
+    state), exceptions, I/O, or etc.
+  \item We use the \lstcd{P} monad
+    that captures, under the hood, our desired effects.
   \item The \lstcd{P} monad supports
     \begin{itemize}
     \item one read-only variable (the PDF file being read)
@@ -674,6 +675,9 @@ Such a check would be possible if we were to update the spec to pass
 more information through the stages so we could verify more after
 computation of the DOM.
 
+\section{Assessing The Specification}
+\label{sec:assessing}
+%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Comparison with a definition containing only one stage}
