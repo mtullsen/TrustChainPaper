@@ -29,7 +29,7 @@ All file offsets in PDF file are from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}.
 
 The \emph{Linearization} section is an optional optimization section that enables what is commonly
 known as "fast web view". This section must occur within the first 1024 bytes of a PDF and contains
-data that enables a Linearization-aware PDF processor to quickly display the opening page of a PDF
+data that enables a Linearized PDF aware processor to quickly display the opening page of a PDF
 while the rest of a large PDF can download in the background.
 Linearizatiom data is also invalidated by incremental updates (since an update might change objects
 on the opening PDF page) and must therefore be checked and ignored.
@@ -250,24 +250,15 @@ Our work has been to critically review the under-appreciated and under-studied p
 file structure using formal methods to identify data integrity relationships that can 
 ensure the PDF Trust Chain is robust prior to DOM processing.
 
-\todo{we should use the concept of "data integrity relationships" being the
-  essence of the necessary context. e.g. PDF incremental updates are appended to
-  a previously valid PDF - thus an incremental update should not "make visible"
-  a PDF object that was not already valid and visible in the original PDF (this
-  is one method Shadow Attacks use - cf. an upstream "supply chain attack" by an
-  attacker), even if that PDF object is otherwise entirely syntactically
-  valid. In the same way an incremental update that refers to an object at a
-  file byte offset after the incremental update would be highly suspicious.}
-
 % ------------------------------------------------------------------------------
-\subsection{Vulnerabilities \note{1pp}}
+\subsection{Vulnerabilities}
 \label{sec:vulnerabilities}
 
 % As will become even more apparent, there is a significant amount of
 % parsing and computation that needs to be done \emph{pre-DOM}.
 
 The majority of prior work researching PDF vulnerabilities start with a pre-existing PDF DOM,
-completely ignoring pre-DOM parsing and processing. This work typically looks for
+completely ignoring pre-DOM parsing and processing. \todo{need citations} This work typically looks for
 JavaScript streams or strings, action objects, URL strings, or file attachment objects that 
 can lurk in various places throughout the PDF DOM. Machine-learning approaches so far have not  
 used feature vectors based on the underlying PDF pre-DOM file structure. 
@@ -277,7 +268,12 @@ Given our recent points about the \emph{PDF Trust Chain} (\cref{sec:trust-chain}
 surprise us that some PDF attack vectors involve aspects of breaking the \emph{DOM} abstraction.
 i.e., the vulnerabilities occur \emph{pre-DOM}.
 
-{\bf{Shadow Attacks}} were first identified by 
+{\bf{Supply Chain attacks}} are generalization of {\bf{Shadow Attacks}} which were coined by Mainka 
+et al. in \cite{mainkaShadowAttacksHiding2021} whereby an attacker infiltrates a workflow and 
+maliciously manipulates a document in some way. This manipulation may be entirely syntactically valid. Only later in the workflow, possibly after a 
+digital signature is applied or an official approval step, the malicious data is 
+activated. In the case of digitally-signed documents this severely undermines confidence and trust
+in digital signature technology.
 
 {\bf{Parser Differentials}} are a real threat as attackers leverage differences in output
 to present different information to different individuals, where the individual might be a human
@@ -293,15 +289,9 @@ cavities, permissive implementations,
 and other blind spots in a file format specification where arbitrary data can be placed 
 that does impact processing (e.g. in comments or strings, in freed or unreferenced objects, etc.).
 
-{\bf{Denial of Service (DOS)}} 
-%
-\begin{lstlisting}[style=meta]
-- [potential recursion many places]
-- format may not be well-defined because the recursion is not
-    "well-defined"
-\end{lstlisting}
-
-{\bf{Supply Chain attacks}} are generalization of \emph{Shadow Attacks}
+{\bf{Denial of Service (DoS)}} is of increasing concern to the PDF industry, with many PDF services
+and products utilizing cloud-based processing. In cases like large-scale automated invoice 
+processing, DoS attacks can also incur addition expenses as well as inconvenience for an organization as exception-handling by human operators may be invoked.  
 
 It should also be no surprise that due to complexity and subtleties of the PDF Standard described above,
 extant data exhibits many errors in cross-reference tables and related pre-DOM context information.
@@ -312,7 +302,7 @@ does highlight several permissive features related to pre-DOM processing:
 
 \begin{itemize}
     \item deviation from the required 20-byte fixed cross-reference table entry, with support for
-    19- and 21-byte variations due to additional whitespace or incorrect line endings;
+    19- and 21-byte variations due to additional white space or incorrect line endings;
     \item errors in byte offsets to indirect PDF objects and objects in object streams;
     \item errors with \lstcd{startxref} byte offsets;
     \item incorrect trailer dictionary data (such as \lstcd{Size}), leading to implementations 
