@@ -54,7 +54,7 @@ Achieving the above is challenging due to many factors:
     constructs used don't match?
   (4) What is \emph{required} from the PDF writer versus
     what do we \emph{require} the PDF reader to check?
-  (5) Behavior when given in incorrect PDF.
+  (5) Behavior when given an incorrect PDF.
 \end{itemize}
 Failure to faithfully implement the standard can result in ambiguities
 between implementations as well as direct vulnerabilities (such as
@@ -503,14 +503,14 @@ Not only is this stage already complex, but there are multiple feasible variatio
 \item There are many \lstcd{validate} instances we might add,
   some being unclear even what the standard would enforce:
   \begin{itemize}
-  \item prohibit double frees
-  \item prohibit the update of unfree objects
-  \item prohibit updates that don't increment the generation number
-  \item prohibit freeing of non-existent \objids{}.
-  \item prohibit ``unconvential use'' of generation numbers.
+  \item prohibit double frees,
+  \item prohibit the update of unfree objects,
+  \item prohibit updates that don't increment the generation number,
+  \item prohibit freeing of non-existent \objids{},
+  \item prohibit ``unconvential use'' of generation numbers.,
   \item validate that the offset of new objects in the update are
-    defined in the ``body region'' of the respective update (not point
-    to previous nor subsequent regions)
+    defined in the ``body region'' of the respective update (i.e., not point
+    to previous nor subsequent regions).
   \end{itemize}
 \end{itemize}
 %
