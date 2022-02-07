@@ -52,15 +52,15 @@ practical demands.
 E.g., PDF's \emph{cross-reference tables} support
 % 
 \textbf{(1)} the interpretation of documents to be strongly mutated by
-appending text, via \emph{incremental updates};
+appending content, via \emph{incremental updates};
 %
 \textbf{(2)} reference structure to be compressed, via standardized
 but non-trivial algorithms applied to \emph{cross-reference streams},
 potentially combined with conventional cross-reference tables in
-\emph{hybrid files}; and
+\emph{hybrid reference files}; and
 % 
 \textbf{(3)} large documents to be partially processed incrementally,
-via \emph{linearization}.
+using separated context, via \emph{linearization}.
 
 % security consequences::
 Difficulties in expressing the structure and semantics of references
@@ -142,7 +142,7 @@ objects, or reinstate objects that were previously marked as free
 (unused).
 %
 Thus, in order to correctly establish a final PDF DOM graph, it is
-necessary to process each appended incremental update in reverse
+necessary to parse each appended incremental update in reverse
 order.
 
 % results:
@@ -166,7 +166,7 @@ definition languages as they are developed.
 \paragraph*{Organization} The rest of this paper is organized as
 follows;
 %
-\Cref{sec:trust-chain} presents the ``Trust Chain,'' a key metaphor
+\Cref{sec:trust-chain} presents the ``PDF Trust Chain,'' a key metaphor
 for understanding the intricacies of PDF pre-DOM parsing;
 %
 \Cref{sec:pdf} reviews complexities and associated vulnerabilities in

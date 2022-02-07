@@ -19,27 +19,25 @@ Ideally, a PDF implementation should:
 \item when not fully supporting the standard, do so gracefully,
 \item support common PDF malformations
   to be compatible with extant PDFs, but \emph{without} introducing ambiguities
-  or causing other unintended consequences,
-\item and all the while, contain minimal bugs and stay resilient
+  or causing other unintended consequences (we refer to this as \emph{permissiveness}),
+\item and all the while, contain minimal bugs, robustly cope with unexpected input and stay resilient
   against all attacks.
 \end{itemize}
-Achieving the above will be challenging due to many factors:
+Achieving the above is challenging due to many factors:
 \begin{itemize}
 \item The intrinsic complexity of PDF:
-  PDF is a \emph{less than ideal} design that reflects 27 years of
+  PDF is a \emph{less than ideal} design that reflects almost 30 years of
   an evolving standard.
   %
-  PDF has multiple redundant features.
-  %
-  PDF is explicitly designed to facilitate efficient processing of
+  PDF has multiple redundant features and is explicitly designed to facilitate efficient processing of
   large files (``efficiency hacks'').
   %
-  PDF involves multiple sublanguages and embedded formats.
+  PDF involves multiple sublanguages (dialects) and embedded formats.
   %
   PDF contains complex parsing needs, such as backwards searching and
   embedded file offsets.
-\item Lack of formality in standard. Thus, implementators
-  need more effort to understand it and comply with it.
+\item Lack of formality in the standard. Thus, implementators
+  need more effort to understand it and comply with its intentions.
   Implementations commonly over implement, under implement,
   and wrongly implement the standard.
   Because writing a PDF implementation from scratch is a large effort,
@@ -172,10 +170,28 @@ is a \emph{monadic} parser \lstcd{P} that returns a value of type
 In general, monads are a rich class of parameterized types that
 describe a surprising variety of data and computations.
 %
-For the purposes of this paper, it suffices to view a monad as a container that provides an operation to sequence effectful constructs in a purely functional manner; effects can be global variables (or mutable state), exceptions, I/O, and etc.
-
+For the purposes of this paper, it suffices to view a monad as a container that provides an operation to sequence effectful \emph{actions} (specifically, functions from some type to a monad over a potentially distinct type) in a purely functional manner;
 %
-In our work specifically, the parser monad \lstcd{P} abstracts effects on a parser's state.
+effects can be global variables (or mutable state), exceptions, I/O, and etc.
+
+% do notation:
+Haskell provides a syntactic form for concisely sequencing actions, structured as the keyword \lstcd{do} followed by bindings of the form \lstcd{x <- A}, which denotes that the action \lstcd{A} is performed and its resulting value is bound to variable \lstcd{x} to be used by further actions.
+%
+E.g.,
+\begin{codeNoExecute}
+  topAction :: P Int
+  topAction = do
+              result1 <- action1 args1...
+              let x = <PURELY-FUNCTIONAL-EXPRESSION>
+                  f x = <FUNCTION> -- not an action
+              result2 <- action2 result1 args2...
+              return (anyPureFunction result2)
+\end{codeNoExecute}
+%
+\todo{do we really need this extra example? Can't we just point to Fig. 6?}
+
+% walk through P:
+The specific parser monad \lstcd{P} abstracts effects on a parser's state.
 %
 Its state includes %
 \textbf{(1)} one read-only variable, which stores the PDF file being read, and %
@@ -191,28 +207,10 @@ and is updated by sequencing the parsing action
 \mttodo{readLocation equals \rdloc{}?}
 %
 \texttt{P} parsers implicitly track parsing errors, which are thrown when an input document is not in the defined format.
-
 %
-\begin{itemize}
-\item We use the \lstcd{do} syntactic sugar to easily sequence
-  monadic actions.
-  E.g.,
-  \begin{codeNoExecute}
-  topAction :: P Int
-  topAction = do
-              result1 <- action1 args1...
-              let x = <PURELY-FUNCTIONAL-EXPRESSION>
-                  f x = <FUNCTION> -- not an action
-              result2 <- action2 result1 args2...
-              return (anyPureFunction result2)
-  \end{codeNoExecute}
-  The term ``action'' refers to a monadic function: i.e., a function
-  having a type scheme of ``\lstcd{a -> P b}''.
-\item Important note: any action can fail and stop the parsing,
-  and the use of the \lstcd{x <- expr} ``bind'' syntax indicates
-  that \lstcd{expr} is an action.
-\end{itemize}
+I.e., each parsing action of the form \lstcd{x <- A} can be viewed as attempting to parse according to action \lstcd{A}, binding a result to variable \lstcd{x} only on success and failing otherwise.
 
+% type annotations:
 To aid understandability, expressions are occasionally annotated with types (see \cref{fig:spec} lines 8, 11, and 14).
 
 \begin{figure}[t]
@@ -237,17 +235,17 @@ pPDFDom =
     finalValidations dom version updates
     return dom
 \end{code}
-\caption{Our formalization of pre-DOM stages 1--4 in Haskell.}
+\caption{A formalization of pre-DOM stages 1--4 in Haskell.}
 \label{fig:spec}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Stage 1: Find and Parse the Header and Trailer}
+\subsection{Stage 1: find and parse the header and trailer}
 \label{sec:stage-1}
 
 % give the code for stage 1:
-The definition of stage 1 is as follows:
+Stage 1 is defined as follows:
 \begin{code}
 findHeaderAndTrailer :: P (SEEK, Offset, Version)
 findHeaderAndTrailer =
@@ -264,9 +262,9 @@ findHeaderAndTrailer =
 type SEEK = Offset -> P () -- type of seek
 \end{code}
 
-Neither of the magic numbers $1000$ or $1001$ are specified precisely
+Neither of the magic numbers $1000$ or $1001$ used in the definition are specified precisely
 by the PDF standard, which requires only that they be numeric values
-that are ``reasonably small'' \todo{is this a quote from the standard?}.
+that are ``reasonably small'' \todo{is this a quote from the standard? How did we pick 1000 and 1001?}.
 %
 This is an immediate cause of ambiguity in the standard (and thus an
 invitation for \pd{} in conformant document processors).
@@ -281,15 +279,16 @@ aspect.
 But we will need to pass \lstcd{seek} to all the actions that need to
 ``seek'' in the PDF file (note this being done in \cref{fig:spec}).
 
-Note that the two function calls (lines 5 and 8) have no data
-dependencies, thus they could be written in either order.
+Because the two function calls (lines 5 and 8) have no data
+dependencies, they can be performed in any order.
+%
 \haskellnote{The spec has no global variables beyond \rdloc{} and neither function
   depends on it.}
 
-The code for \lstcd{findStartxrefThenParseToEOF} is
-omitted, as it is more tedious than instructive.
+The full definition of \lstcd{findStartxrefThenParseToEOF} is
+omitted, to simplify the presentation.
 %
-Informally, it:
+In abstract terms, it:
 \begin{enumerate}
 \item Finds the ``EOF marker'' \lstcd{\%\%EOF} (near the end of the physical
   file);
@@ -303,20 +302,20 @@ Informally, it:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 2: Find and Parse Incremental Updates}
 \label{sec:stage-2}
-
-We have not yet parsed the trailer information, but we know where
-it starts.  Parsing the final XRef table and Trailer dictionary are
-done using this function:
-
+%
+Stage 1 only finds the start of trailer;
+%
+the trailer dictionary itself, along with the complete cross-reference table, are defined in stage 2 as follows:
+%
 \lstset{numbers=right}
 \begin{code}
-type Update = (XRefRaw,TrailerDict)
+type Update = (XRefRaw, TrailerDict)
 
 pIncUpdate_Traditional :: SEEK -> P Update
 pIncUpdate_Traditional seek =
     do
     (xrefRaw, xrefEndOff) <- pXrefRaw :: P (XRefRaw,Offset)
-    validate $
+    validate \$
       verifyXrefRaw xrefRaw
         -- this ensures no duplicate objectIds
     seek xrefEndOff
@@ -333,27 +332,21 @@ pIncUpdate_Traditional seek =
 \end{code}
 \lstset{numbers=none}
 
-Note \lstcd{validate} on line 7: this is a special function that we
-use to demarcate semantic checks (line 8) that are not necessary to
+\lstcd{validate} (line 7) is a special function used to demarcate semantic checks (line 8) that are not necessary to
 create the DOM but which could detect invalid or inconsistent PDFs.
 %
-The check could be used in a ``validate'' mode, but we wouldn't expect
-all implementations to necessarily implement the check.
+The check could be used in a ``validate'' mode, but would not necessarily be performed by all implementations.
 
-We have intentionally designed this to return \lstcd{XRefRaw} objects,
-% TODO: show defn?
-i.e., we find the subsections of the \xref{} table, but we do not
-parse the sequence of \xref{} entries in each subsection.
-(We will describe the motivations for this after
-we have explored stage 3.)
+% produces unparsed xref table subsections:
+The resulting subsections of the \xref{} table are unstructured, each of type \lstcd{XRefRaw}, rather than a sequence of fully parsed \xref{} entries;
 %
-Note that, even for \lstcd{XRefRaw},
-we know the set of \objid{}'s and for each we can find the offset
-of its \xref{} entry.  This design relies on implementing
-the specification strictly: an \xref{} entry must have exactly 20 bytes.
+this aspect of the definition is revisited and fully motivated in \Cref{sec:stage-3}.
+%
+The partially structured representation still retains a set of \objid{}'s and for each, the offset of its of its \xref{} entry.
+%
+Constructing the representation critically relies on a precise requirement established in the standard: an \xref{} entry must have exactly 20 bytes.
 
-However, parsing the \xref{} table and trailer is just a special case
-of parsing \emph{all} the incremental updates, which we show here:
+The \xref{} table and trailer themselves are simply instances of incremental updates, which are parsed as follows:
 \lstset{numbers=right}
 \begin{code}
 parseAllIncUpdates :: SEEK -> Offset -> P [Update]
@@ -381,19 +374,21 @@ parseAllIncUpdates' prevSet seek offset =
                         return ((xref,trailerDict):us)
 \end{code}
 \lstset{numbers=none}
+%
+Much of the above definition is dedicated to ensuring that potential loops in the \lstcd{Prev} offsets do not cause the definition to lose well-foundedness (or in operational terms, that the natural corresponding parser does not loop infinitely).
+%
+The set \lstcd{prevSet} tracks the offsets of every update processed.
+%
+The definition %
+\textbf{(1)} \lstcd{seek}s to the \lstcd{offset} and parses the update, then 
+\textbf{(2)} checks for a \lstcd{Prev} key.
+%
+If no key is present, then parsing is complete;
+%
+otherwise, parsing continues with an extended set of offsets.
 
-Half the complexity of the above code is to ensure that loops in
-the \lstcd{Prev} offsets don't result in the code going
-into an infinite loop: we keep track of the offsets of every update
-we have processed in the set \lstcd{prevSet}.
-What we are doing here is
-(1) \lstcd{seek}-ing to the \lstcd{offset} and parsing the update;
-(2) checking for a \lstcd{Prev} key, if no key we're done, otherwise
-    continue.
-
-Also, since we support both traditional (pre 1.5 PDF) and stream
-\xref{} tables:
-
+% supporting xref tables:
+\lstcd{pIncUpdate} supports \xref{} tables as defined in versions of PDF up to 1.5 and represented using cross-reference streams:
 \begin{code}
 pIncUpdate :: SEEK -> P (XRefRaw,TrailerDict)
 pIncUpdate seek =
@@ -405,27 +400,24 @@ pIncUpdate seek =
 pIncUpdate_XrefStream :: SEEK -> P (XRefRaw,TrailerDict)
 pIncUpdate_XrefStream seek = notImplementedYet
 \end{code}
-
+%
 The function \lstcd{pIncUpdate_XrefStream} is more
 complex than \lstcd{pIncUpdate_Traditional} but the resulting
-data is equivalent.  It also allows for determining the subsections
-without parsing the \xref{} entries.
+data is equivalent.
+%
+It also determines subsections without parsing the \xref{} entries.
 
-So, here's where we are at this point in the computation:
-\begin{itemize}
-\item We can determine all of the \objids{} in the PDF.
-\item We have not parsed any PDF values except trailer dictionaries.
-\item We have definitely rejected some PDFs by this point.
-\item We could output the trailer dictionaries or the list of
-  incremental updates.
-\item We have detected overlapping \objids{} in the \xref{} tables.
-\end{itemize}
-
+% recap:
+Upon success, stage 2 produces values from which a client can directly determine all \objids{} in the PDF and produce the trailer dictionaries and incremental updates.
+%
+The only PDF values that have been parsed are trailer dictionaries, but many documents can be rejected, including those with recurring \objids{} in the \xref{} tables.
+\mtnote{check this phrasing}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Stage 3: Combine Incremental Updates}
+\subsection{Stage 3: combine incremental updates}
+\label{sec:stage-3}
 %
-Updates are processed from last to first:
+In stage 3, updates are processed from last to first:
 \begin{code}
 combineUpdates :: SEEK
                -> [(XRefRaw, TrailerDict)] 
@@ -448,13 +440,15 @@ combineUpdates seek updates =
 type XRefEntry = Free :+: (Offset :+: Type2Ref)
 \end{code}
 
-Each incremental update can add new objects, mark existing in-use objects as free, or update objects.
+Each incremental update can add new objects, mark existing objects in use as free, or update objects.
 %
 \lstcd{XRefEntry} is defined to process updates from last to first;
 %
 it could have been defined alternatively to parse \xref{} entries only as needed.
 %
 \todo{why did we choose the option that we did?}
+
+\todo{say what mergeUpdate does, informally}
 
 \begin{code}
 mergeUpdate :: SEEK
@@ -475,7 +469,7 @@ mergeUpdate seek map0 (xref,dict) =
 
 data Free = Free  -- currently we are ignoring free objects
 \end{code}
-The types of functions that are used, but whose implementations are withheld for simplicity, are as follows:
+\lstdcode{mergeUpdate} uses the functions
 \begin{code}
 removeFrees :: Map k XRefEntry -> Map k (Offset :+: Type2Ref)
 
@@ -483,10 +477,16 @@ thawXRefEntry :: SEEK -> XRefRaw -> ObjId -> P (ObjId, XRefEntry)
 
 getObjIds :: XRefRaw -> [ObjId]
 \end{code}
+%
+Their implementations are withheld, for simplicity.
 
-For simplicity, we have neglected to use the \lstcd{Size} key (from
-the trailer dictionaries) to constrain \objids{}.  Note these comments
-about \lstcd{Size} from the standard:
+For simplicity, the definition does not constraint \objids{} using  trailer dictionaries' \lstcd{Size} key;
+%
+the standard requires that:
+
+to constrain \objids{}.
+%
+Note these comments about \lstcd{Size} from the standard:
 \begin{itemize}
   \item Any object in a cross-reference section whose number is
     greater than this value shall be ignored and defined to be missing
@@ -494,9 +494,7 @@ about \lstcd{Size} from the standard:
   \item Equivalently, this value shall be one greater than the highest object number defined in the PDF file.
 \end{itemize}
 
-Not only is this stage already complex, the
-possible---semantics changing---variations on
-\lstcd{mergeUpdate} are surprisingly many:
+Not only is this stage already complex, but there are multiple feasible variations of \lstcd{mergeUpdate}, with distinct semantics:
 \begin{itemize}
 \item There appear to be multiple ways to enforce \lstcd{< Size} as we
   process individual updates.
@@ -532,9 +530,9 @@ Our specification was designed to include as much validation as possible as inst
 \subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
 \label{sec:stage-4}
 %
-The apparent complexity of this stage in particular was a primary motivation of our attempt to formalize the definition of the pre-DOM.
+The apparent complexity of stage 4 in particular was a primary motivation of our work.
 %
-In the formalization, the stage has the following name and type:
+Stage 4 is implemented as the following function:
 \begin{code}
 transformXRefMapToObjectMap
   :: SEEK -> Map ObjId (Offset :+: Type2Ref) -> P DOM
@@ -549,7 +547,7 @@ Stage 4.1 transforms \lstcd{xrefs0} into \lstcd{xrefs1}, with types:
   xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
 \end{codeNoExecute}
 \haskellnote{
-The infix type operator \lstcd{a :+: b} is a synonym for the Haskell sum type \lstcd{Either a b}, which has constructors
+The type \lstcd{a :+: b} is a synonym for the Haskell sum type \lstcd{Either a b}, which has constructors
 \lstcd{Left} and \lstcd{Right}.
 }
 %
