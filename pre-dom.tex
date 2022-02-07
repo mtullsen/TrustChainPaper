@@ -165,36 +165,35 @@ import           Streams
 
 \lstcd{pPDFDom} (\cref{fig:spec}) implements stages 1 through 4 (illustrated in \cref{fig:pdf-trust-chain}).
 % 
-Line 1 contains \lstcd{pPDFDom}'s type signature, indicating that it
-is a ``monadic parser'' \lstcd{P} that returns a value of type
+\lstcd{pPDFDom}'s type (line 1) denotes that it
+is a \emph{monadic} parser \lstcd{P} that returns a value of type
 \lstcd{DOM}.
 %
 In general, monads are a rich class of parameterized types that
-describe a surprising variety of data containers.
+describe a surprising variety of data and computations.
 %
-For the purposes of this paper, it suffices to note that:
-\begin{itemize}
-  \item A monad is a way to sequence effectful constructs in a purely
-    functional manner; effects can be global variables (or mutable
-    state), exceptions, I/O, and etc.
-  \item We use the \lstcd{P} monad
-    that captures, under the hood, our desired effects.
-  \item The \lstcd{P} monad supports
-    \begin{itemize}
-    \item one read-only variable (the PDF file being read)
-    \item one mutable variable \rdloc{}, the offset in the file where
-      reading (i.e., the primitive parsing) occurs; we update it
-      with
-  \begin{codeNoExecute}
+For the purposes of this paper, it suffices to view a monad as a container that provides an operation to sequence effectful constructs in a purely functional manner; effects can be global variables (or mutable state), exceptions, I/O, and etc.
+
+%
+In our work specifically, the parser monad \lstcd{P} abstracts effects on a parser's state.
+%
+Its state includes %
+\textbf{(1)} one read-only variable, which stores the PDF file being read, and %
+\textbf{(2)} one mutable variable \rdloc{}, which stores the offset in the file at which the next byte is read.
+%
+\rdloc{} is accessed by primitive parsers (which have type \lstcd{P})
+and is updated by sequencing the parsing action
+\begin{codeNoExecute}
   seekPrimitive :: Offset -> P ()
   seekPrimitive off = <update readLocation with 'off'>
-  \end{codeNoExecute}
-      \mttodo{readLocation equals \rdloc{}?}  and it is accessed
-      implicitly by the primitive parsers in \lstcd{P}.
-    \item Exceptions (i.e., the \lstcd{Maybe} monad): any action
-      may fail, failure propagates naturally without the need for
-      throwing/catching exceptions.
-    \end{itemize}
+\end{codeNoExecute}
+%
+\mttodo{readLocation equals \rdloc{}?}
+%
+\texttt{P} parsers implicitly track parsing errors, which are thrown when an input document is not in the defined format.
+
+%
+\begin{itemize}
 \item We use the \lstcd{do} syntactic sugar to easily sequence
   monadic actions.
   E.g.,
@@ -214,9 +213,7 @@ For the purposes of this paper, it suffices to note that:
   that \lstcd{expr} is an action.
 \end{itemize}
 
-To further elucidate the code, we sometimes add \emph{type
-  annotations} on expressions in the code (see \cref{fig:spec} lines
-8, 11, and 14).
+To aid understandability, expressions are occasionally annotated with types (see \cref{fig:spec} lines 8, 11, and 14).
 
 \begin{figure}[t]
 \centering
@@ -240,7 +237,7 @@ pPDFDom =
     finalValidations dom version updates
     return dom
 \end{code}
-\caption{A formalization of stages 1--4.}
+\caption{Our formalization of pre-DOM stages 1--4 in Haskell.}
 \label{fig:spec}
 \end{figure}
 
@@ -428,7 +425,7 @@ So, here's where we are at this point in the computation:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 3: Combine Incremental Updates}
 %
-Updates are processed from last (near EOF) to first (near the file's beginning):
+Updates are processed from last to first:
 \begin{code}
 combineUpdates :: SEEK
                -> [(XRefRaw, TrailerDict)] 
@@ -473,11 +470,12 @@ mergeUpdate seek map0 (xref,dict) =
     -- only parse (thaw) needed XRef entries:
     newEntries <- forM neededObjIds
                        (thawXRefEntry seek xref)
-    return (M.union map0 (M.fromList (newEntries :: [(ObjId,XRefEntry)] )))
+    return
+      (M.union map0 (M.fromList (newEntries :: [(ObjId,XRefEntry)] )))
 
 data Free = Free  -- currently we are ignoring free objects
 \end{code}
-Note the type signatures of functions we are not showing:
+The types of functions that are used, but whose implementations are withheld for simplicity, are as follows:
 \begin{code}
 removeFrees :: Map k XRefEntry -> Map k (Offset :+: Type2Ref)
 
@@ -493,8 +491,7 @@ about \lstcd{Size} from the standard:
   \item Any object in a cross-reference section whose number is
     greater than this value shall be ignored and defined to be missing
     by a PDF reader.
-  \item Equivalently, this value shall be 1 greater than the highest
-    object number defined in the PDF file.
+  \item Equivalently, this value shall be one greater than the highest object number defined in the PDF file.
 \end{itemize}
 
 Not only is this stage already complex, the
@@ -523,101 +520,87 @@ None of the above properties can be validated upon the completion of Stage 3.
 %
 Given that some of the properties may be indicators of shadow attacks or PDFs that are otherwise suspicious, Stage 3 is thus critically important as a stage for security validation.
 
-As promised, we'll now discuss the separation of Stage 2 from Stage 3
-and this notion of \lstcd{XRefRaw}: we \emph{could} have merged the
-stages, but at the expense of forcing every implementation to do more
-parsing than it strictly needs to.
-%
+% merging Stages 2 and 3:
 While Stages 2 and 3 could feasibly be defined as a single stage, it would effectively force every compliant to parse and validate to a degree that may not be needed by many applications.
 %
-Our specification was designed to include as much validation 
-
-Our philosophy here is to capture
-a reasonably realistic implementation with our specification and put
-functionality that is in the realm of validation into \lstcd{validate}
-instances.
+Our specification was designed to include as much validation as possible as instances of \lstcd{validate}.
+%
+\todo{wasn't clear how XRefRaw connects}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
 \label{sec:stage-4}
-
-Getting this stage right was a key motivation for writing our
-specification, and it turned out to be surprisingly complicated.
+%
+The apparent complexity of this stage in particular was a primary motivation of our attempt to formalize the definition of the pre-DOM.
+%
+In the formalization, the stage has the following name and type:
 \begin{code}
 transformXRefMapToObjectMap
   :: SEEK -> Map ObjId (Offset :+: Type2Ref) -> P DOM
 transformXRefMapToObjectMap seek xrefs0 = do
 \end{code}
-It has three separate stages all of which do some reading/parsing of
-the file. Stage 4.1
-transforms \lstcd{xrefs0} into \lstcd{xrefs1}, note the types:
+%
+The stage contains three distinct substages, each of which directly parse the document's bytes.
+%
+Stage 4.1 transforms \lstcd{xrefs0} into \lstcd{xrefs1}, with types:
 \begin{codeNoExecute}
   xrefs0 :: Map ObjId (Offset               :+: Type2Ref) 
   xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
 \end{codeNoExecute}
 \haskellnote{
-We are using the infix type operator \lstcd{a :+: b} as a synonym for
-\lstcd{Either a b}, \lstcd{Either} is the Haskell sum type having two constructors
+The infix type operator \lstcd{a :+: b} is a synonym for the Haskell sum type \lstcd{Either a b}, which has constructors
 \lstcd{Left} and \lstcd{Right}.
 }
 %
-We look up traditional \lstcd{XRef}'s and parses the objects,
-see line 3
+Traditional \lstcd{XRef}'s are resolved and the resulting objects are parsed; see line 3:
 \begin{code}
     -- Stage 4.1: parse all uncompressed objects
     xrefs1 <- mapM
                 (mMapLeft (\o-> do {seek o; pTopLevelDef_UnDecStm}))
                 xrefs0
 \end{code}
-We can't do more in stage 4.1 because we can't yet decode
-object streams nor can we decode streams: in both cases these top
-level objects \emph{cannot} always be parsed without looking up
-integers in the DOM: as \lstcd{Length} keys and similar might contain
-indirect references to top level integers.
-\keypoint{
-  In PDF we need to lookup and parse some objects in the DOM
-  before we can parse other objects in the DOM!}
-% TODO: ^ rewrite to make clearer.
+Further parsing and validation is not possible in stage 4.1 because object streams, and streams in general, cannot yet be decoded: these top level objects cannot always be parsed without resolving \lstcd{Length} (and similar) keys, which may be bound to indirect references to integer values.
 
-Stage 4.2 further refines the xref map, computing the second from the first
+% stage 4.1:
+Stage 4.2 further refines the \texttt{xref} map, computing the second from the first, with the following types:
 \begin{codeNoExecute}
   xrefs1 :: Map ObjId (TopLevelDef_UnDecStm :+: Type2Ref)
   xrefs2 :: Map ObjId (TopLevelDef          :+: Type2Ref) 
 \end{codeNoExecute}
-in this code
+\texttt{xrefs2} is defined as
 \begin{code}
     -- Stage 4.2: decode stream bytes, pre-process ObjStm streams
     xrefs2 <- mapM
                 (mMapLeft (extractStreamData xrefs1))
                 xrefs1
 \end{code}
-We have a sufficiently complete \lstcd{DOM} in \lstcd{xrefs1} in which
-we can lookup the integers that are needed to finish decoding the
-streams we left undecoded.
-If we cannot find the referenced integer in the DOM, we have a true PDF
-error because any indirect \lstcd{Length} values are required to be at the
-top level.
+%
+\lstcd{xrefs1} is a sufficiently complete \lstcd{DOM} that it can be used to resolve integers needed to decode any currently undecoded streams.
+%
+If a claimed reference to an integer is not bound in the DOM, then the document is not a valid PDF: all indirect values bound to \lstcd{Length} keys must be at the document's top level.
 
 At this point, in \lstcd{xrefs2}, we still have \lstcd{ObjId}'s that point
 (via \lstcd{Type2Ref}) into \lstcd{ObjStm} streams.
+%
 Only in stage 4.2 were we able to decode the stream inside of
 which is the object to be parsed.
 % TODO this last text is rather complicated/tedious!
 
 \mttodo{bring in some of the Alg. Data Type defs?}
 
-So at this point, (1) we can compute body cavities \todo{define this} as
-we can parse all the top level objects, (2) object streams have been
-pre-processed, but we have not yet parsed the objects inside them.
+Values computed in stage 4.2 are sufficient for computing document cavities.
+%
+Object streams are pre-processed, but any objects that they contain have not yet been parsed.
 
-Finally, stage 4.3 computes \lstcd{domCandidate} from \lstcd{xrefs2}
+Finally, stage 4.3 computes \lstcd{domCandidate} from \lstcd{xrefs2}, with the following types:
 \begin{codeNoExecute}
   xrefs2       :: Map ObjId (TopLevelDef :+: Type2Ref) 
   domCandidate :: Map ObjId TopLevelDef
 \end{codeNoExecute}
-using the same pattern we've been seeing but now we no longer have 
-the sum, we have a mapping from \lstcd{ObjId}'s to PDF Values:
+\lstcd{domCandidate} is defined following a similar pattern to computation in previous stages.
+%
+However, unlike previous stages, sum types are no longer used; the result is a map from  \lstcd{ObjId}'s to PDF Values:
 \begin{code}
     -- Stage 4.3: resolve Type 2 references
     domCandidate <- mapM
@@ -626,18 +609,14 @@ the sum, we have a mapping from \lstcd{ObjId}'s to PDF Values:
     return domCandidate
 \end{code}
 
-At this point every object referenced via the XRef table has been
-correctly parsed. However, (1) object definitions in the PDF body
-area that are not ``XRef referenced'' are neither read nor parsed,
-% 
-(2) objects inside an \lstcd{ObjStm} stream that are not ``XRef
-referenced'' are also neither read nor parsed.
+At this point, every object referenced via the cross-reference table has been correctly parsed.
+%
+However, objects are not yet read or parsed if they are not referenced, whether they occur in the document's body or within an object stream.
 
-Note that the \emph{Catalog Dictionary} (which has the optional
-\lstcd{Version} key) may have been in an Object stream, so in general
-we may not know till this point which version of PDF we are
-parsing\footnote{We wonder if this was the intention of the Standard!}.
-
+The \emph{Catalog Dictionary} (which has the optional
+\lstcd{Version} key) may have been in an Object stream, so in general the intended version of the document cannot be determined until this point;
+%
+it is arguably unclear if this was intended when defining the PDF standard.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Further Validation}
@@ -687,7 +666,7 @@ computation of the DOM.
 %
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Comparison with a definition containing only one stage}
+\subsection{Comparison with a definition consisting of only one stage}
 \label{sec:single-pass-problems}
 
 %%%%%%%%%%%%%%%
@@ -751,9 +730,11 @@ We will compare it to a single-stage specification\footnote{
 but stages 2, 3, and 4 are
 merged together.
 %
-In our experience, PDF tools generally work more like \dsp{} than \ssp{}.
+In our experience, PDF tools generally have structure more similar to \dsp{} than \ssp{}.
 
-\dsp must be understood imperatively; see \cref{fig:dsp} for a sketch
+\dsp must be understood imperatively \todo{this seems important: why?};
+%
+see \cref{fig:dsp} for a sketch
 of a possible implementation in C-like notation.
 The key things to note about \dsp{} are
 \begin{itemize}
@@ -778,14 +759,14 @@ Also to note about \dsp{}:
   every object identifiers, even more lazy than \ssp{}.
 \end{itemize}
 
-We believe that \ssp{} is clearly preferable to \dsp{} for these two
-simple reasons:
+
+\ssp{} appears to be strongly preferable to \dsp for two main reasons:
 \begin{itemize}
 \item It corresponds to the standard, and does so obviously.
 \item It does not use general recursion, so it is obvious that \ssp{}
   algorithm terminates on all inputs.
 \end{itemize}
-\ssp{} gives us a few other advantages over \dsp{}:
+Compared to \dsp{}, \ssp{} holds the following advantages:
 \begin{enumerate}
 \item The functional, declarative, and typed structure enables
   us to understand the stages conceptually.  (Even if one chooses
