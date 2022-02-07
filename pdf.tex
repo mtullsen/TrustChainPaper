@@ -7,7 +7,7 @@
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.65\linewidth]{figures/pdf-structure.png}
-    \caption{PDF File Structure.}
+    \caption{The structure of a PDF file: labeled sections with selections of representative text.}
     \label{fig:pdf-structure}
 \end{figure}
 
@@ -168,8 +168,7 @@ often compressed and thus require the pre-DOM parser to "trust" the stream
 extent dictionary data.
 
 The parser must then locate either the \lstcd{xref} keyword for
-traditional PDF cross-reference tables, or a PDF object that should be
-a cross-reference stream, identified by \lstcd{x y obj} tokens. 
+traditional PDF cross-reference tables, or a cross-reference stream, identified by tokens of the form \lstcd{x y obj} . 
 A parser must then determine if the PDF object is a
 semantically valid cross-reference stream by further parsing the stream extent dictionary and 
 validating the necessary key/value pairs and also recognizing the \lstcd{stream} keyword after the dictionary end token \lstcd{>>} and the \lstcd{endstream} keyword (see \cref{fig:XRefStm}). 

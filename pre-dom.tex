@@ -272,7 +272,7 @@ type SEEK = Offset -> P () -- type of seek
 
 Neither of the magic numbers $1000$ or $1001$ are specified precisely
 by the PDF standard, which requires only that they be numeric values
-that are ``reasonably small'' \todo{is this a quote?}.
+that are ``reasonably small'' \todo{is this a quote from the standard?}.
 %
 This is an immediate cause of ambiguity in the standard (and thus an
 invitation for \pd{} in conformant document processors).
@@ -430,8 +430,8 @@ So, here's where we are at this point in the computation:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 3: Combine Incremental Updates}
-
-We process the updates from last (near EOF) to first (near start of file):
+%
+Updates are processed from last (near EOF) to first (near the file's beginning):
 \begin{code}
 combineUpdates :: SEEK
                -> [(XRefRaw, TrailerDict)] 
@@ -454,10 +454,13 @@ combineUpdates seek updates =
 type XRefEntry = Free :+: (Offset :+: Type2Ref)
 \end{code}
 
-Each incremental update can add new objects, mark existing in-use objects as
-free, or update objects.  Note \lstcd{XRefEntry}.
-Two key design choices are (1) we process updates from last to first
-and (2) we only parse the \xref{} entries as needed.
+Each incremental update can add new objects, mark existing in-use objects as free, or update objects.
+%
+\lstcd{XRefEntry} is defined to process updates from last to first;
+%
+it could have been defined alternatively to parse \xref{} entries only as needed.
+%
+\todo{why did we choose the option that we did?}
 
 \begin{code}
 mergeUpdate :: SEEK
@@ -518,9 +521,10 @@ possible---semantics changing---variations on
     to previous nor subsequent regions)
   \end{itemize}
 \end{itemize}
-Once this stage is done, the chance to validate any of
-the above is gone.  Some may give us strong indications of suspicious
-PDFs or shadow attacks!
+%
+None of the above properties can be validated upon the completion of Stage 3.
+%
+Given that some of the properties may be indicators of shadow attacks or PDFs that are otherwise suspicious, Stage 3 is thus critically important as a stage for security validation.
 
 As promised, we'll now discuss the separation of Stage 2 from Stage 3
 and this notion of \lstcd{XRefRaw}: we \emph{could} have merged the

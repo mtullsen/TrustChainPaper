@@ -151,14 +151,8 @@ thumbnail reference in the candidate DOM is to a font dictionary or some other k
 machine-readable model of every object, their attributes and relationships in the PDF DOM. The use
 of such a model for code generation, validation or test case generation can reduce the tediousness.
 
-
 The \emph{Render DOM} stage also has many complications of its own, whether this be rendering a PDF
 page to pixels for display or print, or extracting text contract, however for this paper we will
-focus on stages 1-4.
-
-We refer to stages 1 to 4 as pre-DOM parsing/computation; if anything
-goes wrong pre-DOM---and lots can go wrong---there's hell to pay.
-\todo{do we dare?!}
-
-\todo{BH: I urge against: it's not so much that the tone is too
-  risque, but (related) that it's not suitably precise.}
+focus on stages 1 to 4, referred to as \emph{pre-DOM} parsing or computation.
+%
+Errors in these stages can compromise the correctness of the complete format definition, even if later stages are defined as intended when viewed in isolation.
