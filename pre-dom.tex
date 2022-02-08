@@ -40,10 +40,11 @@ Achieving the above is challenging due to many factors:
   need more effort to understand it and comply with its intentions.
   Implementations commonly over implement, under implement,
   and wrongly implement the standard.
-  Because writing a PDF implementation from scratch is a large effort,
+  Because writing a rewriting  PDF implementation from scratch is a significant and costly effort,
   implementors are incentivized to patch existing code (correct or not).
-\item The standard defines one thing: \emph{What is a valid PDF?},
-  and leaves other decisions to the implementation:
+\item The standard primarily defines just one thing: \emph{what is a valid PDF file},
+  with only a few processor requirements. Many technical details are also delegated to the numerous normative references.
+  This leaves the majority of decisions up to each implementation:
   (1) What should absolutely \emph{not} be allowed (because in the real world
     implementations are more or less relaxed)? And similarly,
     what are deemed to be acceptable, reasonable error recovery methods?
@@ -56,8 +57,9 @@ Achieving the above is challenging due to many factors:
     what do we \emph{require} the PDF reader to check?
   (5) Behavior when given an incorrect PDF.
 \end{itemize}
-Failure to faithfully implement the standard can result in ambiguities
-between implementations as well as direct vulnerabilities (such as
+
+Failure to faithfully implement the standard can result in 
+parser differentials as well as direct vulnerabilities (such as
 Shadow Attacks or DoS attacks).
 
 \mtnote{this last, (5), seems pretty key and
@@ -480,21 +482,18 @@ getObjIds :: XRefRaw -> [ObjId]
 %
 Their implementations are withheld, for simplicity.
 
-For simplicity, the definition does not constraint \objids{} using  trailer dictionaries' \lstcd{Size} key;
+For simplicity, the definition does not constraint \objids{} using the values bound to trailer dictionaries' \lstcd{Size} key;
 %
 the standard requires that:
-
-to constrain \objids{}.
-%
-Note these comments about \lstcd{Size} from the standard:
 \begin{itemize}
   \item Any object in a cross-reference section whose number is
-    greater than this value shall be ignored and defined to be missing
-    by a PDF reader.
-  \item Equivalently, this value shall be one greater than the highest object number defined in the PDF file.
+    greater than the bound value shall be ignored and treated as missing.
+  \item Equivalently, the value shall be greater by one than the highest object number defined in the PDF file.
+  %
+  \todo{how is this equivalent to the first item?}
 \end{itemize}
 
-Not only is this stage already complex, but there are multiple feasible variations of \lstcd{mergeUpdate}, with distinct semantics:
+Not only is this stage's definition complex, but there are multiple, apparently workable variations of \lstcd{mergeUpdate}, with distinct semantics:
 \begin{itemize}
 \item There appear to be multiple ways to enforce \lstcd{< Size} as we
   process individual updates.
