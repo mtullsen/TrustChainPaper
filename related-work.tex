@@ -20,16 +20,16 @@ cross-reference streams and incremental updates.
 
 % DOM/security attacks:
 A wealth of recent work has discovered methods (named \emph{Shadow
-  Attacks}) for subverting the end-to-end guarantees of document
+Attacks}) for subverting the end-to-end guarantees of document
 integrity that are provided by digital signatures in
 PDF~\cite{mullerPracticalDecryptionExFiltration2019,mladenovTrillionDollarRefund2019,mullerProcessingDangerousPaths2021,ndsssymposiumNDSS2021Shadow2021,rohlmannBreakingSpecificationPDF2021}.
 %
 Many of these attacks rely on mutating the referential structure of a
-document by updating its cross reference table via incremental
+document by updating its cross reference data via incremental
 updates.
 %
 These attacks published to date only perform basic
-updates to the DOM, and do not rely on nuanced features of semantics
+updates to the DOM, and do not rely on nuanced features or semantics
 of cross-reference streams and object streams.
 %
 Recent work~\cite{itextShadowAttack} has also introduced automated
