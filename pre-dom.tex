@@ -97,7 +97,7 @@ import qualified Data.IntSet as IntSet
 import           Data.List
 import qualified Data.Map as M
 import           Data.Map(Map)
-import           Types
+import           Types hiding (XRefEntry,SEEK,Update) -- defs dupd here!
 import           Utils
 import           Primitives
 import           Streams
@@ -401,8 +401,6 @@ mergeUpdate seek map0 (xref,dict) =
                        (thawXRefEntry seek xref)
     return
       (M.union map0 (M.fromList (newEntries :: [(ObjId,XRefEntry)] )))
-
-data Free = Free  -- currently we are ignoring free objects
 \end{code}
 
 

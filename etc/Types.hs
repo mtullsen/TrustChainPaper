@@ -1,12 +1,19 @@
+{-# LANGUAGE EmptyDataDecls, TypeOperators, LambdaCase #-}
 module Types where
 
 import           Data.Map(Map)
+import           Utils
 
 ---- hidden types ------------------------------------------------------------
 
 type ByteString = String -- FIXME: update
 type P a = IO a -- P is monadic parser, let's just use IO for the moment
 
+---- Types definid in main, so ... -------------------------------------------
+
+type Update = (XRefRaw, TrailerDict)
+type XRefEntry = Free :+: (Offset :+: Type2Ref)
+type SEEK = Offset -> P () -- type of seek
 
 ---- basic types -------------------------------------------------------------
 data PdfValue = V_Ref ObjNum GenNum
@@ -34,6 +41,9 @@ type Version = (Int,Int)
 
 ---- types for xref and lower level ------------------------------------------
 
+
+data Free = Free  -- currently we are ignoring free objects
+
 type XRefRaw       = [SubSectionRaw]
   -- Raw = have not parsed individual Xref entries
 type SubSectionRaw = (ObjId,Len,Offset)
@@ -43,7 +53,6 @@ type SubSectionRaw = (ObjId,Len,Offset)
 
 -- Alternative when we allow 19-21 byte xref entries:
 --   TODO
-          
 
 ---- types for DOM creation --------------------------------------------------
 
