@@ -22,7 +22,7 @@ However, these key properties regarding context-freedom of a
 definition critically do not hold for many practical formats of
 interest.
 %
-Many such formats define a \emph{Document Object Model}: i.e., the
+Many such formats define a \emph{Document Object Model} (DOM): i.e., the
 result of parsing a document is a graph between objects, each
 of which may store a large set of fields.
 %
@@ -49,7 +49,7 @@ central importance.
 In practice, their structure is quite complex in order to support
 practical demands.
 %
-E.g., PDF's \emph{cross-reference tables} support
+e.g., PDF's \emph{cross-reference table} support
 % 
 \textbf{(1)} the interpretation of documents to be strongly mutated by
 appending content, via \emph{incremental updates};
@@ -73,7 +73,7 @@ document.
 Recently discovered attacks that compromise the integrity and
 usability of digital
 signatures~\cite{rohlmannBreakingSpecificationPDF2021,
-  mainkaShadowAttacksHiding2021} use maliciously crafted
+mainkaShadowAttacksHiding2021} use maliciously crafted
 cross-reference tables.
 %
 Document \emph{cavities}---segments of a document that are not
@@ -81,13 +81,13 @@ reflected in its semantic interpretation---may store content that is
 completely unobservable to parser clients.
 %
 Such cavities are a powerful mechanism for creating \emph{polyglot
-  files} (i.e., files that belong to multiple, unexpected formats),
+files} (i.e., files that belong to multiple, unexpected formats),
 which themselves have been used in recent critical system security
 exploits~\cite{psychicPaper}.
 
 % potential solutions and why they fail:
-Context-free grammars are not suitable to define such formats in full
-detail.
+Context-free grammars and weaker formalisms are not suitable to define 
+such formats in full detail.
 %
 In the conventional setting, a parser returns a semantic value that is
 then potentially transformed by further computation, which itself be
@@ -101,10 +101,9 @@ such parsing logic is exactly what should be expressed declaratively
 in a grammar and implemented by a generated parser.
 
 % our solution: very careful parser combinators:
-This paper explores a third approach: parser combinators that include
-constructs for explicitly capturing input and parsing a
-previously-captured input, combined using computation on semantic
-values in Haskell.
+This paper explores a more powerful alternative: monadic parsers equipped 
+with actions for explicitly capturing and setting the parser's input, run 
+in a well-founded sequence of staged computations over semantic values.
 %
 This approach is explored within an industrial strength case study:
 validating and parsing the reference tables that are used to create 
@@ -169,11 +168,9 @@ for understanding the intricacies of PDF pre-DOM parsing;
 \Cref{sec:pdf} reviews complexities and associated vulnerabilities in
 the PDF format and its processors;
 %
-\Cref{sec:specifying} presents our specification of reference in
-detail;
+\Cref{sec:specifying} presents our specification of reference in detail;
 %
-\Cref{sec:assessing} gives assessments our approach;
+\Cref{sec:assessing} assesses our approach;
 %
 \Cref{sec:rel-work} reviews related work, and %
 \Cref{sec:conclusion} concludes.
-

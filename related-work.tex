@@ -5,7 +5,7 @@
 The PDF Association maintains the primary effort to specify the PDF
 format, which is done informally in the PDF standard ISO 32000, and has now
 been backed partially be a machine-readable definition of the Document
-Object Model~\cite{wyatt2021work}.
+Object Model~\cite{peterwyattArlingtonPDFModel2021}.
 %
 The Caradoc project aimed to define a machine-readable specification
 of PDF with a verified parser, using the Coq interactive theorem
@@ -26,11 +26,11 @@ PDF~\cite{mullerPracticalDecryptionExFiltration2019,mladenovTrillionDollarRefund
 %
 Many of these attacks rely on mutating the referential structure of a
 document by updating its cross reference table via incremental
-updates;
+updates.
 %
 These attacks published to date only perform basic
 updates to the DOM, and do not rely on nuanced features of semantics
-of cross-reference streams.
+of cross-reference streams and object streams.
 %
 Recent work~\cite{itextShadowAttack} has also introduced automated
 tools for determining if a given PDF document may likely be extended

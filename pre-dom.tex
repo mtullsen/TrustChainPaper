@@ -13,28 +13,27 @@ stage of the PDF Trust Chain (\Crefrange{sec:stage-1}{sec:stage-4}).
 \label{sec:spec-goals}
 
 % REMEMBER terms: complies with standard, compatible with
-Ideally, a PDF implementation should:
+Ideally, every PDF implementation should:
 \begin{itemize}
 \item comply with the PDF standard,
-\item when not fully supporting the standard, do so gracefully,
+\item when not fully supporting the standard, do so gracefully and inform the user,
 \item support common PDF malformations
   to be compatible with extant PDFs, but \emph{without} introducing ambiguities
   or causing other unintended consequences (we refer to this as \emph{permissiveness}),
-\item and all the while, contain minimal bugs, robustly cope with unexpected input and stay resilient
+\item and all the while, contain minimal bugs, robustly cope with unexpected input, and stay resilient
   against all attacks.
 \end{itemize}
 Achieving the above is challenging due to many factors:
 \begin{itemize}
 \item The intrinsic complexity of PDF:
-  PDF is a \emph{less than ideal} design that reflects almost 30 years of
+  the PDF file format is a less than ideal design that reflects almost 30 years of
   an evolving standard.
   %
-  PDF has multiple redundant features and is explicitly designed to facilitate efficient processing of
+  PDF has multiple redundant and deprecated features and is explicitly designed to facilitate efficient processing of
   large files (``efficiency hacks'').
   %
-  PDF involves multiple sublanguages (dialects) and embedded formats.
-  %
-  PDF contains complex parsing needs, such as backwards searching and
+  PDF involves multiple sublanguages, numerous embedded formats, and
+  contains complex parsing needs, such as backwards searching and
   embedded file offsets.
 \item Lack of formality in the standard. Thus, implementators
   need more effort to understand it and comply with its intentions.
@@ -43,54 +42,44 @@ Achieving the above is challenging due to many factors:
   Because writing a PDF implementation from scratch is a significant and costly effort,
   implementors are incentivized to patch existing code (correct or not).
 \item The standard primarily defines just one thing: \emph{what is a valid PDF file},
-  with only a few processor requirements. Many technical details are also delegated to the numerous normative references.
-  This leaves the majority of decisions up to each implementation:
+  with only a few processor requirements. Many technical details are also delegated to the 
+  numerous normative references which leaves the majority of decisions up to each implementation:
   (1) What should absolutely \emph{not} be allowed (because in the real world
     implementations are more or less relaxed)? And similarly,
-    what are deemed to be acceptable, reasonable error recovery methods?
-  (2) What is required to support backwards and forwards compatibility?
-  (3) What is done when redundant features are inconsistent with one
+    what are deemed to be acceptable or reasonable error recovery methods?
+  (2) What is done when redundant features are inconsistent with one
     another: which, or neither, has priority?
-    Similarly, what is done when the stated PDF version and the PDF
-    constructs used don't match?
-  (4) What is \emph{required} from the PDF writer versus
-    what do we \emph{require} the PDF reader to check?
-  (5) Behavior when given an incorrect PDF.
+  (3) What is \emph{required} from the PDF writer versus
+    what do we \emph{require} the PDF reader to check in every file?
+  (4) Behavior when given an incorrect PDF: is the behavior undefined or is
+      the implementation required to catch this?
 \end{itemize}
 
 Failure to faithfully implement the standard can result in 
 parser differentials as well as direct vulnerabilities (such as
 Shadow Attacks or DoS attacks).
 
-\mtnote{this last, (5), seems pretty key and
-  feels like a major omission in the standard! If the answer is
-  yes, then there's nothing keeping an implementation from only
-  doing enough to ``work on good pdfs'' without even checking that it
-  IS a good PDF.  Thus, we have the tool that only reads the 'e'
-  in ``endobj''.  Is this reasonable?  Are there vulnerabilities that
-  would exist in such implementations?
-}
-
 % define formal specification:
 A \emph{formal specification} of a format does not immediately resolve
 all of the above issues, but it is a critical artifact for clarifying
-the standard, understanding the vulnerabilties, and aiding
-implementors of PDF processors.
-%
+the standard, understanding the vulnerabilities, and aiding implementors
+of PDF.
+
+
 In this work, we have produced a specification of one component of PDF
 in the Haskell programming language~\cite{jones2003haskell}.
 %
 A detailed presentation of Haskell's features is beyond the scope of
 this paper, so we note only that it is a statically typed, pure,
-functional programming language with a lazy;
+functional programming language with a lazy; \todo{MT - incomplete sentence?}
 %
 we review its other features throughout the paper when they are
 relevant.
 
 % say more about the spec's scope:
 The scope of our specification is the gap between the low level
-parsers (parsing integers, parsing XRef entries, etc.) and the
-processing that happens after the DOM is created (stages 5 and 6).
+parsers (parsing integers, parsing cross reference entries, etc.) and the
+processing that happens once a DOM is created (stages 5 and 6).
 %
 I.e., stages 1 to 4.
 %
@@ -116,7 +105,7 @@ The full specification of DaeDaLus is publicly available~\cite{daedalusrepo}.
   without a reading knowledge of Haskell, we understand that parts of
   the specification could be a little obscure, but our hope is that a
   precise, formal specification may prove to be more useful than
-  pseudo-code or the like!
+  pseudo-code or the like.
   
 \item Our specification is purely functional: no ad hoc global variables are
   hidden, the data-dependencies in the spec fully represent all the
@@ -132,11 +121,11 @@ The full specification of DaeDaLus is publicly available~\cite{daedalusrepo}.
   % }
 \end{itemize}
 
-This spec supports PDF 2.0, including compressed objects and XRef streams.
+This specification supports the latest PDF 2.0, including compressed objects and cross-reference streams.
 %
-It (safely) ignores linearization data, and in hybrid XRef PDFs
-it ignores the traditional \xref{} tables designed for pre PDF 1.5 readers.
-It processes signatures (as incremental updates) but it does not support
+It (safely) ignores Linearization data, and in hybrid-reference PDFs
+it ignores the conventional cross-reference tables designed for pre PDF 1.5 readers.
+It processes signatures (as incremental updates), but it does not support
 validation of signatures.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -194,9 +183,7 @@ and is updated by sequencing the parsing action
   seekPrimitive off = <update readLocation with 'off'>
 \end{codeNoExecute}
 %
-\mttodo{readLocation equals \rdloc{}?}
-%
-\texttt{P} parsers implicitly track parsing errors, which are thrown when an input document is not in the defined format.
+\lstcd{P} parsers implicitly track parsing errors, which are thrown when an input document is not in the defined format.
 %
 I.e., each parsing action of the form \lstcd{x <- A} can be viewed as attempting to parse according to action \lstcd{A}, binding a result to variable \lstcd{x} only on success and failing otherwise.
 
@@ -470,31 +457,22 @@ getObjIds :: XRefRaw -> [ObjId]
 %
 Their implementations are withheld, for simplicity.
 
-For simplicity, the definition does not constrain \objids{} using the values bound to trailer dictionaries' \lstcd{Size} key as required in the standard, specifically that:
-\begin{itemize}
-  \item Any object in a cross-reference section whose number is
-    greater than the bound value shall be ignored and treated as missing.
-  \item The value shall be greater by one than the highest object number defined in the PDF file.
-\end{itemize}
+For simplicity, the definition does not constrain \objids{} using the values bound to trailer dictionaries' \lstcd{Size} key as required in the standard.
+%
+Specifically, any object in a cross-reference section whose number is
+greater than the bound value shall be ignored and treated as missing.
+%
+Also, the value shall be greater by one than the highest object number defined in the PDF file.
 
 Not only is stage 4's definition complex, but there are multiple, apparently workable variations of \lstcd{mergeUpdate}, with distinct semantics:
 \begin{itemize}
 \item There appear to be multiple ways to enforce \lstcd{< Size} as we
   process individual updates. \todo{didn't understand what needs to be enforced here}
-\item When all objects are defined (we can determine this using
-  \lstcd{Size}), we could stop processing previous updates.
-\item There are many \lstcd{validate} instances we might add,
-  some being unclear even what the standard would enforce:
-  \begin{itemize}
-  \item prohibit double frees,
-  \item prohibit the update of unfree objects,
-  \item prohibit updates that don't increment the generation number,
-  \item prohibit freeing of non-existent \objids{},
-  \item prohibit ``unconvential use'' of generation numbers.,
-  \item validate that the offset of new objects in the update are
-    defined in the ``body region'' of the respective update (i.e., not point
-    to previous nor subsequent regions).
-  \end{itemize}
+\item Updates need not be processed if they occur before the definition of all objects (which can be determined from 
+  \lstcd{Size}).
+\item \lstcd{validate} instances could prohibit double frees of objects, updates of unfree objects, updates that do not increment the generation number, frees of non-existent object ID's, and other unconventional uses of generation numbers.
+%
+Other instances could validate that the offset of new objects in each update are defined in update's ``body region'' (i.e., they do not point to previous nor subsequent regions).
 \end{itemize}
 %
 None of the above properties can be validated until the completion of Stage 3.
@@ -821,8 +799,6 @@ and have since been resolved, including %
 subsections~\cite{pdfIssue146} and %
 \textbf{(2)} corrections to the denotation of the \texttt{XRefStm}
 field of a trailer dictionary~\cite{pdfIssue147}.
-
-\todo{Peter: confirm that these issues are related to the paper}
 
 % handling de-facto specs:
 The specification's conformance to the standard arguably

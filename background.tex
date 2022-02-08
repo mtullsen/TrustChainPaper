@@ -42,15 +42,15 @@ and the key lesson being:
 We have touched upon the complexities of parsing
 PDF, but to appreciate these, one has to understand the
 dependencies and interactions between the features.
-In \cref{fig:pdf-trust-chain} we show the main stages diagrammatically.
-To briefly sketch what's going on in each stage:
+\cref{fig:pdf-trust-chain} illustrates the main stages diagrammatically:
+
 \begin{itemize}
 \item Stage 1: Find and parse both the PDF header and the PDF trailer to locate
   the document trailer dictionary and the start of the \emph{last} incremental update, or
   the cross reference table of the original document in the case of no updates.
 \item Stage 2: Find and parse each cross reference table or incremental update. 
   Note that this stage uses context from Stage 1 (such as the file offset and trailer
-  information) in order to know \emph{where} and \emph{what} to process.
+  information) in order to know \emph{where} and \emph{how} to parse.
 \item Stage 3: This stage does no further reading of the file, but computes the
    a XRef map of the final PDF by accounting for each set of edits performed by each incremental update.
    Incremental updates can add new objects, mark as free previous objects, re-instate previously 
@@ -59,12 +59,12 @@ To briefly sketch what's going on in each stage:
 \item Stage 4: Transform the XRef map to an object map. This stage is complex and
   requires three sub-stages, each of which does further file input and parsing.
   Further details are in \cref{sec:specifying}.
-  If all goes well, we have a syntactically correct candidate DOM.
+  If all goes well, we have a syntactically valid candidate DOM.
 \item Stage 5: Validate candidate DOM.  This stage takes the candidate DOM and
-  semantically verifies that it represents a sensible document graph per the PDF Standard.
-  E.g., each object in the DOM is well-formed with all required data types and values, 
-  no unexpected recursion, etc.
-\item Stage 6: Render the validated DOM. Here we render the validated DOM, or parts thereof,
+  \emph{semantically} verifies that it represents a sensible document graph per the PDF standard.
+  e.g., each object in the DOM is well-formed with all required data types and values, 
+  no unexpected recursion, no unresolvable object references, etc.
+\item Stage 6: Render the validated DOM. Here the validated DOM, or parts thereof, is rendered
   to the output format of choice.
 \end{itemize}
 
@@ -72,10 +72,10 @@ Any error (malicious or otherwise) in an earlier stage will affect the output of
 Note that stages 2, 3, 4.1, 4.2, and 4.3 all depend on inputs from previous stages to determine 
 where and how to parse segments of the PDF input file.
 Errors that percolate into these stages can
-cause all forms of havoc (parsing wrong data, etc.).
+cause all forms of havoc (parsing wrong or out-dated data, etc.).
 %
 The attentive reader will note that we have another instance of a \emph{Trust
-Chain}.  The subsequent stages of the parsing process are \emph{completely
+Chain}. The subsequent stages of the parsing process are \emph{completely
 dependent} upon the earlier stages to properly parse and interpret the PDF
 file.
 
@@ -85,8 +85,8 @@ a single stage and give a \emph{semblance} of simplicity.
 Our argument in what follows---particularly in
 \cref{sec:single-pass-problems}---is
 that such an implementation will be overly
-complex and be a design for which it is highly intractable
-to determine that it implements the standard
+complex and result in a design for which it is highly intractable
+to determine if it correctly implements the standard
 and to determine that it terminates for all input files.
 
 We think it is important to understand PDF parsing in terms of this
@@ -107,13 +107,14 @@ a general concept.
 Although \emph{Validate candidate DOM} (stage 5) might be considered tedious, the necessary checks are 
 reasonably well defined by the bulk of the PDF Standard. Validation involves ensuring that each 
 individual PDF object has all the required keys and appropriate values in the context of its reference in the DOM.
-For example, a PDF object that is a thumbnail for a PDF needs to be an Image XObject and have a 
+For example, a PDF object that is a thumbnail for a PDF page needs to be an Image XObject and have a 
 minimum set of required key names and their values each within predefined limits (e.g. both
 \lstcd{Height} and \lstcd{Width} are required keys and must be non-negative integers). If the 
 thumbnail reference in the candidate DOM is to a font dictionary or some other kind of
-\emph{syntactically} valid PDF object then this is \emph{semantically} incorrect. Recent work~\cite{wyatt2021work} created the first specification-derived comprehensive
+\emph{syntactically} valid PDF object then this is \emph{semantically} incorrect. Recent work~
+\cite{peterwyattArlingtonPDFModel2021} created the first specification-derived comprehensive
 machine-readable model of every object, their attributes and relationships in the PDF DOM. The use
-of such a model for code generation, DOM validation, or test case generation can reduce the tediousness.
+of such a model for code generation, DOM validation, or test case generation can significantly reduce the tediousness.
 
 The \emph{Render DOM} stage also has many complications of its own, whether this be rendering a PDF
 page to pixels for display or print, or extracting text contract, however for this paper we will
