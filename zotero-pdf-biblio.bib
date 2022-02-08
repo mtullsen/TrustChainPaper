@@ -338,18 +338,20 @@ https://nceca.in/2021/4An\_Implementation\_and\_Evaluation\_of\_PDF\_Password\_C
 }
 
 @techreport{manharmohammedHAPSSAHolisticApproach2021,
+	address = {San Diego, CA, USA},
 	title = {{HAPSSA}: {Holistic} {Approach} to {PDF} {Malware} {Detection} {Using} {Signal} and {Statistical} {Analysis}},
 	shorttitle = {{HAPSSA}},
 	url = {https://ui.adsabs.harvard.edu/abs/2021arXiv211104703M},
 	abstract = {Malicious PDF documents present a serious threat to various security organizations that require modern threat intelligence platforms to effectively analyze and characterize the identity and behavior of PDF malware. State-of-the-art approaches use machine learning (ML) to learn features that characterize PDF malware. However, ML models are often susceptible to evasion attacks, in which an adversary obfuscates the malware code to avoid being detected by an Antivirus. In this paper, we derive a simple yet effective holistic approach to PDF malware detection that leverages signal and statistical analysis of malware binaries. This includes combining orthogonal feature space models from various static and dynamic malware detection methods to enable generalized robustness when faced with code obfuscations. Using a dataset of nearly 30,000 PDF files containing both malware and benign samples, we show that our holistic approach maintains a high detection rate (99.92\%) of PDF malware and even detects new malicious files created by simple methods that remove the obfuscation conducted by malware authors to hide their malware, which are undetected by most antiviruses.},
 	language = {English},
 	urldate = {2021-11-13},
+	institution = {IEEE},
 	author = {Manhar Mohammed, Tajuddin and Nataraj, Lakshmanan and Chikkagoudar, Satish and Chandrasekaran, Shivkumar and Manjunath, B. S.},
 	month = nov,
 	year = {2021},
 	note = {Publication Title: arXiv e-prints
 ADS Bibcode: 2021arXiv211104703M
-Type: article},
+https://ieeexplore.ieee.org/document/9653097},
 	keywords = {Computer Science - Cryptography and Security, Computer Science - Machine Learning, Electrical Engineering and Systems Science - Signal Processing},
 	file = {Manhar Mohammed et al. - 2021 - HAPSSA Holistic Approach to PDF Malware Detection.pdf:/Users/tullsen/Zotero/storage/E7GHR3FI/Manhar Mohammed et al. - 2021 - HAPSSA Holistic Approach to PDF Malware Detection.pdf:application/pdf},
 }
@@ -4607,6 +4609,7 @@ The types of PDF documents that are addressed by this document include those con
 	url = {https://www.pdf-insecurity.org/download/pdf-certification/paper.pdf},
 	abstract = {The Portable Document Format (PDF) is the defacto standard for document exchange. The PDF speciﬁcation deﬁnes two different types of digital signatures to guarantee the authenticity and integrity of documents: approval signatures and certiﬁcation signatures. Approval signatures testify one speciﬁc state of the PDF document. Their security has been investigated at CCS’19. Certiﬁcation signatures are more powerful and ﬂexible. They cover more complex workﬂows, such as signing contracts by multiple parties. To achieve this goal, users can make speciﬁc changes to a signed document without invalidating the signature. This paper presents the ﬁrst comprehensive security evaluation on certiﬁcation signatures in PDFs. We describe two novel attack classes – Evil Annotation and Sneaky Signature attacks which abuse ﬂaws in the current PDF speciﬁcation. Both attack classes allow an attacker to signiﬁcantly alter a certiﬁed document’s visible content without raising any warnings. Our practical evaluation shows that an attacker could change the visible content in 15 of 26 viewer applications by using Evil Annotation attacks and in 8 applications using Sneaky Signature by using PDF speciﬁcation compliant exploits. We improved both attacks’ stealthiness with applications’ implementation issues and found only two applications secure to all attacks. On top, we show how to gain high privileged JavaScript execution in Adobe.},
 	language = {English},
+	number = {2021},
 	journal = {IEEE Security \& Privacy},
 	author = {Rohlmann, Simon and Mladenov, Vladislav and Mainka, Christian and Schwenk, Jorg},
 	month = may,
@@ -4634,7 +4637,7 @@ The types of PDF documents that are addressed by this document include those con
 	address = {USA},
 	title = {Inspection and {Sanitization} {Guidance} for {Portable} {Document} {Format}, {Version} 1.0},
 	url = {https://apps.nsa.gov/iaarchive/library/reports/pdf_inspection_and_sanitization_guidance_v1_0-20171206.cfm},
-	abstract = {This Inspection and Sanitization Guidance forPDF document provides guidelines and specifications for developing file inspection and sanitization software for PDF files.  
+	abstract = {This Inspection and Sanitization Guidance for PDF document provides guidelines and specifications for developing file inspection and sanitization software for PDF files.  
 It is well understood that the proprietary binary file formats used by Microsoft (MS) Office can introduce hidden, potentially sensitive data to a document without the author’s knowledge. PDF is often suggested as a “safer” alternative to MS Office formats to avoid such hidden data problems as metadata, macros, and editing comments. PDF is an open international standard from the ISO (32000-1:2008) [1], however, it is important to investigate the PDF file format and standard for hidden data vulnerabilities similar to those that has plagued MS Office.
 There are two general hidden-data risks associated with the PDF file format. The first is improper use of the format by some malicious user that can lead to potentially sensitive data becoming obscured in a document. Improper redaction is one example of this, which has occurred numerous times ([2], and [3]). Secondly, the sheer quantities of complex features that have been added to the PDF format over its many revisions provide avenues for both malicious and accidental data hiding [4].
 In this report, “hidden data” is defined as data in a document that is not readily visible when the document is printed or displayed with viewing applications. There are two general hidden data types: hidden content data, which is content data obscured through the use of formatting, (e.g., text overlaid by an image, overlapping images, text written in a very small font, etc.); and embedded hidden data, which is non-content and has to do with document structures. Metadata, revision history data, embedded objects or files, and active scripting or macros are typical forms of embedded hidden data.
@@ -9288,4 +9291,32 @@ mitigations that arise.},
 	keywords = {malware, pdf, javascript, abstract interpretation},
 	pages = {19--30},
 	file = {Jordan et al. - 2019 - Unacceptable Behavior Robust PDF Malware Detectio.pdf:/Users/tullsen/Zotero/storage/YSB4P5HK/Jordan et al. - 2019 - Unacceptable Behavior Robust PDF Malware Detectio.pdf:application/pdf},
+}
+
+@misc{peterwyattArlingtonPDFModel2021,
+	address = {Virtual},
+	title = {The {Arlington} {PDF} {Model}},
+	copyright = {All rights reserved},
+	url = {https://www.pdfa.org/presentation/the-arlington-pdf-model/},
+	abstract = {This talk will present the Arlington PDF Model as the first open access, vendor-neutral, comprehensive, specification-derived machine-readable definition of all},
+	language = {English},
+	urldate = {2021-11-02},
+	author = {{Peter Wyatt}},
+	month = sep,
+	year = {2021},
+	note = {https://youtu.be/ELAFymRYV30},
+}
+
+@inproceedings{masodPDFOutputWorkflow2021,
+	title = {{PDF} {Output} {Workflow} {Conformance} {Test} to the {PDF}/{X}-4 {Standard} ({ISO} 15930-7:2010)},
+	shorttitle = {{PDF} {Output} {Workflow} {Conformance} {Test} to the {PDF}/{X}-4 {Standard} ({ISO} 15930-7},
+	url = {https://ieeexplore.ieee.org/abstract/document/9689185},
+	doi = {10.1109/ICSPC53359.2021.9689185},
+	abstract = {In today's complex digital prepress environment, application settings and RIP settings can significantly affect the results of the printed materials. However, PDF workflow systems' compliance with PDF/X settings is questionable. Many workflows are still changing the critical properties of a PDF file. This is prohibited in the ISO-15930 because the result that the creator has seen and accepted in software or on a proof will be different from the final printed product if such changes are applied in a later stage. This study identified seven critical properties and to test them accordingly. Utilizing visual indicators and reference images for indicators of errors. The test reveals that all the issues tested are real-world issues, particularly in a print production environment.},
+	booktitle = {2021 {IEEE} 9th {Conference} on {Systems}, {Process} and {Control} ({ICSPC} 2021)},
+	author = {Masod, Muhammad Yusuf and Hassan Nazri, Nur Suzieana and Nordin, Nurhanis},
+	month = dec,
+	year = {2021},
+	keywords = {PDF, Portable document format, Rendering (computer graphics), Visualization, Color, PDF/X-4, prepress, printing, Printing, Production, standard, Systematics, workflow},
+	pages = {92--97},
 }
