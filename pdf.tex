@@ -208,8 +208,6 @@ than \lstcd{/Size} are defined to be the special PDF \lstcd{null} object.
 Data in each cross reference table must be parsed to
 identify the byte offset to the start of each PDF object, whether this be a file offset to an indirect object in a Body section, or a relative object position within an object stream (and where the object position is transformed to a byte offset within the object stream from the first line of text in the object stream). Note also that with conventional PDF cross-reference tables there is no definition for the byte offset to the end of an object, however for cross-reference streams this can be pre-determined.
 
-\mttodo{maybe: import the type definitions}
-
 \subsection{Root Causes of PDF Complexity}
 \label{sec:rootcause}
 
