@@ -2,12 +2,10 @@
 \label{sec:specifying}
 
 This section %
-states our goals in producing a formal partial definition of PDF
+states our goals in formalizing part of PDF
 (\Cref{sec:spec-goals}) and then presents the specification's core
 definitions (\Cref{sec:core}), followed by its definitions of each
 stage of the PDF Trust Chain (\Crefrange{sec:stage-1}{sec:stage-4}).
-%
-\Cref{sec:assessing} analyses the resulting specification.
 
 \subsection{Specifying PDF: Goals and Approach}
 \label{sec:spec-goals}
@@ -163,7 +161,7 @@ import           Streams
 \fi
 %%%% end: Hs code not in paper %%%%
 
-\lstcd{pPDFDom} (\cref{fig:spec}) implements stages 1 through 4 (illustrated in \cref{fig:pdf-trust-chain}).
+\lstcd{pPDFDom} (\cref{fig:spec}) implements Trust Chain stages 1 through 4 (illustrated in \cref{fig:pdf-trust-chain}).
 % 
 \lstcd{pPDFDom}'s type (line 1) denotes that it
 is a \emph{monadic} parser \lstcd{P} that returns a value of type
@@ -237,7 +235,7 @@ pPDFDom =
     finalValidations dom version updates
     return dom
 \end{code}
-\caption{A formalization of pre-DOM stages 1--4 in Haskell.}
+\caption{Pre-DOM construction, formalized in Haskell.}
 \label{fig:spec}
 \end{figure}
 
@@ -729,7 +727,7 @@ merged together.
 %
 In our experience, PDF tools generally have structure more similar to \dsp{} than \ssp{}.
 
-\dsp must be understood imperatively \todo{this seems important: why?};
+\dsp{} must be understood imperatively \todo{this seems important: why?};
 %
 see \cref{fig:dsp} for a sketch
 of a possible implementation in C-like notation.
@@ -757,7 +755,7 @@ Also to note about \dsp{}:
 \end{itemize}
 
 
-\ssp{} appears to be strongly preferable to \dsp for two main reasons:
+\ssp{} appears to be strongly preferable to \dsp{} for two main reasons:
 \begin{itemize}
 \item It corresponds to the standard, and does so obviously.
 \item It does not use general recursion, so it is obvious that \ssp{}
@@ -769,8 +767,7 @@ Compared to \dsp{}, \ssp{} holds the following advantages:
   us to understand the stages conceptually.  (Even if one chooses
   not to implement in a like manner.)
 \item It demonstrates the non obvious fact that one can
-  implement stages 2-4 and keep the ``state of evaluation'' of each
-  object identifier the same in each pass.
+  implement stages 2 to 4 and keep the ``state of evaluation'' of each object identifier the same in each pass.
 \item We know exactly what is and isn't parsed, regardless of the
   order in which one traverses the \lstcd{xref}.
 \item It is intrisically parallelizable due to the extensive use of

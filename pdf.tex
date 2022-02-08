@@ -218,7 +218,7 @@ In some, but not all, cases the end of an object can be known, but in the most c
 of conventional cross-reference tables only forward parsing can determine the end of an object. 
 This gives rise to a phenomena we call \emph{cavities} where not every byte in a PDF file is parsed.
 Such cavities can be used to hold data in an alternate format giving rise to polyglots, or potentially
-to hold \emph{shellcode} that might be naively loaded into memory and then exploited 
+to hold shellcode that might be naively \todo{fix naive} loaded into memory and then exploited 
 in vulnerable parsers.
 In addition, various descriptions in the PDF standard require "parsing backwards" which is 
 an unnatural programming language idiom. Furthermore, some explicit pre-DOM requirements
