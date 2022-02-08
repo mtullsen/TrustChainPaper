@@ -9,8 +9,31 @@ DEADLINE: <2022-02-07 Mon -30d>
   - "contextual data"
   - desire to shorten?
   - parser combinators (?)
+    - monadic parsing
   - page by page
+- Bill H
+  - Abstract
+  - 4.A, 4.C (stage C)
+  - 3.C (partial DOMs)
+    
+- analyses: e.g., cavity analysis
+    
+- sublanguages and dialects []
+  - consistency
+  - dialect
 
+- Peter
+- "Stream Extent Dictionary" - tech. name.
+- topActon
+- magic numbers:
+  - 1024 linearized data.
+- adobe implem. note: 1024 (other implems)
+  - subset, PDF-A = byte offset 0
+- two startxref's next to each other
+
+- Peter Wyatt4:14 PM
+https://github.com/pdf-association/pdf-issues/issues/149  
+  
 ** APPT meeting <2022-01-19 Wed 15:00-16:00>
 
 - overleaf
@@ -161,10 +184,13 @@ I'm thinking
 SCHEDULED: <2022-02-05 Sat>
 ** TODO add xspace
 see v2v/PapersWritten/CmpctPaper/prelude.tex
-** TODO [#A] thk re "key item (5)" AND laziness
+** TODO [#A] thk re "key item (5)" AND laziness : 4.A
 
+- boiling 4A and get to this!
+  - 3C
 - (5) 
   - resurrect missing text [other missing text]?
+    
   - motivates 'laziness', goal
     : spec(pdf) = ERROR  => impl(pdf) == ERROR
     : implem(pdf) passes => spec(pdf) passes
