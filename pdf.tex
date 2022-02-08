@@ -265,22 +265,20 @@ ensure the PDF Trust Chain is robust prior to DOM processing.
 % parsing and computation that needs to be done \emph{pre-DOM}.
 
 The majority of prior work researching PDF vulnerabilities start with a pre-existing PDF DOM,
-ignoring pre-DOM parsing and processing
-(\cite{smutzMaliciousPDFDetection2012,liuDetectingMaliciousJavascript2014,iwamotoStudyMaliciousPDF2016}). 
+ignoring pre-DOM parsing and processing~\cite{smutzMaliciousPDFDetection2012,liuDetectingMaliciousJavascript2014,iwamotoStudyMaliciousPDF2016}. 
 \todo{need more citations?} 
 This work typically looks for obfuscated PDF objects such as
 JavaScript streams or strings, action objects, URL strings, or file attachment objects that 
 can lurk in various places throughout the PDF DOM. Machine-learning approaches so far have not  
-used feature vectors based on the contextual information in PDF pre-DOM file structure 
-(\cite{andrewmangleAnalysisMachineLearning2021,manharmohammedHAPSSAHolisticApproach2021}). 
+used feature vectors based on the contextual information in PDF pre-DOM file structure~\cite{andrewmangleAnalysisMachineLearning2021,manharmohammedHAPSSAHolisticApproach2021}. 
 Prior work in privacy has identified that incremental updates obviously pose a risk for complete
-redaction and data scrubbing workflows if not processed correctly (\cite{adhataraoHowArePDF2021,y.fengSystematicMethodPDF2018}).
-Given our recent points about the \emph{PDF Trust Chain} (\cref{sec:trust-chain}), it should not 
+redaction and data scrubbing workflows if not processed correctly~\cite{adhataraoHowArePDF2021,y.fengSystematicMethodPDF2018}.
+Given our recent points about the \emph{PDF Trust Chain}~\cref{sec:trust-chain}, it should not 
 surprise us that some PDF attack vectors involve aspects of breaking the \emph{DOM} abstraction.
-i.e., the vulnerabilities occur pre-DOM.
+I.e., the vulnerabilities occur pre-DOM.
 
 {\bf{Supply Chain attacks}} are a generalization of {\bf{Shadow Attacks}} which were coined by Mainka 
-et al. in \cite{mainkaShadowAttacksHiding2021} whereby an attacker infiltrates a workflow and 
+et al.~\cite{mainkaShadowAttacksHiding2021} whereby an attacker infiltrates a workflow and 
 maliciously manipulates a document in some way. This manipulation may be entirely syntactically valid.
 Only later in the workflow, possibly after a 
 digital signature is applied or an official approval step, the malicious data is 
@@ -319,8 +317,7 @@ to pre-DOM processing:
     19- and 21-byte variations due to additional white space or incorrect line endings;
     \item errors in byte offsets to indirect PDF objects and objects in object streams;
     \item errors with \lstcd{startxref} byte offsets;
-    \item incorrect trailer dictionary data (such as \lstcd{Size}), leading to implementations 
-    making their own independent decisions;  
+    \item incorrect trailer dictionary data (such as \lstcd{Size}), leading implementation-dependent decisions;  
     \item terminating pre-DOM processing prematurely (i.e. not processing all incremental updates and thus 
     being susceptible to Shadow Attacks).
 \end{itemize}
