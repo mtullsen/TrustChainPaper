@@ -40,7 +40,7 @@ Achieving the above is challenging due to many factors:
   need more effort to understand it and comply with its intentions.
   Implementations commonly over implement, under implement,
   and wrongly implement the standard.
-  Because writing a rewriting  PDF implementation from scratch is a significant and costly effort,
+  Because writing a PDF implementation from scratch is a significant and costly effort,
   implementors are incentivized to patch existing code (correct or not).
 \item The standard primarily defines just one thing: \emph{what is a valid PDF file},
   with only a few processor requirements. Many technical details are also delegated to the numerous normative references.
@@ -92,7 +92,7 @@ The scope of our specification is the gap between the low level
 parsers (parsing integers, parsing XRef entries, etc.) and the
 processing that happens after the DOM is created (stages 5 and 6).
 %
-I.e., stages 1--4.
+I.e., stages 1 to 4.
 %
 Primitive parsers are assumed, not included in this spec, as other
 formalisms, such as the \emph{DaeDaLus Data Description
@@ -102,8 +102,7 @@ primitive parsers.
 See \cref{sec:appendix1} for a list of the primitive parsers
 with their type signatures.
 %
-The full specification of DaeDaLus is publicly available
-online~\cite{daedalusrepo}.
+The full specification of DaeDaLus is publicly available~\cite{daedalusrepo}.
 
 \begin{itemize}
 \item Our specification is formal and executable (though not
@@ -177,20 +176,9 @@ For the purposes of this paper, it suffices to view a monad as a container that 
 effects can be global variables (or mutable state), exceptions, I/O, and etc.
 
 % do notation:
-Haskell provides a syntactic form for concisely sequencing actions, structured as the keyword \lstcd{do} followed by bindings of the form \lstcd{x <- A}, which denotes that the action \lstcd{A} is performed and its resulting value is bound to variable \lstcd{x} to be used by further actions.
+Haskell provides a syntactic form for concisely sequencing actions, structured as the keyword \lstcd{do} followed by bindings of the form \lstcd{x <- A}, which denotes that the action \lstcd{A} is performed and its resulting value is bound to variable \lstcd{x} to be used by further actions;
 %
-E.g.,
-\begin{codeNoExecute}
-  topAction :: P Int
-  topAction = do
-              result1 <- action1 args1...
-              let x = <PURELY-FUNCTIONAL-EXPRESSION>
-                  f x = <FUNCTION> -- not an action
-              result2 <- action2 result1 args2...
-              return (anyPureFunction result2)
-\end{codeNoExecute}
-%
-\todo{do we really need this extra example? Can't we just point to Fig. 6?}
+for examples, see \Cref{fig:spec}.
 
 % walk through P:
 The specific parser monad \lstcd{P} abstracts effects on a parser's state.
@@ -302,7 +290,7 @@ In abstract terms, it:
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Stage 2: Find and Parse Incremental Updates}
+\subsection{Stage 2: find and parse incremental updates}
 \label{sec:stage-2}
 %
 Stage 1 only finds the start of trailer;
@@ -413,7 +401,7 @@ It also determines subsections without parsing the \xref{} entries.
 Upon success, stage 2 produces values from which a client can directly determine all \objids{} in the PDF and produce the trailer dictionaries and incremental updates.
 %
 The only PDF values that have been parsed are trailer dictionaries, but many documents can be rejected, including those with recurring \objids{} in the \xref{} tables.
-\mtnote{check this phrasing}
+\mtnote{check this edit}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 3: combine incremental updates}
@@ -482,21 +470,17 @@ getObjIds :: XRefRaw -> [ObjId]
 %
 Their implementations are withheld, for simplicity.
 
-For simplicity, the definition does not constraint \objids{} using the values bound to trailer dictionaries' \lstcd{Size} key;
-%
-the standard requires that:
+For simplicity, the definition does not constrain \objids{} using the values bound to trailer dictionaries' \lstcd{Size} key as required in the standard, specifically that:
 \begin{itemize}
   \item Any object in a cross-reference section whose number is
     greater than the bound value shall be ignored and treated as missing.
-  \item Equivalently, the value shall be greater by one than the highest object number defined in the PDF file.
-  %
-  \todo{how is this equivalent to the first item?}
+  \item The value shall be greater by one than the highest object number defined in the PDF file.
 \end{itemize}
 
-Not only is this stage's definition complex, but there are multiple, apparently workable variations of \lstcd{mergeUpdate}, with distinct semantics:
+Not only is stage 4's definition complex, but there are multiple, apparently workable variations of \lstcd{mergeUpdate}, with distinct semantics:
 \begin{itemize}
 \item There appear to be multiple ways to enforce \lstcd{< Size} as we
-  process individual updates.
+  process individual updates. \todo{didn't understand what needs to be enforced here}
 \item When all objects are defined (we can determine this using
   \lstcd{Size}), we could stop processing previous updates.
 \item There are many \lstcd{validate} instances we might add,
@@ -513,25 +497,23 @@ Not only is this stage's definition complex, but there are multiple, apparently 
   \end{itemize}
 \end{itemize}
 %
-None of the above properties can be validated upon the completion of Stage 3.
+None of the above properties can be validated until the completion of Stage 3.
 %
 Given that some of the properties may be indicators of shadow attacks or PDFs that are otherwise suspicious, Stage 3 is thus critically important as a stage for security validation.
 
 % merging Stages 2 and 3:
-While Stages 2 and 3 could feasibly be defined as a single stage, it would effectively force every compliant to parse and validate to a degree that may not be needed by many applications.
+While Stages 2 and 3 could feasibly be defined as a single stage, it would effectively force every compliant processor to parse and validate to a degree that may not be needed by many applications.
 %
-Our specification was designed to include as much validation as possible as instances of \lstcd{validate}.
-%
-\todo{wasn't clear how XRefRaw connects}
+Our specification was designed instead to include as much validation as possible as instances of \lstcd{validate}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stage 4: Transform XRef Map to Object Map (DOM)}
 \label{sec:stage-4}
 %
-The apparent complexity of stage 4 in particular was a primary motivation of our work.
+The apparent complexity of stage 4 in particular was a primary motivation of our work;
 %
-Stage 4 is implemented as the following function:
+it is implemented as the following function:
 \begin{code}
 transformXRefMapToObjectMap
   :: SEEK -> Map ObjId (Offset :+: Type2Ref) -> P DOM
@@ -550,7 +532,7 @@ The type \lstcd{a :+: b} is a synonym for the Haskell sum type \lstcd{Either a b
 \lstcd{Left} and \lstcd{Right}.
 }
 %
-Traditional \lstcd{XRef}'s are resolved and the resulting objects are parsed; see line 3:
+In stage 4.1, traditional \lstcd{XRef}'s are resolved and the resulting objects are parsed; see line 3 \todo{what line does this reference?}:
 \begin{code}
     -- Stage 4.1: parse all uncompressed objects
     xrefs1 <- mapM
@@ -720,16 +702,15 @@ The answer is \emph{Yes, but at a cost we don't want to pay!}
 Let's refer to the our multi-stage specification as the \ssp{}
 (staged) specification.
 %
-We will compare it to a single-stage specification\footnote{
-  Which will not be so clear, but we see no way around this.
-}, the \dsp{}
-(dynamic) specification in which stage 1 is the same
+We will compare it to a specification defined as a single stage, the \dsp{} (dynamic) specification, in which stage 1 is the same
 but stages 2, 3, and 4 are
-merged together.
+merged together;
+%
+the result is considerably more difficult to understand, which is seemingly inherent to the design.
 %
 In our experience, PDF tools generally have structure more similar to \dsp{} than \ssp{}.
 
-\dsp must be understood imperatively \todo{this seems important: why?};
+\dsp{} must be understood imperatively \todo{this seems important: why?};
 %
 see \cref{fig:dsp} for a sketch
 of a possible implementation in C-like notation.
@@ -755,7 +736,6 @@ Also to note about \dsp{}:
 \item it is nicely lazy if the PDF tool doesn't need to \lstcd{deref}
   every object identifiers, even more lazy than \ssp{}.
 \end{itemize}
-
 
 \ssp{} appears to be strongly preferable to \dsp for two main reasons:
 \begin{itemize}

@@ -28,22 +28,22 @@ that PDF files are not misidentified as 7-bit text files.
 All file offsets in PDF file are from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}.  
 
 The \emph{Linearization} section is an optional optimization section that enables what is commonly
-known as "fast web view". This section must occur within the first 1024 bytes of a PDF and contains
+known as ``fast web view''. This section must occur within the first 1024 bytes of a PDF and contains
 data that enables a Linearized PDF aware processor to quickly display the opening page of a PDF
 while the rest of a large PDF can download in the background.
 Linearizatiom data is also invalidated by incremental updates (since an update might change objects
 on the opening PDF page) and must therefore be checked and ignored.
 %
 Because not all PDF parsers support Linearization, it is a known form
-of ``parser differential by design," where a \emph{parser
+of ``parser differential by design,'' where a \emph{parser
   differential} is a semantically meaningful difference in the result
 of two document processors when run on the same document.
 %
 For the purposes of this paper, we will not consider Linearized PDF further.
 
 The \emph{Body} section is where all indirect PDF objects are defined. Indirect PDF objects
-are defined as those objects that have "a unique object identifier by which other objects can
-refer to it (for example, as an element of an array or as the value of a dictionary entry)."
+are defined as those objects that have ``a unique object identifier by which other objects can
+refer to it (for example, as an element of an array or as the value of a dictionary entry).''
 Any PDF object may be defined indirectly: integers, real numbers, strings, arrays, dictionaries, 
 streams, etc. Objects are defined by their object identifier (their object number and generation 
 number pair) followed by the keyword \lstcd{obj}. 
@@ -124,8 +124,8 @@ longer used. Instead the context-defining key/value pairs are added to the strea
 Another optimization added by PDF 1.5 were object streams as illustrated in \cref{fig:ObjStm}.
 It can be appreciated that a large PDF will
 undoubtedly have many indirect objects and thus the repeated use of the object identifier pair with  \lstcd{obj} and \lstcd{endobj} keywords can become a significant size burden. Object streams are
-compressible text streams "... in which a sequence of indirect objects may be stored, as an 
-alternative to their being stored at the outermost PDF file level". 
+compressible text streams ``... in which a sequence of indirect objects may be stored, as an 
+alternative to their being stored at the outermost PDF file level''. 
 Syntactically object streams no longer uses the \lstcd{obj} and \lstcd{endobj} keywords and replace the object identifier pair with a single object number and a byte offset within the stream. 
 By using stream compression algorithms, the text-based data can be drastically reduced in size.
 If object streams are used then cross-reference streams must also be used, however cross-reference 
@@ -133,12 +133,12 @@ streams may also be used by themselves with the conventional Body section.
 
 As noted above because both cross-reference streams and object streams are standard PDF streams, they 
 can benefit from stream compression. However this also means that parsers are then also  
-susceptible to "ZIP bomb" attacks and handling of semantic errors (invalid stream extent dictionaries) during pre-DOM processing!
+susceptible to ``ZIP bomb'' attacks and handling of semantic errors (invalid stream extent dictionaries) during pre-DOM processing!
 
-A further complication is the concept of "hybrid-reference" PDF files, where both conventional cross-reference tables and cross-reference streams co-exist in the same PDF so as to provide some semblance of support for non-PDF 1.5 aware parsers. This complication is not addressed further in this paper.
+A further complication is the concept of ``hybrid-reference'' PDF files, where both conventional cross-reference tables and cross-reference streams co-exist in the same PDF so as to provide some semblance of support for non-PDF 1.5 aware parsers. This complication is not addressed further in this paper.
 
 There is no limit to the number or types of incremental updates that can be added to a PDF file. Later
-updates may also "undo" changes from any previous incremental updates by restoring (changing to in-use)
+updates may also ``undo'' changes from any previous incremental updates by restoring (changing to in-use)
 previously feed objects. For incremental updates, PDF object numbering 
 does not have to be sequential, with skipped object numbers assumed to be on
 the free list (although this is not stated explicitly in the PDF standard).
@@ -164,7 +164,7 @@ which is unnatural for many programming languages and is a proven source of pars
 The parsing dialect depends on the form of the incremental update, with
 conventional cross-reference tables being simpler and largely independent of
 other processing. Cross-reference streams however are more complex as they are
-often compressed and thus require the pre-DOM parser to "trust" the stream
+often compressed and thus require the pre-DOM parser to ``trust'' the stream
 extent dictionary data.
 
 The parser must then locate either the \lstcd{xref} keyword for
@@ -218,13 +218,13 @@ In some, but not all, cases the end of an object can be known, but in the most c
 of conventional cross-reference tables only forward parsing can determine the end of an object. 
 This gives rise to a phenomena we call \emph{cavities} where not every byte in a PDF file is parsed.
 Such cavities can be used to hold data in an alternate format giving rise to polyglots, or potentially
-to hold \emph{shellcode} that might be naively loaded into memory and then exploited 
+to hold shellcode that might be naively \todo{fix naive} loaded into memory and then exploited 
 in vulnerable parsers.
-In addition, various descriptions in the PDF standard require "parsing backwards" which is 
+In addition, various descriptions in the PDF standard require ``parsing backwards'' which is 
 an unnatural programming language idiom. Furthermore, some explicit pre-DOM requirements
 in the PDF standard
 refer to bytes \emph{before} a given byte offset and that parsers are highly unlikely to check. 
-Our investigations reveal that these requirements are effectively "writer requirements" (unparsers) to
+Our investigations reveal that these requirements are effectively ``writer requirements'' (unparsers) to
 support better file reconstruction and recovery in the event of later data corruption. 
 However if these requirements are never checked or enforced then it is possible to use them as attack
 vectors.  

@@ -34,44 +34,8 @@ and the key lesson being:
 
 \begin{figure}[t]
   \centering
-  \begin{lstlisting}
-    +-----------------------------------------------------+
-    | 1. Find & parse header and trailer                  |<-- File
-    +-----------------------------------------------------+
-                       | offsets + ...
-                       v
-    +-----------------------------------------------------+
-    | 2. Find & parse incremental updates                 |<-- File
-    +-----------------------------------------------------+
-                       | list of raw XRef maps
-                       v
-    +-----------------------------------------------------+
-    | 3. Combine incremental updates                      |<-- File
-    +-----------------------------------------------------+
-                       | one XRef map
-                       v
-    +-----------------------------------------------------+
-    | 4. Transform XRef map to object map (DOM)           |
-    |    1. Parse uncompressed objects                 <--+-- File
-    |    2. Decode streams & preprocess object streams <--+-- File
-    |    3. Resolve type 2 object references           <--+-- File
-    +-----------------------------------------------------+
-                       | Object map (DOM)
-                       v
-    +-----------------------------------------------------+
-    | 5. Validate candidate DOM                           |
-    +-----------------------------------------------------+
-                       | Object map (DOM)                                    
-                       v
-    +-----------------------------------------------------+
-    | 6. Render DOM                                       |
-    +-----------------------------------------------------+
-                       | 
-                       v
-  \end{lstlisting}
-  % \includegraphics[width=0.8\linewidth]{figures/trustchain-diagram.png}
+  \includegraphics[width=0.8\linewidth]{figures/Stages.png}
   \caption{Stages of PDF Parsing (the Trust Chain)}
-  \mttodo{un-ascii-ify diagram}
   \label{fig:pdf-trust-chain}
 \end{figure}
 
