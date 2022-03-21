@@ -66,7 +66,7 @@ using separated context, via \emph{linearization}.
 Difficulties in expressing the structure and semantics of references
 continue to result in critical security vulnerabilities.
 %
-The may induce \emph{ambiguities}, which may cause different parties
+The induces \emph{ambiguities}, which causes different parties
 to assign wildly different semantic interpretations to the same
 document.
 %
@@ -74,7 +74,8 @@ Recently discovered attacks that compromise the integrity and
 usability of digital
 signatures~\cite{rohlmannBreakingSpecificationPDF2021,
 mainkaShadowAttacksHiding2021} use maliciously crafted
-cross-reference tables.
+cross-reference tables. Our work has identified  
+additional exploits based on incremental updates (CVE-2022-25641).  
 %
 Document \emph{cavities}---segments of a document that are not
 reflected in its semantic interpretation---may store content that is
@@ -106,7 +107,7 @@ with actions for explicitly capturing and setting the parser's input, run
 in a well-founded sequence of staged computations over semantic values.
 %
 This approach is explored within an industrial strength case study:
-validating and parsing the reference tables that are used to create 
+validating and parsing the reference tables that are needed to create 
 an unambiguous and trustworthy PDF DOM.
 %
 We believe that our work is novel in aiming to formalize and model
