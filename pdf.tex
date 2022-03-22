@@ -151,63 +151,6 @@ the free list (although this is not stated explicitly in the PDF standard).
 In effect, incremental updates form a timeline of all changes made to a PDF, with parsing starting
 at the end of the file with the most recent change back to the original document at the to of the file.
 
-\subsection{Parsing PDF File Structure}
-\label{sec:parsingfile}
-
-The above paragraphs describe the physical structure of a PDF file, but the processing sequence may not be so apparent. 
-The following paragraphs describe the processing necessary to correctly parse a PDF file with incremental updates.
-
-PDF parsing begins by locating the PDF Header, as it is not uncommon for PDF files to have 
-preamble bytes (such as an HTTP header, HTML or XML). The offset to the start of the PDF file 
-(PDF offset zero)
-within a physical file can then be determined from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}. 
-Processing continues by seeking to end-of-file and locating the last end-of-file marker \lstcd{\%\%EOF} in the physical file.
-
-It is then necessary to locate the \emph{last} \lstcd{startxref} keyword and the following PDF file byte offset 
-to the last cross-reference table in the PDF. Note also that this requires parsing \emph{backwards}
-which is unnatural for many programming languages and is a proven source of parser differentials. 
-This PDF byte offset must also be adjusted to a physical file offset by accounting for any preamble bytes prior to the PDF Header.
-
-The parsing sublanguage depends on the form of the incremental update, with
-conventional cross-reference tables being simpler and largely independent of
-other processing. Cross-reference streams however are more complex as they are
-often compressed and thus require the pre-DOM parser to ``trust'' the stream
-extent dictionary data.
-
-The parser must then locate either the \lstcd{xref} keyword for
-conventional PDF cross-reference tables, or a cross-reference stream, identified by tokens of the form \lstcd{x y obj} . 
-A parser must then determine if the PDF object is a
-semantically valid cross-reference stream by further parsing the stream extent dictionary and 
-validating the necessary key/value pairs and also recognizing the \lstcd{stream} keyword after the dictionary end token \lstcd{>>} and the \lstcd{endstream} keyword (see \cref{fig:XRefStm}). 
-
-In the case of conventional PDF
-cross-reference tables, after the cross reference table will be the
-trailer dictionary, identified by the \lstcd{trailer} keyword. 
-Note that this algorithm is at
-odds with the file structure as defined in the PDF standard: the Trailer section is formally defined
-to contain the trailer dictionary and \lstcd{startxref} keyword, yet the parsing algorithm
-requires locating the first trailer \emph{after} the end of the cross-reference table 
-(versus the last trailer dictionary above the \lstcd{startxref} keyword). 
-Alternatively for PDF 1.5 and later files with cross-reference
-streams, the trailer dictionary data will be in the stream extent
-dictionary of the cross reference stream. 
-
-Any previous cross-reference data is identified by the value of the \lstcd{/Prev} entry in either
-the trailer dictionary or the stream extent dictionary of a cross-reference stream. The
-value of the \lstcd{/Prev} key the byte offset to the immediately
-preceding cross-reference data which, again, can either be a conventional
-cross-reference table and to the start of the \lstcd{xref} keyword, or to a
-cross-reference stream. This process repeats, working from the most recent incremental
-update back through time to the original PDF document.
-
-In each incremental update, the trailer dictionary is required to duplicate all keys from the previous
-trailer and update accordingly. Of particular note is the \lstcd{/Size} entry, which must be
-one greater than the largest object number allocated in the PDF file. Objects with numbers greater
-than \lstcd{/Size} are defined to be the special PDF \lstcd{null} object.
-
-Data in each cross reference table must be parsed to
-identify the byte offset to the start of each PDF object, whether this be a file offset to an indirect object in a Body section, or a relative object position within an object stream (and where the object position is transformed to a byte offset within the object stream from the first line of text in the object stream). Note also that with conventional PDF cross-reference tables there is no definition for the byte offset to the end of an object, however for cross-reference streams this can be pre-determined.
-
 \subsection{Root Causes of PDF Complexity}
 \label{sec:rootcause}
 

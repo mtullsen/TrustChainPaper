@@ -1,33 +1,5 @@
-\section{The PDF Trust Chain}
+\subsection{Data Dependencies in PDF Parsing (the Trust Chain)}
 \label{sec:trust-chain}
-
-\subsection{Trust Chains in General}
-The term \emph{Trust Chain} (or ``Chain of Trust'') is used in multiple contexts, e.g.,
-\emph{digital certificates}: a sequence of certificates signing certificates,
-starting with a root certificate;
-\emph{supply chain}: a product is no more reliable or secure than its
-outsourced components;
-\emph{trusted boot}: unless the bootloader is correct and non-malicious,
-there can be no possibility of the operating system being the same;
-\emph{software stacks}: upper layers are dependent upon lower layers (such as
-system libraries) and vulnerabilities at the lower layers affect all higher layers.
-
-The common idea is having layers
-that rely on lower layers for their validity
-(or components that rely on sub-components, etc.),
-and the key lesson being:
-{\bf{if a single layer of the trust chain 
-  is flawed or suborned, then every layer relying on it
-  is no longer capable of being trusted.}}
-
-\subsection{The Trust Chain of a PDF Parser}
-
-% In \cref{sec:pdf-challenges}, we elaborated on the challenges of PDF.
-% Parsing data-formats has a long history and many solutions ...
-% Parsing formal languages also has a long history and many solutions ...
-% PDF has aspects of both: this makes PDF challenging.
-% But PDF ``parsing'' is not merely a matter of harder [difference of degree]
-% but intrinsically more complex [a difference of kind!]:
 
 \begin{figure}[t]
   \centering
@@ -48,11 +20,13 @@ dependencies and interactions between the features.
 \item Stage 2: Find and parse each cross reference table or incremental update. 
   Note that this stage uses context from Stage 1 (such as the file offset and trailer
   information) in order to know \emph{where} and \emph{how} to parse.
-\item Stage 3: This stage does no further reading of the file, but computes the
-   a XRef map of the final PDF by accounting for each set of edits performed by each incremental update.
+\item Stage 3: This stage computes the
+   XRef map of the final PDF by accounting for each set of edits performed by each incremental update.
    Incremental updates can add new objects, mark as free previous objects, re-instate previously 
    freed objects, and change context information in the trailer dictionary that 
    forms part of each incremental update.
+   Depending on the laziness of stage 2, this stage may need to do further
+   reading of the input file.
 \item Stage 4: Transform the XRef map to an object map. This stage is complex and
   requires three sub-stages, each of which does further file input and parsing.
   Further details are in \cref{sec:specifying}.
@@ -78,11 +52,6 @@ Note that stages 2, 3, 4.1, 4.2, and 4.3 all depend on inputs from previous stag
 where and how to parse segments of the PDF input file.
 Errors that percolate into these stages can
 cause all forms of havoc (parsing wrong or out-dated data, etc.).
-%
-The attentive reader will note that we have another instance of a \emph{Trust
-Chain}. The subsequent stages of the parsing process are \emph{completely
-dependent} upon the earlier stages to properly parse and interpret the PDF
-file.
 
 An implementation \emph{might} merge stages 2, 3, 4.1, 4.2, 4.3 into
 a single stage and give a \emph{semblance} of simplicity.
@@ -90,12 +59,58 @@ a single stage and give a \emph{semblance} of simplicity.
 Our argument in what follows---particularly in
 \cref{sec:single-pass-problems}---is
 that such an implementation will be overly
-complex and result in a design for which it is highly intractable
+complex and result in a design for which it is difficult
 to determine if it correctly implements the standard
 and to determine that it terminates for all input files.
 
-We think it is important to understand PDF parsing in terms of this
-\emph{Trust Chain} because
+Although \emph{Validate candidate DOM} (stage 5) might be considered tedious, the necessary checks are 
+reasonably well defined by the bulk of the PDF Standard. Validation involves ensuring that each 
+individual PDF object has all the required keys and appropriate values in the context of its reference in the DOM.
+For example, a PDF object that is a thumbnail for a PDF page needs to be an Image XObject and have a 
+minimum set of required key names and their values each within predefined limits (e.g. both
+\lstcd{Height} and \lstcd{Width} are required keys and must be non-negative integers). If the 
+thumbnail reference in the candidate DOM is to a font dictionary or some other kind of
+\emph{syntactically} valid PDF object then this is \emph{semantically} incorrect. Recent work~
+\cite{peterwyattArlingtonPDFModel2021} created the first specification-derived comprehensive
+machine-readable model of every object, their attributes and relationships in the PDF DOM. The use
+of such a model for code generation, DOM validation, or test case generation can significantly reduce the tediousness.
+The \emph{Render DOM} stage also has many complications of its own, whether this be rendering a PDF
+page to pixels for display or print, or extracting text contract.
+
+In this paper we do not further consider stages 5 and 6 but
+focus on stages 1 to 4, referred to as \emph{pre-DOM} parsing or computation.
+%
+Errors in these stages can compromise the correctness of the complete format
+definition, even if later stages are defined as intended when viewed in
+isolation.
+
+%%%%%%%%%%%%%
+
+The term \emph{Trust Chain} (or ``Chain of Trust'') is
+overloaded with similar meanings in different contexts
+\begin{quote}
+e.g.,
+\emph{digital certificates}: a sequence of certificates signing certificates,
+starting with a root certificate;
+\emph{supply chain}: a product is no more reliable or secure than its
+outsourced components;
+\emph{trusted boot}: unless the bootloader is correct and non-malicious,
+there can be no possibility of the operating system being the same;
+\emph{software stacks}: upper layers are dependent upon lower layers (such as
+system libraries) and vulnerabilities at the lower layers affect all higher
+layers.
+\end{quote}
+but the common idea is that we have layers (or components)
+that rely on lower layers (sub-components) for their validity.
+In other words,
+{\bf{A flaw in one layer of the trust chain
+     causes every higher layer to be untrustworthy!}}
+
+%%%%%%%%%%%%%
+
+Whether or not one likes our adoption of this term,
+we think it is important to understand PDF parsing in terms of the
+\emph{Trust Chain} principle because
 %
 (1) it highlights the presence of the many ``dependent'' stages
 in PDF processing;
@@ -109,20 +124,3 @@ independently of verifying all the earlier stages; and
 (4) it illustrates that PDF parsing, although uniquely complex, is an instance of
 a general concept.
 
-Although \emph{Validate candidate DOM} (stage 5) might be considered tedious, the necessary checks are 
-reasonably well defined by the bulk of the PDF Standard. Validation involves ensuring that each 
-individual PDF object has all the required keys and appropriate values in the context of its reference in the DOM.
-For example, a PDF object that is a thumbnail for a PDF page needs to be an Image XObject and have a 
-minimum set of required key names and their values each within predefined limits (e.g. both
-\lstcd{Height} and \lstcd{Width} are required keys and must be non-negative integers). If the 
-thumbnail reference in the candidate DOM is to a font dictionary or some other kind of
-\emph{syntactically} valid PDF object then this is \emph{semantically} incorrect. Recent work~
-\cite{peterwyattArlingtonPDFModel2021} created the first specification-derived comprehensive
-machine-readable model of every object, their attributes and relationships in the PDF DOM. The use
-of such a model for code generation, DOM validation, or test case generation can significantly reduce the tediousness.
-
-The \emph{Render DOM} stage also has many complications of its own, whether this be rendering a PDF
-page to pixels for display or print, or extracting text contract, however for this paper we will
-focus on stages 1 to 4, referred to as \emph{pre-DOM} parsing or computation.
-%
-Errors in these stages can compromise the correctness of the complete format definition, even if later stages are defined as intended when viewed in isolation.
