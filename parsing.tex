@@ -65,35 +65,76 @@ identify the byte offset to the start of each PDF object, whether this be a file
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Specifications: Parsing not Recognizing}
+\subsection{Specifying a Parser, not a Validator}
 \label{sec:spec-approach}
 
-\todo{rewrite! bring in slides}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.50\linewidth]{figures/validator.pdf}
+    \caption{Validator}
+    \label{fig:validator}
+    
+    \includegraphics[width=0.50\linewidth]{figures/parser.pdf}
+    \caption{Parser}
+    \label{fig:parser}
+\end{figure}
 
-A useful format specification must resolve a fundamental conflict between precision and restrictiveness.
-%
-An overly permissive specification, specifically of the PDF pre-DOM,  would permit multiple compliant processors to produce radically different results, and thus would provide little ultimate assurance to format users.
-%
-Conversely, a specification that formalized all aspects of the standard related to pre-DOM components would prohibit almost all practical document processors, which almost never need to fully validate a document.
+A \emph{key} idea in ``SafeDocs'' is that we are trying to understand and
+capture extant---used in the wild---PDF parsers.  Creating an implementation
+that perfectly matches the PDF specification is not particularly useful
+and would only parse a small fraction of extant PDF files.
 
+See \Cref{fig:validator} where we show a validator (or a format \emph{recognizer}),
+its function is to produce a DOM when we have a valid PDF, it must fail
+otherwise.  Compare this to figure \Cref{fig:parser} where we show a parser
+which has a {\bf{completely different requirement}}: to efficiently construct
+the correct DOM when given an valid PDF.  A \emph{parser} is willing, if not
+happy, to accept files beyond the pale of PDF.
+In the \emph{parser} diagram,
+we use a cloud to suggest that for various parser tools,
+each is going to accept a different subset due to
+\begin{itemize}
+\item redundancies in the format allow for different choices,
+\item the tools do not interpret the Standard uniformly,
+\item tools may traverse and evaluate implicit data structures differently, and
+\item tools differing in how they allow for ``minor'' errors or do error recovery.
+\end{itemize}
+Our goal for a \emph{parser specification} is to encompass any reasonable and
+correct ``cloud''.  This goal is somewhat subjective, but generally this will
+imply that we attempt to capture the laziness of various tools that only parse
+or validate values upon demand.
+
+% 
+% A useful format specification must resolve a fundamental conflict between pr% ecision and restrictiveness.
+% %
+% An overly permissive specification, specifically of the PDF pre-DOM,  would % permit multiple compliant processors to produce radically different results,%  and thus would provide little ultimate assurance to format users.
+% %
+% Conversely, a specification that formalized all aspects of the standard rela% ted to pre-DOM components would prohibit almost all practical document proce% ssors, which almost never need to fully validate a document.
+
+However, at the same time, it would be very desirable to
+write a single piece of code from which we could extract
+both a \emph{parser} as well as a \emph{validator}.
 % our solution:
 To resolve this conflict, we have %
 \textbf{(1)} specified an implementation to be as \emph{lazy} as possible, in the sense that it minimizes the data read and validated whenever possible; and %
 \textbf{(2)} extended this specification
 with separate \lstcd{validate} predicates that, when executed,
 would extend our implementation to form a complete validator.
+
 %
-Because no implementations validate documents fully, and some implementations
-are surprisingly lazy, we want our specification to be very lazy.
-%
-Due to various redundancies in PDF, there is no one exact
-laziest semantics, but we attempt to create something reasonable.
-%
-The lazier we make our spec (while remaining correct), the more
-possible implementations we can test with respect to the spec.
-%
-We test by validating that the specification's DOM is equivalent to the implementation's DOM,
-we don't want to fail in comparison to a tool that gives results when we don't.
+% Because no implementations validate documents fully, and some implementations
+% are surprisingly lazy, we want our specification to be very lazy.
+% %
+% Due to various redundancies in PDF, there is no one exact
+% laziest semantics, but we attempt to create something reasonable.
+% %
+% The lazier we make our spec (while remaining correct),
+
+One of our objectives is to test implementations
+with respect to our parser specification;
+we would test by validating that when an implementation produces a DOM,
+that DOM is equivalent to the DOM produced by the specification.
+This is why we want our specification to be lazier than most implementations.
 
 % % introduce formal specification:
 % We say that a specification is \emph{formal} if it is expressed in a languag% e whose semantics is amenable to a mechanizable definition.
