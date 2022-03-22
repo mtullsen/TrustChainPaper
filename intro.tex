@@ -60,13 +60,16 @@ potentially combined with conventional cross-reference tables in
 \emph{hybrid reference files}; and
 % 
 \textbf{(3)} large documents to be partially processed incrementally,
-using separated context, via \emph{linearization}.
+using separated context, via \emph{linearization}. This processing
+occurs before DOM creation and DOM object validation, introducing a
+reliance on the \emph{pre-DOM} processing when establishing 
+a files' referential context.
 
 % security consequences::
 Difficulties in expressing the structure and semantics of references
-continue to result in critical security vulnerabilities.
+have resulted in critical security vulnerabilities.
 %
-The induces \emph{ambiguities}, which causes different parties
+The induced \emph{ambiguities} cause different parties
 to assign wildly different semantic interpretations to the same
 document.
 %
@@ -75,10 +78,11 @@ usability of digital
 signatures~\cite{rohlmannBreakingSpecificationPDF2021,
 mainkaShadowAttacksHiding2021} use maliciously crafted
 cross-reference tables. Our work has identified  
-additional exploits based on incremental updates (CVE-2022-25641).  
-%
+additional exploits against digital signatures and PDF file integrity based on 
+our formalisms of PDF file structure and layout (CVE-2022-25641).  
+
 Document \emph{cavities}---segments of a document that are not
-reflected in its semantic interpretation---may store content that is
+reflected in its semantic interpretation---may also store content that is
 completely unobservable to parser clients.
 %
 Such cavities are a powerful mechanism for creating \emph{polyglot
