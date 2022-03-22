@@ -58,9 +58,17 @@ dependencies and interactions between the features.
   Further details are in \cref{sec:specifying}.
   If all goes well, we have a syntactically valid candidate DOM.
 \item Stage 5: Validate candidate DOM.  This stage takes the candidate DOM and
-  \emph{semantically} verifies that it represents a sensible document graph per the PDF standard.
-  e.g., each object in the DOM is well-formed with all required data types and values, 
-  no unexpected recursion, no unresolvable object references, etc.
+  \emph{semantically} verifies that it represents a sensible document graph per
+  the PDF standard.
+  %
+  The candidate DOM consists of a mapping of object references to
+  syntactically valid PDF objects.  
+  Only at this point can we start the semantic checks such as
+  dictionaries have the right keys,
+  keys have values of the expected types,
+  text stream objects are syntactically valid,
+  no unexpected recursion, no unresolvable object references,
+  and etc.
 \item Stage 6: Render the validated DOM. Here the validated DOM, or parts thereof, is rendered
   to the output format of choice.
 \end{itemize}

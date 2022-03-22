@@ -35,15 +35,15 @@ possible implementations we can test with respect to the spec.
 We test by validating that the specification's DOM is equivalent to the implementation's DOM,
 we don't want to fail in comparison to a tool that gives results when we don't.
 
-% introduce formal specification:
-We say that a specification is \emph{formal} if it is expressed in a language whose semantics is amenable to a mechanizable definition.
-%
-By their nature, such definitions can offer precision of meaning that is a significant departure from standards expressed purely in prose;
-%
-in particular, they can provide a basic assurance that they do not rely on undefined terms.
-%
-While their existence does not immediately all of the above issues in format design, they are valuable artifacts for clarifying
- standards, understanding vulnerabilities, and aiding implementors.
+% % introduce formal specification:
+% We say that a specification is \emph{formal} if it is expressed in a languag% e whose semantics is amenable to a mechanizable definition.
+% %
+% By their nature, such definitions can offer precision of meaning that is a s% ignificant departure from standards expressed purely in prose;
+% %
+% in particular, they can provide a basic assurance that they do not rely on u% ndefined terms.
+% %
+% While their existence does not immediately solve all of the above issues in % format design, they are valuable artifacts for clarifying
+% standards, understanding vulnerabilities, and aiding implementors.
 
 % introduce Haskell spec:
 In this work, we have formally specified the PDF pre-DOM
@@ -56,20 +56,22 @@ functional programming language with lazy semantics;
 we review Haskell's other features throughout the paper when they are
 relevant.
 % benefits:
-In addition to the above general benefits of formal definitions, Haskell is arguably particularly well-suited among \emph{general-purpose} languages for expressing understandable data because it is pure: i.e., its computations do not rely on implicit state.
+In addition to the above general benefits of formal definitions, Haskell is
+well-suited among \emph{general-purpose} languages for
+declaratively expressing computation.
 % limitations:
-However, the definition of Haskell itself is certainly not small, and thus it is far from ideal for communicating a format definition with non-programmers: we view the current definition as a significant first step toward a mechanized definition that is completely in an understandable data-definition language. 
+% the definition of Haskell itself is certainly not small,
+Although Haskell may not be ideal for communicating with non-programmers,
+we view the current definition as a significant first step toward a
+definition that is both clear and executable.
 
 % say more about the spec's scope:
-The specification formalizes the gap between extremely simple format elements (e.g., integer constants and cross-reference entries) and the
-processing that happens once a DOM is created (stages 5 and 6).
+The specification formalizes Pre-DOM processing, stages 1 to 4
+(\Cref{fig:pdf-trust-chain}).
 %
-I.e., stages 1 to 4.
-%
-Primitive parsers are assumed and not included in this spec, as other
-formalisms, such as the publicly available \emph{DaeDaLus Data Description
-  Language}~\cite{daedalusrepo}, are better suited to specifying the
-primitive parsers.
+It relies on having primitive parsers (whose definitions we do not include).
+Other formalisms, such as the publicly available \emph{DaeDaLus Data Description
+  Language}~\cite{daedalusrepo}, are better suited to specifying these.
 %
 \cref{sec:appendix1} contains a list of the primitive parsers used,
 with their type signatures.
@@ -114,9 +116,9 @@ is a \emph{monadic} parser \lstcd{P} that returns a value of type
 In general, monads are a rich class of parameterized types that
 describe a surprising variety of data and computations.
 %
-For the purposes of this paper, it suffices to view a monad as a container that provides an operation 
-to sequence effectful \emph{actions} (specifically, functions from some type to a monad over a 
-potentially distinct type) in a purely functional manner;
+For the purposes of this paper, it suffices to view a monad as a
+construct that allows us to to sequence effectful \emph{actions}
+in a purely functional manner;
 %
 effects can be global variables (or mutable state), exceptions, I/O, and etc.
 
@@ -212,6 +214,15 @@ aspect.
 %
 But we will need to pass \lstcd{seek} to all the actions that need to
 ``seek'' in the PDF file (note this being done in \cref{fig:spec}).
+
+Alternatively, we might have added a function to the monad to set
+the offset to where we should \lstcd{seekPrimitive}
+\begin{codeNoExecute}
+setBeginningOfFileOffset :: Int -> P ()  -- seekPrimitive always uses.
+\end{codeNoExecute}
+although this shortens the code, it does not allow us to enforce that
+the offset is only set one time.  The purity of our current approach does make
+the data dependencies more explicit.
 
 Because the two function calls (lines 5 and 8) have no data
 dependencies, they can be performed in any order.

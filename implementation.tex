@@ -1,0 +1,64 @@
+\section{Implementing The Specification}
+\label{sec:implementation}
+
+It would be a great story to say that we progressed by
+(1) fully comprehending the Standard,
+(2) finding all problems with the Standard and clarifying them,
+(3) writing a formal specification of a PDF parser,
+then finally (4) implementing a PDF parser.
+
+But, being this is the real world, things happened more like this:
+(1) we implemented a basic PDF parser;
+(2) we added features one by one (updating the design often);
+(3) we became flummoxed by both the PDF Standard requirements and how this
+should impact our implementation of pre-DOM processing, thus motivated;
+(4) we wrote the Pre-DOM specification;
+(5) we used the specification as a guide to re-writing some of
+the subtle parts of pre-DOM processing in our implementation.
+%
+And concurrently with all of the above steps, we were both learning the PDF
+Standard and finding problems and ambiguities with it.
+
+Our implemetation consists of a full PDF 2.0 parser.  It (safely) ignores
+Linearization data, and in hybrid-reference PDFs it ignores the conventional
+cross-reference tables designed for pre PDF 1.5 readers.  It processes
+signatures (as incremental updates), but it does not support validation of
+signatures.
+
+All the primitive parsers are defined in the DaeDaLus \cite{daedalusrepo}
+language.
+Other pre-DOM processing is implemented in Haskell.
+The implementation could be viewed as a relatively complete reference 
+implementation of PDF.
+However, in the implementation, 
+the clarity of the code is hampered by various software engineering
+requirements:
+creating better error messages,
+handling other PDF complexities such as encryption,
+etc.
+
+It successfully parses a large number of PDFs in the wild
+(the majority of which diverge from the standard in small---or great---ways).
+Our implementation in most cases discovers more PDF errors than
+typical PDF tools and readers.
+
+We think, in future work, it would be valuable to use our specification more
+directly in our implementation (which is currently closer to the D
+implementation);
+%
+see \Cref{sec:single-pass-problems} above for why we think this would be
+desirable.
+
+% 
+%    - Our pre-dom parser specification came about as an artifact of
+%      our attempt to understand what the Standard---defining the format---
+%      *requires* of a reasonable implementation.
+%      - The implementation is less interesting as
+%        - it is more like the D implementation
+%        - it is much longer as it ...
+%      - But the above was an aid
+%        - to enable us to understand the PDF Format Standard
+%        - to help us to understand how to write our D-ish implem.
+%        - its more abstract nature would allow us to build a parser/validator
+%          with a single code base (not done yet)
+ 

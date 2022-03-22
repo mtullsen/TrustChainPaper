@@ -56,7 +56,7 @@ object number. This offset information for all indirect objects is stored in Cro
 
 The \emph{Cross-reference Table} section begins with the \lstcd{xref} keyword. For a PDF file
 with no incremental updates, the next line will be a cross-reference sub-section text line comprising
-two integers in ASCII (\lstcd{0 32} in this example). The first integer is an object identifier 
+two integers in ASCII (\lstcd{0 312} in this example). The first integer is an object identifier 
 and in the case of an original PDF this must be 0. The second integer is the number of
 objects in the cross-reference subsection.
 
@@ -69,7 +69,7 @@ The first 10 ASCII digits represent the byte offset to the object, followed by a
 followed by 5 ASCII digits representing an object generation number. This is then followed by
 another single ASCII space and the keyword \lstcd{n} for in-use objects or \lstcd{f} for free objects.
 Finally an end-of-line sequence is defined to ensure that the text line entry for each object has 
-a 20-byte fixed length. A parsing subtly is also that cross-reference sections are the only section 
+a 20-byte fixed length. A parsing subtlety is also that cross-reference sections are the only section 
 in PDF where comments are expressly prohibited.
 
 The \emph{Trailer} section is at the very end of every PDF file. 
@@ -137,7 +137,7 @@ streams may also be used by themselves with the conventional Body section.
 
 As noted above because both cross-reference streams and object streams are standard PDF streams, they 
 can benefit from stream compression. However this also means that parsers are   
-susceptible to ``ZIP bomb'' attacks and handling of semantic errors (invalid stream extent dictionaries) 
+susceptible to ``ZIP bomb'' \todo{explain!} attacks and handling of semantic errors (invalid stream extent dictionaries) 
 during pre-DOM processing!
 
 A further complication is the concept of ``hybrid-reference'' PDF files, where both conventional cross-reference tables and cross-reference streams co-exist in the same PDF so as to provide some semblance of support for non-PDF 1.5 aware parsers. This complication is not addressed further in this paper.
@@ -282,23 +282,28 @@ digital signature is applied or an official approval step, the malicious data is
 activated. In the case of digitally-signed documents this severely undermines confidence and trust
 in digital signature technology.
 
+\todo{at this point, have we defined parser differentials and polyglots?}
+\todo{we are using both 'parser differential' and ``ambiguous'': use one.}
+
 {\bf{Parser Differentials}} are a real threat as attackers leverage differences in output
 to present different information to different individuals, where the individual might be a human
 or a machine. Parser differentials arise due to a combination of parser weaknesses, 
 parser permissiveness, and unexpected input. In the case of PDF pre-DOM file structure, we have been
 able to easily demonstrate parser differentials.
+\todob{put small example here or ...?}
 
 {\bf{Polyglots}} are a potential threat in any system or workflow which relies on different parsers
 at different stages. If a firewall product determines a file to be of file type \emph{X} and then only 
 scans for vulnerabilities relevant to file type \emph{X}, but later software decides the same file 
-is file type \emph{Y}, an organization is then vulnerable. Polyglots arise from the creative use of
+is file type \emph{Y}, an organization is then vulnerable.
+Polyglots arise from the creative use of
 cavities, permissive implementations, 
 and other blind spots in a file format specification where arbitrary data can be placed 
 that does impact processing (e.g. in comments or strings, in freed or unreferenced objects, etc.).
 
 {\bf{Denial of Service (DoS)}} is of increasing concern to the PDF industry, with many PDF services
 and products utilizing cloud-based processing. In cases like large-scale automated invoice 
-processing, DoS attacks can also incur addition expenses as well as inconvenience for an organization 
+processing, DoS attacks can also incur additional expenses as well as inconvenience for an organization 
 as exception-handling by human operators may be invoked.  
 
 It should also be no surprise that due to complexity and subtleties of the PDF standard described above,
