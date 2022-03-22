@@ -5,12 +5,12 @@
 \input{trustchain} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Parsing PDF: More detail}
+\subsection{Parsing PDF: The details}
 \label{sec:parsingfile}
 
 We described the physical structure of a PDF file in \Cref{sec:pdf},
 but the processing sequence may not be so apparent.
-The following paragraphs describe the processing necessary to correctly parse a PDF file containingg incremental updates.
+The following paragraphs describe the processing necessary to correctly parse a PDF file containing incremental updates.
 
 PDF parsing begins by locating the PDF Header, as it is not uncommon for PDF files to have 
 preamble bytes (such as an HTTP header, HTML or XML). The offset to the start of the PDF file 
