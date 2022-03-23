@@ -54,16 +54,16 @@ e.g., PDF's \emph{cross-reference table} support
 \textbf{(1)} the interpretation of documents to be strongly mutated by
 appending content, via \emph{incremental updates};
 %
-\textbf{(2)} reference structure to be compressed, via standardized
+\textbf{(2)} the reference structure is compressed, via standardized
 but non-trivial algorithms applied to \emph{cross-reference streams},
 potentially combined with conventional cross-reference tables in
 \emph{hybrid reference files}; and
 % 
 \textbf{(3)} large documents to be partially processed incrementally,
-using separated context, via \emph{linearization}. This processing
+using separated context, via \emph{linearization}. The parsing
+of this reference and context information
 occurs before DOM creation and DOM object validation, introducing a
-reliance on the \emph{pre-DOM} processing when establishing 
-a files' referential context.
+reliance on the correctness of all \emph{pre-DOM} processing.
 
 % security consequences::
 Difficulties in expressing the structure and semantics of references
@@ -114,13 +114,18 @@ This approach is explored within an industrial strength case study:
 validating and parsing the reference tables that are needed to create 
 an unambiguous and trustworthy PDF DOM.
 %
-We believe that our work is novel in aiming to formalize and model
-this step in the PDF ``Trust Chain,'' and thus strongly complements all
+However, our work is unique in that, to our knowledge, it constitutes
+the first attempt to use such combinators to formalize a comprehensive
+set of features and integrity relationships in PDF pre-DOM processing
+that define referential context, specifically cross reference tables,
+incremental updates, and cross reference table compression within
+cross-reference streams.
+These are the first stages in the PDF ``Trust Chain,'' and  strongly complements all
 efforts that rely on a trustworthy formalization of reference in order
 to validate properties of higher-level document abstraction defined in
-terms of the DOM.
+terms of a DOM.
 
-% background on parser combinators:
+% background on parser combinators
 In general, using parser combinators is not new: such combinators are
 available widely available in the distributions of modern industrial
 strength languages~\cite{leijen2001parsec,couprie2015nom,mundkurResearchReportParsley2020,bratus2017curing,willis2020staged}.
@@ -130,12 +135,7 @@ and generating high-assurance parsers, such combinators have
 specifically been applied to formalize components of the
 PDF standard related to referential context.
 %
-However, our work is unique in that, to our knowledge, it constitutes
-the first attempt to use such combinators to formalize a comprehensive
-set of features and integrity relationships in PDF pre-DOM processing
-that define referential context, specifically cross reference tables,
-incremental updates, and cross reference table compression within
-cross-reference streams. PDF is a random-access binary file format
+PDF is a random-access binary file format
 that must be processed from the most recent (latest) incremental
 update through earlier edits back to the original document.
 %
@@ -149,7 +149,7 @@ Thus, in order to correctly establish a final PDF DOM graph, it is
 necessary to parse each appended incremental update in reverse
 order.
 
-% results:
+% results
 Our case study shows that such features can by formalized effectively.
 %
 The resulting definition is more subtle than what may be often be
@@ -159,7 +159,7 @@ with the current PDF standard which have been acknowledged and
 addressed by the PDF Association and the ISO.
 %
 However, there is nothing in the format definition that requires the
-specific language of combinators employed: a key goal of our work is
+specific language of combinators to be employed: a key goal of our work is
 to provide this formalized definition as a worked case study, to be
 vetted and improved upon using definitions in other experimental data
 definition languages as they are developed.

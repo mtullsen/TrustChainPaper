@@ -15,15 +15,15 @@ PDF is a random-access file format that contains 8-bit binary data, line-based A
 text data (terminated with various end-of-line sequences), and a fixed format ASCII 
 data format in different sections of a single file. The overall structure of a 
 conventional PDF file without any incremental updates is shown in \cref{fig:pdf-structure} and 
-described below, based on the official PDF ISO standard.
+described below, based on the official PDF ISO 32000 standard.
 PDF 1.5 introduced more compact file structure capabilities known as cross-reference streams 
 and object streams however, since this builds on the following concepts, this modern 
 variation on the PDF file structure will be described later.
 
 The PDF \emph{Header} section contains the file identification marker as an ASCII
-text comment line \lstcd{\%PDF-} followed by the PDF version as ASCII digits. 
+text comment line \lstcd{\%PDF-} followed by the PDF version as single ASCII digits. 
 An optional second comment line (starting with \lstcd{\%})
-containing at least 4 bytes above 127 in value is recommended, as it ensures 
+containing at least 4 bytes above 127 in value is recommended, to ensure 
 that PDF files are not misidentified as purely 7-bit text files. 
 All file offsets in PDF file are from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}.  
 
@@ -90,14 +90,14 @@ keywords used in the PDF Body section.
 
 As illustrated in \cref{fig:pdf-structure-incremental}, each incremental update will 
 normally append a Body, Cross-reference Table, and Trailer sections
-to a PDF file with the entire original PDF remaining unchanged. The newly added incremental
-update trailer dictionary will contain additional information referencing the immediately 
+to a PDF file, with the entire original PDF remaining unchanged. The newly added incremental
+update trailer dictionary must also contain information referencing the immediately 
 previous cross-reference table by byte offset. The Body section of the incremental update 
-will contain any new or redefined objects. If only data in the trailer dictionary is updated then
-a new Body section is not required. The cross-reference table for the incremental update
+will contain any new or redefined objects. If only fields in the trailer dictionary are updated then
+a new Body section is not required. The cross-reference table for each incremental update
 defines changes to objects made by that incremental update. This may include freeing
-objects in the original PDF by adding them to the free list (the actual indirect PDF objects in
-the original PDF file are not actually deleted), and/or the addition of new objects. 
+objects by adding them to the free list (the actual indirect PDF objects in
+the PDF file are not actually deleted), and/or the addition of new objects. 
 
 \begin{figure}[t]
     \centering
@@ -112,7 +112,7 @@ cross-reference tables.
 Such files replace the Cross-Reference Table section (including the \lstcd{xref} keyword) 
 with a PDF stream object containing binary data, as shown in \cref{fig:XRefStm}. 
 Like all streams in PDF, cross-reference streams may also be compressed with algorithms such as FLATE 
-to further reduce file size. If a cross-reference stream is used, then the Trailer section is also no
+to further reduce file size. If a cross-reference stream is used, then the trailer dictionary is also no
 longer used. Instead the context-defining key/value pairs of the trailer are added to the stream 
 extent dictionary of the cross-reference stream.
 
@@ -137,7 +137,7 @@ streams may also be used by themselves with the conventional Body section.
 
 As noted above because both cross-reference streams and object streams are standard PDF streams, they 
 can benefit from stream compression. However this also means that parsers are   
-susceptible to ``ZIP bomb'' \todo{explain!} attacks and handling of semantic errors (invalid stream extent dictionaries) 
+susceptible to ``ZIP bombs'' \todo{explain!} attacks, cycles in object references, and handling of semantic errors (invalid stream extent dictionaries) 
 during pre-DOM processing!
 
 A further complication is the concept of ``hybrid-reference'' PDF files, where both conventional cross-reference tables and cross-reference streams co-exist in the same PDF so as to provide some semblance of support for non-PDF 1.5 aware parsers. This complication is not addressed further in this paper.
@@ -156,17 +156,17 @@ at the end of the file with the most recent change back to the original document
 
 Most data formats can be described by much simpler mechanisms;
 most language processors (e.g., a Python parser) can be described and parsed by
-textbook methods (e.g., the old \emph{lex} and \emph{yacc} are sufficient for
+textbook methods (e.g., \emph{lex} and \emph{yacc} are sufficient for
 most language processors);
 so what makes PDF processing so much more complex?
 
 As described above, PDF uses random access to byte offsets to then parse lines of text,
 which may then switch to binary data or fixed-length record parsing. 
 In some, but not all, cases the end of an object can be known apriori, but in the most common case 
-of conventional cross-reference tables only forward parsing can determine the end of an object. 
+of conventional cross-reference tables, only forward parsing can determine the end of an object. 
 This gives rise to a phenomena we call \emph{cavities} where not every byte in a PDF file is parsed.
 Such cavities can be used to hold data in an alternate format giving rise to polyglots, or potentially
-to hold shellcode that might be na\"ively loaded into memory and then exploited 
+to hold shellcode that might be na\"ively loaded into memory and further exploited 
 in vulnerable parsers.
 In addition, various descriptions in the PDF standard require ``parsing backwards'' which is 
 an unnatural programming language idiom. Furthermore, some explicit pre-DOM requirements
@@ -180,11 +180,11 @@ The PDF specification also requires multiple
 sublanguages and computation (such as stream decompression).
 
 If a PDF file accidentally or maliciously fails to adhere to this set of complex PDF file structure
-rules, or a parser contains bugs, PDF parsers will typically silently attempt to recover
+rules, or an implementation has bugs, PDF parsers will typically silently attempt to recover
 by reconstructing the cross-reference table information. 
 This is not defined by the PDF file format standard so 
 ad-hoc algorithms are used. Typical reconstruction algorithms parse from the start of a PDF 
-file, searching for indirect PDF objects (\lstcd{x y obj ... endobj}). This can clearly result
+file, searching for indirect PDF objects (\lstcd{x y obj ... endobj}) at the start of lines. This can clearly result
 in ambiguous reconstruction of a PDF DOM and is highly likely to lead to parser differentials.
 
 The PDF DOM created by a set of indirect PDF objects forms a directed graph. 
@@ -195,7 +195,7 @@ forces hierarchical relationships via nesting of tags.
 
 The PDF standard defines very few explicit data integrity relationships for pre-DOM parsing. 
 Our work has been to critically review the under-appreciated and under-studied pre-DOM PDF
-file structure using formal methods to identify data integrity relationships that can 
+file structure using formal methods to highlight data integrity relationships that can 
 ensure the PDF Trust Chain is robust prior to DOM processing.
 
 % ------------------------------------------------------------------------------
@@ -215,32 +215,38 @@ Prior work in privacy has identified that incremental updates obviously pose a r
 redaction and data scrubbing workflows if not processed correctly~\cite{adhataraoHowArePDF2021,y.fengSystematicMethodPDF2018}.
 Given our recent points about the \emph{PDF Trust Chain}~\cref{sec:trust-chain}, it should not 
 surprise us that some PDF attack vectors involve aspects of breaking the \emph{DOM} abstraction.
-I.e., the vulnerabilities occur pre-DOM.
+I.e., the root cause occurs pre-DOM.
 
 {\bf{Supply Chain attacks}} are a generalization of {\bf{Shadow Attacks}} which were coined by Mainka 
 et al.~\cite{mainkaShadowAttacksHiding2021} whereby an attacker infiltrates a workflow and 
 maliciously manipulates a document in some way. This manipulation may be entirely syntactically valid.
 Only later in the workflow, possibly after a 
 digital signature is applied or an official approval step, the malicious data is 
-activated. In the case of digitally-signed documents this severely undermines confidence and trust
+activated. In the case of digitally-signed documents, this severely undermines confidence and trust
 in digital signature technology.
 
-\todo{at this point, have we defined parser differentials and polyglots?}
-\todo{we are using both 'parser differential' and ``ambiguous'': use one.}
+\todo{at this point, have we defined parser differentials and polyglots? 
+"Parser differential" is bottom of page 2, but NO for polyglot - it's a little below }
+\todo{we are using both 'parser differential' and ``ambiguous'': use one. 
+They are different but related: In the intro we define ambiguities as ONE cause of parser 
+differentials. In the PDF section I already wrote about "differential by design" caused 
+by Linearized PDF. Is a parser differential necessarily something that a human can see? 
+I would assert it is as you define below - so an ambiguity can also lead to a vuln which 
+may not be noticeable (secret leak, etc). }
 
 {\bf{Parser Differentials}} are a real threat as attackers leverage differences in output
 to present different information to different individuals, where the individual might be a human
 or a machine. Parser differentials arise due to a combination of parser weaknesses, 
-parser permissiveness, and unexpected input. In the case of PDF pre-DOM file structure, we have been
-able to easily demonstrate parser differentials.
-\todob{put small example here or ...?}
+parser permissiveness, ambiguities, and unexpected input. In the case of PDF pre-DOM file structure, we have been
+able to easily demonstrate parser differentials  
+\todob{put small example here or ...? Could reference this PoC: https://github.com/pdf-association/safedocs/tree/main/Miscellaneous%20Targeted%20Test%20PDFs#dual-startxrefpdf
+or the vuln we discovered that is quoted back in the intro }
 
 {\bf{Polyglots}} are a potential threat in any system or workflow which relies on different parsers
 at different stages. If a firewall product determines a file to be of file type \emph{X} and then only 
 scans for vulnerabilities relevant to file type \emph{X}, but later software decides the same file 
 is file type \emph{Y}, an organization is then vulnerable.
-Polyglots arise from the creative use of
-cavities, permissive implementations, 
+Polyglots arise from the creative use of cavities, permissive implementations, 
 and other blind spots in a file format specification where arbitrary data can be placed 
 that does impact processing (e.g. in comments or strings, in freed or unreferenced objects, etc.).
 
@@ -252,9 +258,9 @@ as exception-handling by human operators may be invoked.
 It should also be no surprise that due to the complexity and subtleties of the PDF standard described above,
 extant data exhibits many errors in cross-reference tables and related pre-DOM context information.
 To date, there has not been a comprehensive analysis of PDF file structure faults in extant data
-caused by defects in PDF writers. One core reason is that tooling is currently lacking that reliably reports
+caused by defects in PDF writers. One core reason is that dedicated tooling is lacking that reliably reports
 all technical variations from the PDF standard. However analysis of open-source PDF parser code bases
-does highlight tools with varying degrees of reporting, however all exhibit permissive features related
+does highlight tools with varying degrees of lightweight reporting, however all exhibit permissive features related
 to pre-DOM processing:
 
 \begin{itemize}
@@ -262,7 +268,7 @@ to pre-DOM processing:
     19- and 21-byte variations due to additional white space or incorrect line endings;
     \item errors in byte offsets to indirect PDF objects and objects in object streams;
     \item errors with \lstcd{startxref} byte offsets;
-    \item incorrect trailer dictionary data (such as \lstcd{Size}), leading implementation-dependent decisions;  
-    \item terminating pre-DOM processing prematurely (i.e. not processing all incremental updates and thus 
+    \item incorrect trailer dictionary data (such as \lstcd{Size}), leading to implementation-dependent decisions;  
+    \item terminating pre-DOM processing prematurely (i.e. not processing all incremental updates and  
     being susceptible to Shadow Attacks).
 \end{itemize}

@@ -49,7 +49,7 @@ dictionary of the cross reference stream.
 
 Any previous cross-reference data is identified by the value of the \lstcd{/Prev} entry in either
 the trailer dictionary or the stream extent dictionary of a cross-reference stream. The
-value of the \lstcd{/Prev} key the byte offset to the immediately
+value of the \lstcd{/Prev} key is the byte offset to the immediately
 preceding cross-reference data which, again, can either be a conventional
 cross-reference table and to the start of the \lstcd{xref} keyword, or to a
 cross-reference stream. This process repeats, working from the most recent incremental
@@ -61,7 +61,12 @@ one greater than the largest object number allocated in the PDF file. Objects wi
 than \lstcd{/Size} are defined to be the special PDF \lstcd{null} object.
 
 Data in each cross reference table must be parsed to
-identify the byte offset to the start of each PDF object, whether this be a file offset to an indirect object in a Body section, or a relative object position within an object stream (and where the object position is transformed to a byte offset within the object stream from the first line of text in the object stream). Note also that with conventional PDF cross-reference tables there is no definition for the byte offset to the end of an object, however for cross-reference streams this can be pre-determined.
+identify the byte offset to the start of each PDF object, whether this be a file offset to an 
+indirect object in a Body section, or a relative object position within an object stream (and 
+where the object position is transformed to a byte offset within the object stream from the 
+first line of text in the object stream). Note also that with conventional PDF cross-reference 
+tables there is no definition for the byte offset to the end of an object, however for cross-reference 
+streams this can be pre-determined.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -97,7 +102,7 @@ each is going to accept a different subset due to
 \item redundancies in the format allow for different choices,
 \item the tools do not interpret the Standard uniformly,
 \item tools may traverse and evaluate implicit data structures differently, and
-\item tools differing in how they allow for ``minor'' errors or do error recovery.
+\item tools differ in how they allow for ``minor'' errors or do error recovery.
 \end{itemize}
 Our goal for a \emph{parser specification} is to encompass any reasonable and
 correct ``cloud''.  This goal is somewhat subjective, but generally this will
@@ -137,17 +142,15 @@ that DOM is equivalent to the DOM produced by the specification.
 This is why we want our specification to be lazier than most implementations.
 
 % % introduce formal specification:
-% We say that a specification is \emph{formal} if it is expressed in a languag% e whose semantics is amenable to a mechanizable definition.
+% We say that a specification is \emph{formal} if it is expressed in a languag
+% e whose semantics is amenable to a mechanizable definition.
 % %
-% By their nature, such definitions can offer precision of meaning that is a s% ignificant departure from standards expressed purely in prose;
+% By their nature, such definitions can offer precision of meaning that is a
+% significant departure from standards expressed purely in prose;
 % %
-% in particular, they can provide a basic assurance that they do not rely on u% ndefined terms.
+% in particular, they can provide a basic assurance that they do not rely on 
+% undefined terms.
 % %
-% While their existence does not immediately solve all of the above issues in % format design, they are valuable artifacts for clarifying
+% While their existence does not immediately solve all of the above issues in 
+% format design, they are valuable artifacts for clarifying
 % standards, understanding vulnerabilities, and aiding implementors.
-
-
-
-
-
-
