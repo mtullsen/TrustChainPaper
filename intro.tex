@@ -125,9 +125,9 @@ to validate properties of higher-level document abstraction defined in
 terms of a DOM.
 
 % background on parser combinators
-In general, using parser combinators is not new: such combinators are
-available widely available in the distributions of modern industrial
-strength languages~\cite{leijen2001parsec,couprie2015nom,mundkurResearchReportParsley2020,bratus2017curing,willis2020staged}.
+Using parser combinators is not a new idea: they are available in the
+distributions of modern industrial strength
+languages~\cite{leijen2001parsec,couprie2015nom,mundkurResearchReportParsley2020,bratus2017curing,willis2020staged}.
 %
 Moreover, with the recent interest in formalizing practical formats
 and generating high-assurance parsers, such combinators have
@@ -163,20 +163,17 @@ to provide this formalized definition as a worked case study, to be
 vetted and improved upon using definitions in other experimental data
 definition languages as they are developed.
 
-\paragraph*{Organization} The rest of this paper is organized as
-follows:
+\paragraph*{Organization}
 %
-\Cref{sec:pdf} explains the PDF format and discusses some of its
-complexities and vulnerabilities;
+\Cref{sec:pdf} presents PDF, its complexities, and vulnerabilities;
 %
 \Cref{sec:parsing} discusses the details and surprising
 complexities of actually \emph{parsing} the PDF format;
 %
-\Cref{sec:specifying} presents our specification of reference in detail;
+\Cref{sec:specifying,sec:assessing} present and analyze our
+specification of reference in detail;
 %
 \Cref{sec:implementation} discusses our implementation;
-%
-\Cref{sec:assessing} assesses our approach;
 %
 \Cref{sec:rel-work} reviews related work, and %
 \Cref{sec:conclusion} concludes.

@@ -88,42 +88,56 @@ keywords used in the PDF Body section.
     \label{fig:pdf-structure-incremental}
 \end{figure}
 
-As illustrated in \cref{fig:pdf-structure-incremental}, each incremental update will 
-normally append a Body, Cross-reference Table, and Trailer sections
-to a PDF file, with the entire original PDF remaining unchanged. The newly added incremental
-update trailer dictionary must also contain information referencing the immediately 
-previous cross-reference table by byte offset. The Body section of the incremental update 
-will contain any new or redefined objects. If only fields in the trailer dictionary are updated then
-a new Body section is not required. The cross-reference table for each incremental update
-defines changes to objects made by that incremental update. This may include freeing
-objects by adding them to the free list (the actual indirect PDF objects in
-the PDF file are not actually deleted), and/or the addition of new objects. 
+Each incremental update typically appends a Body, Cross-reference
+Table, and Trailer sections to a PDF file, leaving the entire original
+PDF unchanged (see \cref{fig:pdf-structure-incremental}).
+%
+The newly added incremental update trailer dictionary must also
+contain information referencing the immediately previous
+cross-reference table by byte offset. The Body section of the
+incremental update will contain any new or redefined objects. If only
+fields in the trailer dictionary are updated then a new Body section
+is not required. The cross-reference table for each incremental update
+defines changes to objects made by that incremental update. This may
+include freeing objects by adding them to the free list (the actual
+indirect PDF objects in the PDF file are not actually deleted), and/or
+the addition of new objects.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.65\linewidth]{figures/xrefstm.png}
-    \caption{Example of a PDF 1.5 cross-reference stream.}
+    \caption{An example PDF 1.5 cross-reference stream.}
     \label{fig:XRefStm}
 \end{figure}
 
-As previously mentioned, PDF 1.5 introduced cross-reference streams and object streams as a means
-to overcome physical file size limitations imposed by the 10-digit byte offset in the conventional
-cross-reference tables.
-Such files replace the Cross-Reference Table section (including the \lstcd{xref} keyword) 
-with a PDF stream object containing binary data, as shown in \cref{fig:XRefStm}. 
-Like all streams in PDF, cross-reference streams may also be compressed with algorithms such as FLATE 
-to further reduce file size. If a cross-reference stream is used, then the trailer dictionary is also no
-longer used. Instead the context-defining key/value pairs of the trailer are added to the stream 
-extent dictionary of the cross-reference stream.
+As previously mentioned, PDF 1.5 introduced cross-reference streams
+and object streams because the 10-digit byte offset in conventional
+cross-reference tables imposed notable limitations on file size.
+%
+Such files replace the Cross-Reference Table section (including the
+\lstcd{xref} keyword) with a PDF stream object containing binary data
+(see \cref{fig:XRefStm}).
+%
+As with all streams in PDF, cross-reference streams may further reduce
+file size by compressing files using standard algorithms, such as
+\textsc{Flate}.
+%
+If a cross-reference stream is used, then the trailer dictionary is
+also no longer used.
+%
+Instead, the context-defining key/value pairs of the trailer are added
+to the stream extent dictionary of the cross-reference stream.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.65\linewidth]{figures/ObjStm.png}
-    \caption{Example of a PDF 1.5 object stream and its uncompressed content.}
+    \caption{An example PDF 1.5 object stream and its uncompressed
+      content.}
     \label{fig:ObjStm}
 \end{figure}
 
-PDF 1.5 enabled further optimization via object streams (\cref{fig:ObjStm}).
+PDF 1.5 enabled further optimization via object streams (see
+\cref{fig:ObjStm}).
 %
 Practical large PDF's will typically contain many indirect objects;
 %
@@ -174,7 +188,8 @@ state this explicitly).
 
 In effect, incremental updates form a timeline of all changes made to
 a PDF, with parsing starting at the end of the file with the most
-recent change back to the original document at the to of the file.
+recent change back to the original document at the beginning of the
+file.
 
 \subsection{Root Causes of PDF Complexity}
 \label{sec:rootcause}
@@ -254,35 +269,41 @@ activated.
 In the case of digitally-signed documents, this severely undermines
 confidence and trust in digital signature technology.
 
+\begin{comment}
 \todo{we are using both 'parser differential' and ``ambiguous'': use one. 
 They are different but related: In the intro we define ambiguities as ONE cause of parser 
 differentials. In the PDF section I already wrote about "differential by design" caused 
 by Linearized PDF. Is a parser differential necessarily something that a human can see? 
 I would assert it is as you define below - so an ambiguity can also lead to a vuln which 
 may not be noticeable (secret leak, etc). }
+\end{comment}
 
-\emph{Parser Differentials} are a real threat as attackers leverage
-differences in output to present different information to different
-individuals, where the individual might be a human or a
-machine. Parser differentials arise due to a combination of parser
-weaknesses, parser permissiveness, ambiguities, and unexpected
-input. In the case of PDF pre-DOM file structure, we have been able to
-easily demonstrate parser differentials \todob{put small example here
-  or ...? Could reference this PoC:
-  https://github.com/pdf-association/safedocs/tree/main/Miscellaneous%20Targeted%20Test%20PDFs#dual-startxrefpdf
-  or the vuln we discovered that is quoted back in the intro }
+\emph{Parser differentials} constitute a concrete threat to the
+security of practical systems: attackers leverage differences in
+output to present different information to different clients
+(potentially human or other programs) from the same document.
+%
+Parser differentials arise due to a combination of unintended parser
+errors, intended parser permissiveness beyond specification, and
+specification-level ambiguities.
+%
+Our attempt to formalize PDF's pre-DOM has easily exposed
+differentials between practical PDF parsers~\cite{dualStartXref}.
 
+% polyglots:
 \emph{Polyglots} are a potential threat in any system or workflow
 which relies on different parsers at different stages. If a firewall
-product determines a file to be of file type \emph{X} and then only
-scans for vulnerabilities relevant to file type \emph{X}, but later
-software decides the same file is file type \emph{Y}, an organization
-is then vulnerable.  Polyglots arise from the creative use of
-cavities, permissive implementations, and other blind spots in a file
-format specification where arbitrary data can be placed that does
-impact processing (e.g. in comments or strings, in freed or
+product determines a file to be of file type $X$ and then only scans
+for vulnerabilities relevant to file type $X$, but later software
+decides the same file is file type $Y$, an organization is then
+vulnerable.
+%
+Polyglots arise from permissive parser implementations and aspects of
+format specification that allow inclusion of arbitrary data that does
+not affect processing (e.g. in comments or strings, in freed or
 unreferenced objects, etc.).
 
+% DoS:
 \emph{Denial of Service (DoS)} is of increasing concern to PDF users,
 with many PDF services and products utilizing cloud-based processing.
 %
@@ -306,11 +327,14 @@ tools with varying degrees of lightweight reporting, however all
 exhibit permissive features related to pre-DOM processing:
 %
 \begin{itemize}
-    \item deviation from the required 20-byte fixed cross-reference table entry, with support for
-    19- and 21-byte variations due to additional white space or incorrect line endings;
-    \item errors in byte offsets to indirect PDF objects and objects in object streams;
-    \item errors with \lstcd{startxref} byte offsets;
-    \item incorrect trailer dictionary data (such as \lstcd{Size}), leading to implementation-dependent decisions;  
-    \item terminating pre-DOM processing prematurely (i.e. not processing all incremental updates and  
-    being susceptible to Shadow Attacks).
+\item deviation from the required 20-byte fixed cross-reference table
+  entry, with support for 19- and 21-byte variations due to additional
+  white space or incorrect line endings;
+\item errors in byte offsets to indirect PDF objects and objects in
+  object streams;
+\item errors in definitions \lstcd{startxref} byte offsets;
+\item incorrect trailer dictionary data (such as \lstcd{Size}),
+  inducing implementation-dependent decisions;
+\item terminating pre-DOM processing prematurely (i.e. not processing
+  all incremental updates and being susceptible to Shadow Attacks).
 \end{itemize}
