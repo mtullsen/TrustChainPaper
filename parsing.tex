@@ -116,6 +116,8 @@ viewed in isolation.
 
 %%%%%%%%%%%%%
 
+\todo{abrupt transition, add subsection?}
+
 The term \emph{Trust Chain} (or ``Chain of Trust'') is
 overloaded with similar meanings in different contexts
 %
@@ -140,7 +142,6 @@ on lower layers (sub-components) for their validity.  In other words,
 
 %%%%%%%%%%%%%
 
-
 The intentions behind the term \emph{Trust Chain} are
 %
 \textbf{(1)} to highlight the many dependent stages in PDF processing;
@@ -162,19 +163,26 @@ formats broadly.
 \label{sec:parsingfile}
 
 We described the physical structure of a PDF file in \Cref{sec:pdf},
-but the processing sequence may not be so apparent.
+but the processing sequence may not be apparent.
 The following paragraphs describe the processing necessary to correctly parse a PDF file containing incremental updates.
 
 PDF parsing begins by locating the PDF Header, as it is not uncommon for PDF files to have 
 preamble bytes (such as an HTTP header, HTML or XML). The offset to the start of the PDF file 
 (PDF offset zero)
 within a physical file can then be determined from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}. 
-Processing continues by seeking to end-of-file and locating the last end-of-file marker \lstcd{\%\%EOF} in the physical file.
 
-It is then necessary to locate the \emph{last} \lstcd{startxref} keyword and the following PDF file byte offset 
-to the last cross-reference table in the PDF. Note also that this requires parsing \emph{backwards}
-which is unnatural for many programming languages and is a proven source of parser differentials. 
-This PDF byte offset must also be adjusted to a physical file offset by accounting for any preamble bytes prior to the PDF Header.
+Processing continues by seeking to the end-of-file and 
+locating the \emph{last} \lstcd{startxref} keyword,
+a numeric value is then parsed (giving us a byte offset 
+to the last cross-reference table in the PDF).
+It should be verified that \lstcd{\%\%EOF} follows the numeric value.
+%
+Note that this requires parsing \emph{backwards}
+which is unnatural for data definition languages as well as many programming
+languages;
+this is a proven source of parser differentials. 
+The offset to the cross-reference table must be adjusted 
+for any preamble bytes prior to the PDF Header.
 
 The parsing sublanguage depends on the form of the incremental update, with
 conventional cross-reference tables being simpler and largely independent of
