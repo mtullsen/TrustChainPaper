@@ -35,7 +35,7 @@ dependencies and interactions between the features.
 \item \textbf{Stage 4}: Transform the XRef map to an object map. This stage is complex and
   requires three sub-stages, each of which does further file input and parsing.
   Further details are in \cref{sec:specifying}.
-  If all goes well, we have a syntactically valid candidate DOM.
+  If no critical errors have occured, the result will be a syntactically valid candidate DOM.
 \item \textbf{Stage 5}: Validate candidate DOM.  This stage takes the candidate DOM and
   \emph{semantically} verifies that it represents a valid document graph as per
   the PDF standard.
@@ -56,7 +56,7 @@ Any error (malicious or otherwise) in earlier stages can affect the output of st
 Note that stages 2, 3, 4.1, 4.2, and 4.3 all depend on inputs from previous stages to determine 
 where and how to parse segments of the PDF input file.
 Errors that percolate into these stages can
-cause all forms of havoc (parsing wrong or out-dated data, etc.).
+cause all types of errors (parsing wrong or out-dated data, etc.).
 
 An implementation \emph{might} merge stages 2, 3, 4.1, 4.2, 4.3 into
 a single stage and give a \emph{semblance} of simplicity.
@@ -93,6 +93,8 @@ isolation.
 
 %%%%%%%%%%%%%
 
+\todo{abrupt transition, add subsection?]
+
 The term \emph{Trust Chain} (or ``Chain of Trust'') is
 overloaded with similar meanings in different contexts
 \begin{quote}
@@ -116,7 +118,7 @@ In other words,
 %%%%%%%%%%%%%
 
 Although some might feel the term \emph{Trust Chain} is used inadvisedly to
-describe interdependent parsers,
+describe the multiple interdependent parsers here,
 we think it is important to understand PDF parsing in terms of the
 Trust Chain \emph{principle} because
 %
@@ -138,19 +140,26 @@ a general concept.
 \label{sec:parsingfile}
 
 We described the physical structure of a PDF file in \Cref{sec:pdf},
-but the processing sequence may not be so apparent.
+but the processing sequence may not be apparent.
 The following paragraphs describe the processing necessary to correctly parse a PDF file containing incremental updates.
 
 PDF parsing begins by locating the PDF Header, as it is not uncommon for PDF files to have 
 preamble bytes (such as an HTTP header, HTML or XML). The offset to the start of the PDF file 
 (PDF offset zero)
 within a physical file can then be determined from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}. 
-Processing continues by seeking to end-of-file and locating the last end-of-file marker \lstcd{\%\%EOF} in the physical file.
 
-It is then necessary to locate the \emph{last} \lstcd{startxref} keyword and the following PDF file byte offset 
-to the last cross-reference table in the PDF. Note also that this requires parsing \emph{backwards}
-which is unnatural for many programming languages and is a proven source of parser differentials. 
-This PDF byte offset must also be adjusted to a physical file offset by accounting for any preamble bytes prior to the PDF Header.
+Processing continues by seeking to the end-of-file and 
+locating the \emph{last} \lstcd{startxref} keyword,
+a numeric value is then parsed (giving us a byte offset 
+to the last cross-reference table in the PDF).
+It should be verified that \lstcd{\%\%EOF} follows the numeric value.
+%
+Note that this requires parsing \emph{backwards}
+which is unnatural for data definition languages as well as many programming
+languages;
+this is a proven source of parser differentials. 
+The offset to the cross-reference table must be adjusted 
+for any preamble bytes prior to the PDF Header.
 
 The parsing sublanguage depends on the form of the incremental update, with
 conventional cross-reference tables being simpler and largely independent of
