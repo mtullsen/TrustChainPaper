@@ -27,12 +27,17 @@ containing at least 4 bytes above 127 in value is recommended, to ensure
 that PDF files are not misidentified as purely 7-bit text files. 
 All file offsets in PDF file are from the \lstcd{\%} sign in \lstcd{\%PDF-x.y}.  
 
-The \emph{Linearization} section is an optional optimization section that enables what is commonly
-known as ``fast web view''. This section must occur within the first 1024 bytes of a PDF and contains
-data that enables a Linearized PDF aware parser to quickly display the opening page of a PDF
-while the rest of a large PDF can download in the background.
-Linearizatiom data is also invalidated by incremental updates (since an update might change objects
-on the opening PDF page) and must therefore be checked and ignored.
+The \emph{Linearization} section is an optional optimization section
+that enables what is commonly known as ``fast web view.''
+%
+This section must occur within the first 1024 bytes of a PDF and
+contains data that enables a Linearized PDF aware parser to quickly
+display the opening page of a PDF while the rest of a large PDF can
+download in the background.
+%
+Linearization data is also invalidated by incremental updates (since
+an update might change objects on the opening PDF page) and must
+therefore be checked and ignored.
 %
 Because not all PDF parsers support Linearization, it is a known form
 of ``parser differential by design,'' where a \emph{parser
@@ -287,7 +292,7 @@ Parser differentials arise due to a combination of unintended parser
 errors, intended parser permissiveness beyond specification, and
 specification-level ambiguities.
 %
-Our attempt to formalize PDF's pre-DOM has easily exposed
+Our attempt to formalize PDF's pre-DOM has directly exposed
 differentials between practical PDF parsers~\cite{dualStartXref}.
 
 % polyglots:

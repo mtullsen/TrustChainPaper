@@ -1,18 +1,12 @@
 \section{Specifying pre-DOM PDF Parsing}
 \label{sec:specifying}
 
-This section
-introduces our specification language (\Cref{sec:spec-language}),
-presents our specification's core definitions (\Cref{sec:core}),
-followed by its definitions of each
-stage of the PDF Trust Chain (\Crefrange{sec:stage-1}{sec:stage-4}).
-
-\subsection{Specifying PDF: The Language, Haskell}
+\subsection{Haskell as Specification Language}
 \label{sec:spec-language}
 
 % introduce Haskell spec:
-In this work, we have formally specified the PDF pre-DOM
-in the Haskell programming language~\cite{jones2003haskell}.
+We have formally specified the PDF pre-DOM in the Haskell programming
+language~\cite{jones2003haskell}.
 %
 A detailed presentation of Haskell's features is beyond the scope of
 this paper, so we note only that it is a statically typed, pure,
@@ -32,14 +26,15 @@ definition that is both clear and executable.
 
 % say more about the spec's scope:
 The specification formalizes Pre-DOM processing, stages 1 to 4
-(\Cref{fig:pdf-trust-chain}).
+(\Cref{fig:pdf-trust-chain});
 %
-It relies on having primitive parsers (whose definitions we do not include).
-Other formalisms, such as the publicly available \emph{DaeDaLus Data Description
-  Language}~\cite{daedalusrepo}, are better suited to specifying these.
+it is defined in terms of several primitive parsers (see
+\cref{sec:appendix1} for a comprehensive list, with types) whose
+definitions we are not included.
 %
-\cref{sec:appendix1} contains a list of the primitive parsers used,
-with their type signatures.
+Such primitives are arguably better specified in a formalisms such as
+the publicly available \emph{DaeDaLus Data Description
+  Language}~\cite{daedalusrepo}.
 
 % version:
 The specification supports PDF's latest version (2.0), including compressed objects and cross-reference streams.
@@ -666,8 +661,8 @@ enables backwards compatibility and
 allows parsers that don't specifically know about digital signatures to still
 parse them (albeit the digital signature itself is unvalidated and the document integrity is unknown).
 
-However, when we \emph{do} have a digital signatures and a supporting
-reader, things get complicated, as evidenced by Shadow Attacks
+However, digital signatures and attempted support by a reader can
+induce complications, such as Shadow Attacks
 \cite{mladenovTrillionDollarRefund2019,ndsssymposiumNDSS2021Shadow2021}.
 %
 To validate a PDF with a digital signature entails identifying at
@@ -688,11 +683,11 @@ critical semantic content, and a reader supporting validation and display of
 signed PDFs will need to keep track of the contents of the DOM at each
 signature.
 
-Our specification does \emph{not} support signature validation
-and it would be a non-trivial effort to do this.  However,
-this complication is going to be reasonable with our \ssp{} approach;
-whereas it is unclear whether the \dsp{} approach is able to support
-this at all.
+Our specification does \emph{not} validate signatures.
+%
+Supporting such a feature is non-trivial but feasible within the
+\ssp{} approach, but it is unclear to what extent it could be defined
+within the \dsp{} approach.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -702,10 +697,12 @@ this at all.
 % claim conformance to the spec:
 The specification as presented adheres to the latest PDF 2.0 ISO standard.
 % bugs found in the standard:
-In the process of producing the format definition described above, we
-raised multiple issues concerning the PDF standard with the PDF Association. 
-These issues are summarized in Table \ref{table:1}, with several issues already
-resolved by industry.
+In producing the format definition, we raised multiple issues
+concerning the PDF standard with the PDF Association (see Table
+\ref{table:1});
+%
+several of them have already been addressed by updating industrial PDF
+processors.
 
 \begin{table}[t]
 \centering
@@ -742,8 +739,8 @@ However, the opportunity for us is to use our specification to encode
 some of these common extensions and to explore if the combination of
 these extensions are truly unambiguous.
 
-With our specification based approach, it would not be onerous
-to refactor our specification to support different PDF variations:
+It would be feasible to refactor our specification to support
+different PDF variations, specifically:
 \begin{enumerate}
 \item strict PDF-2.0.
 \item strict PDF-2.0, validating everything.

@@ -1,13 +1,15 @@
 \section{Implementing The Specification}
 \label{sec:implementation}
 
-It would be a great story to say that we progressed by
+Ideally, the design would have been achieved by
+%
 (1) fully comprehending the Standard,
 (2) finding all problems with the Standard and clarifying them,
 (3) writing a formal specification of a PDF parser,
 then finally (4) implementing a PDF parser.
-
-But, being this is the real world, things happened more like this:
+%
+In practice, the design was achieved by the following the process:
+%
 (1) we implemented a basic PDF parser;
 (2) we added features one by one (updating the design often);
 (3) we became flummoxed by both the PDF Standard requirements and how this
@@ -20,14 +22,19 @@ And concurrently with all of the above steps, we were both learning the PDF
 Standard and finding problems and ambiguities with it.
 
 Our implemetation consists of a full PDF 2.0 parser.  It (safely) ignores
-Linearization data, and in hybrid-reference PDFs it ignores the conventional
-cross-reference tables designed for pre PDF 1.5 readers.  It processes
-signatures (as incremental updates), but it does not support validation of
-signatures.
+Linearization data;
+%
+when parsing hybrid-reference PDFs, it ignores conventional
+cross-reference tables provided for pre-1.5 readers.
+%
+It processes but does not validate signatures (as incremental
+updates).
 
-All the primitive parsers are defined in the DaeDaLus \cite{daedalusrepo}
+The primitive parsers are defined in the DaeDaLus~\cite{daedalusrepo}
 language.
+%
 Other pre-DOM processing is implemented in Haskell.
+%
 The implementation could be viewed as a relatively complete reference 
 implementation of PDF.
 However, in the implementation, 
