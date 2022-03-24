@@ -3,33 +3,30 @@
 \label{sec:intro}
 % background: conventional grammars:
 The task of parsing may be viewed as receiving a document in an
-unstructured, serialized form, and building its structured
-representation. Furthermore, this structured representation must be a
-faithful representation of the given document.
+unstructured, serialized form, and trustably building its structured
+representation.
 %
 For formats defined in conventional data-description languages that
 correspond closely to well-understood classes of the Chomsky hierarchy
 (i.e., context-free grammars, with regular expressions as a critical
-special case), trustworthy arguments fall out naturally from the
-definition of the format itself.
+special case), arguments of trustworthiness fall out naturally from
+the definition of the format itself.
 %
 This is in part due to the fact that in such formats, the structured
 representation of a large segment of a message is defined purely in
 terms of the structure of its segments.
 
 % real formats have DOMs, which involve names and references
-However, these key properties regarding context-freedom of a
-definition critically do not hold for many practical formats of
-interest.
-%
-Many such formats define a \emph{Document Object Model} (DOM): i.e., the
-result of parsing a document is a graph between objects, each
-of which may store a large set of fields.
+However, these key properties concerning context-freedom critically do
+not hold for many practical formats, which define a \emph{Document
+  Object Model} (DOM): i.e., the result of parsing a document is a
+graph between objects, each of which may contain values bound to a
+large set of fields.
 %
 In such formats, it is infeasible to provide context-free definitions
 of well-formedness because data objects that must satisfy critical
-relations may not occur contiguously in a document: related objects
-may not form a tree-like hierarchy in the input stream.
+relations may not occur contiguously: related objects may not form a
+tree-like hierarchy in the input stream.
 %
 Such formats typically introduce a notion of \emph{naming} or
 \emph{reference} by which objects may refer to each other.
@@ -49,23 +46,24 @@ central importance.
 In practice, their structure is quite complex in order to support
 practical demands.
 %
-e.g., PDF's \emph{cross-reference table} support
+E.g., PDF's \emph{cross-reference table} enables
 % 
 \textbf{(1)} the interpretation of documents to be strongly mutated by
 appending content, via \emph{incremental updates};
 %
-\textbf{(2)} the reference structure is compressed, via standardized
-but non-trivial algorithms applied to \emph{cross-reference streams},
-potentially combined with conventional cross-reference tables in
-\emph{hybrid reference files}; and
+\textbf{(2)} the reference structure to be compressed, via
+standardized but non-trivial algorithms applied to
+\emph{cross-reference streams}, potentially combined with conventional
+cross-reference tables in \emph{hybrid reference files}; and
 % 
 \textbf{(3)} large documents to be partially processed incrementally,
-using separated context, via \emph{linearization}. The parsing
-of this reference and context information
-occurs before DOM creation and DOM object validation, introducing a
-reliance on the correctness of all \emph{pre-DOM} processing.
+using separated context, via \emph{linearization}.
+%
+The parsing of this reference and context information occurs before
+DOM creation and DOM object validation, introducing a reliance on the
+correctness of all \emph{pre-DOM} processing.
 
-% security consequences::
+% security consequences:
 Difficulties in expressing the structure and semantics of references
 have resulted in critical security vulnerabilities.
 %
@@ -76,17 +74,18 @@ document.
 Recently discovered attacks that compromise the integrity and
 usability of digital
 signatures~\cite{rohlmannBreakingSpecificationPDF2021,
-mainkaShadowAttacksHiding2021} use maliciously crafted
-cross-reference tables. Our work has identified  
-additional exploits against digital signatures and PDF file integrity based on 
-our formalisms of PDF file structure and layout (CVE-2022-25641).  
+  mainkaShadowAttacksHiding2021} use maliciously crafted
+cross-reference tables. Our work has identified additional exploits
+against digital signatures and PDF file integrity based on our
+formalisms of PDF file structure and layout~\cite{cve-2022-25641}.
 
-Document \emph{cavities}---segments of a document that are not
-reflected in its semantic interpretation---may also store content that is
-completely unobservable to parser clients.
+Furthermore, such formats invite document \emph{cavities}---segments
+of a document that are not reflected in its semantic
+interpretation---may store content that is completely unobservable to
+parser clients.
 %
 Such cavities are a powerful mechanism for creating \emph{polyglot
-files} (i.e., files that belong to multiple, unexpected formats),
+  files} (i.e., files that unexpectedly belong to multiple formats),
 which themselves have been used in recent critical system security
 exploits~\cite{psychicPaper}.
 

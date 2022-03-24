@@ -123,33 +123,58 @@ extent dictionary of the cross-reference stream.
     \label{fig:ObjStm}
 \end{figure}
 
-Another optimization added by PDF 1.5 were object streams as illustrated in \cref{fig:ObjStm}.
-It can be appreciated that a large PDF will
-undoubtedly have many indirect objects and thus the repeated use of the object identifier pair with 
-\lstcd{obj} and \lstcd{endobj} keywords can become a significant size burden. Object streams are
-compressible text streams ``... in which a sequence of indirect objects may be stored, as an 
-alternative to their being stored at the outermost PDF file level''. 
-Syntactically object streams no longer uses the \lstcd{obj} and \lstcd{endobj} keywords and replace 
-the object identifier pair with a single object number and a byte offset within the object stream. 
-By using stream compression algorithms, this ASCII text data can be drastically reduced in size.
-If object streams are used, then cross-reference streams must also be used. However cross-reference 
-streams may also be used by themselves with the conventional Body section.
+PDF 1.5 enabled further optimization via object streams (\cref{fig:ObjStm}).
+%
+Practical large PDF's will typically contain many indirect objects;
+%
+thus the repeated use of the object identifier pair with \lstcd{obj}
+and \lstcd{endobj} keywords can consume a significant amount of space.
+%
+Object streams are compressible text streams ``\ldots in which a
+sequence of indirect objects may be stored, as an alternative to their
+being stored at the outermost PDF file level.''
+%
+In place of keywords and object-identifier pairs, object streams use a
+single object number and a byte offset within the object stream.
+%
+This ASCII text data can be aggressively reduced using algorithms for
+stream compression.
+%
+If object streams are used, then cross-reference streams must also be
+used.
+%
+However cross-reference streams may also be used by themselves with
+the conventional Body section.
 
-As noted above because both cross-reference streams and object streams are standard PDF streams, they 
-can benefit from stream compression. However this also means that parsers are   
-susceptible to ``ZIP bombs'' \todo{explain!} attacks, cycles in object references, and handling of semantic errors (invalid stream extent dictionaries) 
-during pre-DOM processing!
+As noted above, because both cross-reference streams and object
+streams are standard PDF streams, they can benefit from stream
+compression. However this also means that parsers are susceptible to
+attacks represented by compressed files of a tractable size whose
+uncompressed data is much larger and intractable to process (i.e.,
+``ZIP bombs''), cycles in object references, and handling of semantic
+errors (invalid stream extent dictionaries) during pre-DOM processing.
 
-A further complication is the concept of ``hybrid-reference'' PDF files, where both conventional cross-reference tables and cross-reference streams co-exist in the same PDF so as to provide some semblance of support for non-PDF 1.5 aware parsers. This complication is not addressed further in this paper.
+PDF structure is further complicated in the case of
+``hybrid-reference'' files, where both conventional cross-reference
+tables and cross-reference streams co-exist to support parsers unaware
+of PDF 1.5.
+%
+Such files are not addressed in this work.
 
-There is no limit to the number or types of incremental updates that can be added to a PDF file. Later
-updates may also ``undo'' changes from any previous incremental updates by restoring (changing back to in-use)
-previously feed objects. For incremental updates, PDF object numbering 
-does not have to be sequential, with skipped object numbers assumed to be on
-the free list (although this is not stated explicitly in the PDF standard).
+The number and types of incremental updates that can be added to a
+file are unlimited.
+%
+Later updates may ``undo'' changes from any previous incremental
+updates by restoring (changing back to in-use) objects previously
+feed.
+%
+PDF objects need not be numbered sequentially, with skipped object
+numbers assumed to be on the free list (although the standard does not
+state this explicitly).
 
-In effect, incremental updates form a timeline of all changes made to a PDF, with parsing starting
-at the end of the file with the most recent change back to the original document at the to of the file.
+In effect, incremental updates form a timeline of all changes made to
+a PDF, with parsing starting at the end of the file with the most
+recent change back to the original document at the to of the file.
 
 \subsection{Root Causes of PDF Complexity}
 \label{sec:rootcause}
@@ -217,16 +242,18 @@ Given our recent points about the \emph{PDF Trust Chain}~\cref{sec:trust-chain},
 surprise us that some PDF attack vectors involve aspects of breaking the \emph{DOM} abstraction.
 I.e., the root cause occurs pre-DOM.
 
-{\bf{Supply Chain attacks}} are a generalization of {\bf{Shadow Attacks}} which were coined by Mainka 
-et al.~\cite{mainkaShadowAttacksHiding2021} whereby an attacker infiltrates a workflow and 
-maliciously manipulates a document in some way. This manipulation may be entirely syntactically valid.
-Only later in the workflow, possibly after a 
-digital signature is applied or an official approval step, the malicious data is 
-activated. In the case of digitally-signed documents, this severely undermines confidence and trust
-in digital signature technology.
+\emph{Supply Chain attacks} generalize \emph{Shadow
+  Attacks}~\cite{mainkaShadowAttacksHiding2021}, wherein an attacker
+infiltrates a workflow and manipulates a document maliciously,
+potentially creating a document that is entirely valid.
+%
+Only later in the workflow, possibly after a digital signature is
+applied or an official approval step, the malicious data is
+activated.
+%
+In the case of digitally-signed documents, this severely undermines
+confidence and trust in digital signature technology.
 
-\todo{at this point, have we defined parser differentials and polyglots? 
-"Parser differential" is bottom of page 2, but NO for polyglot - it's a little below }
 \todo{we are using both 'parser differential' and ``ambiguous'': use one. 
 They are different but related: In the intro we define ambiguities as ONE cause of parser 
 differentials. In the PDF section I already wrote about "differential by design" caused 
@@ -234,35 +261,50 @@ by Linearized PDF. Is a parser differential necessarily something that a human c
 I would assert it is as you define below - so an ambiguity can also lead to a vuln which 
 may not be noticeable (secret leak, etc). }
 
-{\bf{Parser Differentials}} are a real threat as attackers leverage differences in output
-to present different information to different individuals, where the individual might be a human
-or a machine. Parser differentials arise due to a combination of parser weaknesses, 
-parser permissiveness, ambiguities, and unexpected input. In the case of PDF pre-DOM file structure, we have been
-able to easily demonstrate parser differentials  
-\todob{put small example here or ...? Could reference this PoC: https://github.com/pdf-association/safedocs/tree/main/Miscellaneous%20Targeted%20Test%20PDFs#dual-startxrefpdf
-or the vuln we discovered that is quoted back in the intro }
+\emph{Parser Differentials} are a real threat as attackers leverage
+differences in output to present different information to different
+individuals, where the individual might be a human or a
+machine. Parser differentials arise due to a combination of parser
+weaknesses, parser permissiveness, ambiguities, and unexpected
+input. In the case of PDF pre-DOM file structure, we have been able to
+easily demonstrate parser differentials \todob{put small example here
+  or ...? Could reference this PoC:
+  https://github.com/pdf-association/safedocs/tree/main/Miscellaneous%20Targeted%20Test%20PDFs#dual-startxrefpdf
+  or the vuln we discovered that is quoted back in the intro }
 
-{\bf{Polyglots}} are a potential threat in any system or workflow which relies on different parsers
-at different stages. If a firewall product determines a file to be of file type \emph{X} and then only 
-scans for vulnerabilities relevant to file type \emph{X}, but later software decides the same file 
-is file type \emph{Y}, an organization is then vulnerable.
-Polyglots arise from the creative use of cavities, permissive implementations, 
-and other blind spots in a file format specification where arbitrary data can be placed 
-that does impact processing (e.g. in comments or strings, in freed or unreferenced objects, etc.).
+\emph{Polyglots} are a potential threat in any system or workflow
+which relies on different parsers at different stages. If a firewall
+product determines a file to be of file type \emph{X} and then only
+scans for vulnerabilities relevant to file type \emph{X}, but later
+software decides the same file is file type \emph{Y}, an organization
+is then vulnerable.  Polyglots arise from the creative use of
+cavities, permissive implementations, and other blind spots in a file
+format specification where arbitrary data can be placed that does
+impact processing (e.g. in comments or strings, in freed or
+unreferenced objects, etc.).
 
-{\bf{Denial of Service (DoS)}} is of increasing concern to the PDF industry, with many PDF services
-and products utilizing cloud-based processing. In cases like large-scale automated invoice 
-processing, DoS attacks can also incur additional expenses as well as inconvenience for an organization 
-as exception-handling by human operators may be invoked.  
+\emph{Denial of Service (DoS)} is of increasing concern to PDF users,
+with many PDF services and products utilizing cloud-based processing.
+%
+In cases such as large-scale automated invoice processing, DoS attacks
+can also incur additional expenses as well as inconvenience for an
+organization because exceptions may need to be handled by human
+operators.
 
-It should also be no surprise that due to the complexity and subtleties of the PDF standard described above,
-extant data exhibits many errors in cross-reference tables and related pre-DOM context information.
-To date, there has not been a comprehensive analysis of PDF file structure faults in extant data
-caused by defects in PDF writers. One core reason is that dedicated tooling is lacking that reliably reports
-all technical variations from the PDF standard. However analysis of open-source PDF parser code bases
-does highlight tools with varying degrees of lightweight reporting, however all exhibit permissive features related
-to pre-DOM processing:
-
+% many errors exist:
+Due to the complexity and subtleties of the PDF standard described
+above, extant data exhibits many errors in cross-reference tables and
+related pre-DOM context information.
+%
+To date, there has not been a comprehensive analysis of PDF file
+structure faults in extant data caused by defects in PDF writers, due
+in part to a lack of tooling that comprehensively reports all
+variations from the standard.
+%
+However, analysis of open-source PDF parser code bases does highlight
+tools with varying degrees of lightweight reporting, however all
+exhibit permissive features related to pre-DOM processing:
+%
 \begin{itemize}
     \item deviation from the required 20-byte fixed cross-reference table entry, with support for
     19- and 21-byte variations due to additional white space or incorrect line endings;
