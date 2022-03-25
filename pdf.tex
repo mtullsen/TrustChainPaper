@@ -81,7 +81,7 @@ The \emph{Trailer} section is at the very end of every PDF file.
 It is defined as the end-of-file comment line \lstcd{\%\%EOF} immediately
 preceded by the \lstcd{startxref} keyword followed by the file offset (in ASCII as a decimal) to 
 the cross-reference table (i.e. the byte position of the \lstcd{xref} keyword 
-from the the \lstcd{\%} of \lstcd{\%PDF-x.y}). Prior to this (but technically 
+from the \lstcd{\%} of \lstcd{\%PDF-x.y}). Prior to this (but technically 
 defined as being immediately \emph{after} the cross-reference table) is the trailer dictionary
 identified by just the \lstcd{trailer} keyword, rather than the \lstcd{obj} and \lstcd{endobj}
 keywords used in the PDF Body section.
@@ -191,7 +191,7 @@ PDF objects need not be numbered sequentially, with skipped object
 numbers assumed to be on the free list (although the standard does not
 state this explicitly).
 
-In effect, incremental updates form a timeline of all changes made to
+In effect, incremental updates form a time-line of all changes made to
 a PDF, with parsing starting at the end of the file with the most
 recent change back to the original document at the beginning of the
 file.
@@ -207,7 +207,7 @@ so what makes PDF processing so much more complex?
 
 As described above, PDF uses random access to byte offsets to then parse lines of text,
 which may then switch to binary data or fixed-length record parsing. 
-In some, but not all, cases the end of an object can be known apriori, but in the most common case 
+In some, but not all, cases the end of an object can be known a priori, but in the most common case 
 of conventional cross-reference tables, only forward parsing can determine the end of an object. 
 This gives rise to a phenomena we call \emph{cavities} where not every byte in a PDF file is parsed.
 Such cavities can be used to hold data in an alternate format giving rise to polyglots, or potentially
@@ -222,7 +222,7 @@ support better file reconstruction and recovery in the event of later data corru
 However if these requirements are never checked or enforced then it is possible to use them as attack
 vectors.  
 The PDF specification also requires multiple
-sublanguages and computation (such as stream decompression).
+sub-languages and computation (such as stream decompression).
 
 If a PDF file accidentally or maliciously fails to adhere to this set of complex PDF file structure
 rules, or an implementation has bugs, PDF parsers will typically silently attempt to recover

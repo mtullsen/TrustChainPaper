@@ -12,16 +12,17 @@ In practice, the design was achieved by the following the process:
 %
 (1) we implemented a basic PDF parser;
 (2) we added features one by one (updating the design often);
-(3) we became flummoxed by both the PDF Standard requirements and how this
-should impact our implementation of pre-DOM processing, thus motivated;
-(4) we wrote the Pre-DOM specification;
+(3) we became somewhat confounded as to what PDF Standard required
+and how this should impact our implementation of pre-DOM processing, thus
+motivated ...,
+(4) we wrote the Pre-DOM specification; and finally
 (5) we used the specification as a guide to re-writing some of
 the subtle parts of pre-DOM processing in our implementation.
 %
 And concurrently with all of the above steps, we were both learning the PDF
 Standard and finding problems and ambiguities with it.
 
-Our implemetation consists of a full PDF 2.0 parser.  It (safely) ignores
+Our implementation consists of a full PDF 2.0 parser.  It (safely) ignores
 Linearization data;
 %
 when parsing hybrid-reference PDFs, it ignores conventional

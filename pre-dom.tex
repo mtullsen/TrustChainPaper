@@ -77,7 +77,7 @@ In general, monads are a rich class of parameterized types that
 describe a surprising variety of data and computations.
 %
 For the purposes of this paper, it suffices to view a monad as a
-construct that allows us to to sequence effectful \emph{actions}
+construct that allows us to sequence effectful \emph{actions}
 in a purely functional manner;
 %
 effects can be global variables (or mutable state), exceptions, I/O, and etc.
@@ -678,7 +678,7 @@ the incremental update processing and then the information is gone as
 it is unneeded by subsequent stages.
 % 
 This was a reasonable design decision until ``incremental updates'' were
-inadvisedly repurposed for signatures.  Now an incremental update has
+unadvisedly repurposed for signatures.  Now an incremental update has
 critical semantic content, and a reader supporting validation and display of
 signed PDFs will need to keep track of the contents of the DOM at each
 signature.
@@ -774,6 +774,6 @@ including %
 \textbf{(1)} processing linearization data and ensuring consistency
 with the non-linearized DOM; %
 \textbf{(2)} processing both ``branches'' of a hybrid PDF and ensuring
-some form of constency between pre 1.5 readers and 1.5+ readers; %
+some form of consistency between pre 1.5 readers and 1.5+ readers; %
 \textbf{(3)} adding signature validation, see
 \cref{sec:updates-and-signatures}.
