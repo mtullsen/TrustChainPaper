@@ -1,6 +1,6 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.12.24)  23 MAR 2022 00:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.12.24)  25 MAR 2022 00:11
 entering extended mode
- restricted \write18 enabled.
+ \write18 enabled.
  %&-line parsing enabled.
 **TCPaperDiffs.tex
 (./TCPaperDiffs.tex
@@ -592,7 +592,7 @@ LaTeX Info: Redefining \addtolength on input line 81.
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/tools/shellesc.sty
 Package: shellesc 2019/11/08 v1.0c unified shell escape interface for LaTeX
-Package shellesc Info: Restricted shell escape enabled on input line 77.
+Package shellesc Info: Unrestricted shell escape enabled on input line 75.
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/ifplatform/ifplatform.sty
 Package: ifplatform 2017/10/13 v0.4a Testing for the operating system
@@ -620,11 +620,14 @@ Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
 (/usr/local/texlive/2021/texmf-dist/tex/generic/iftex/ifluatex.sty
 Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
 )
+runsystem(uname -s > "TCPaperDiffs.w18")...executed.
 
-Package ifplatform Warning: 
-    shell escape is disabled, so I can only detect \ifwindows.
 
-) (/usr/local/texlive/2021/texmf-dist/tex/generic/xstring/xstring.sty
+(./TCPaperDiffs.w18)
+runsystem(rm -- "TCPaperDiffs.w18")...executed.
+
+)
+(/usr/local/texlive/2021/texmf-dist/tex/generic/xstring/xstring.sty
 (/usr/local/texlive/2021/texmf-dist/tex/generic/xstring/xstring.tex
 \integerpart=\count318
 \decimalpart=\count319
@@ -655,19 +658,9 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \@float@every@listing=\toks37
 \c@listing=\count323
 )
-runsystem(mkdir -p _minted-TCPaperDiffs)...disabled (restricted).
+runsystem(mkdir -p _minted-TCPaperDiffs)...executed.
 
 
-
-! Package minted Error: You must invoke LaTeX with the -shell-escape flag.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.14 \usepackage
-                {csquotes}
-? 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/csquotes/csquotes.sty
 Package: csquotes 2021-02-22 v5.2l context-sensitive quotations (JAW)
 \csq@reset=\count324
@@ -1010,43 +1003,34 @@ Package filecontents Warning: This package is obsolete. Disabling it and
 Package: ulem 2019/11/18
 \ULdepth=\dimen328
 )
-runsystem(which pygmentize && touch TCPaperDiffs.aex)...disabled (restricted).
+runsystem(which pygmentize && touch TCPaperDiffs.aex)...executed.
 
+runsystem(rm TCPaperDiffs.aex)...executed.
 
-
-! Package minted Error: You must have `pygmentize' installed to use this packag
-e.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.218 \begin{document}
-                      
-? 
 Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... none found.
+
 (./TCPaperDiffs.aux)
 \openout1 = `TCPaperDiffs.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 218.
-LaTeX Font Info:    ... okay on input line 218.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 221.
+LaTeX Font Info:    ... okay on input line 221.
 
 -- Lines per column: 56 (exact).
 (/usr/local/texlive/2021/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
@@ -1090,7 +1074,7 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count381
-Package hyperref Info: Link coloring OFF on input line 218.
+Package hyperref Info: Link coloring OFF on input line 221.
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
@@ -1104,1138 +1088,1526 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count382
 )
-LaTeX Info: Redefining \ref on input line 218.
-LaTeX Info: Redefining \pageref on input line 218.
-LaTeX Info: Redefining \nameref on input line 218.
+LaTeX Info: Redefining \ref on input line 221.
+LaTeX Info: Redefining \pageref on input line 221.
+LaTeX Info: Redefining \nameref on input line 221.
  (./TCPaperDiffs.out) (./TCPaperDiffs.out)
 \@outlinefile=\write6
 \openout6 = `TCPaperDiffs.out'.
 
 LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 2
-35.
+38.
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
 LaTeX Font Info:    Trying to load font information for OMS+pcr on input line 2
-35.
+38.
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/psnfss/omspcr.fd
 File: omspcr.fd 
 )
 LaTeX Font Info:    Font shape `OMS/pcr/m/n' in size <9> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 235.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 238.
 
-Underfull \hbox (badness 1484) in paragraph at lines 404--423
-|   []   |   []   [][]|   []   []\OT1/ptm/m/n/10 our work is []|   []   |   [] 
-  |   []   |   []
+Underfull \hbox (badness 4084) in paragraph at lines 318--333
+[]\OT1/ptm/m/n/10 build-ing its struc-tured rep-re-sen-ta-tion. []|   []   |   
+[]
+ []
+
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.407 }
+       
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.407 }
+       
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.407 }
+       
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.407 }
+       
+? 
+
+Underfull \hbox (badness 2119) in paragraph at lines 409--418
+[]|   []   |   []   |   []   |   []   |   []   []\OT1/ptm/m/it/10 cav-i-ties\OT
+1/ptm/m/n/10 ---
  []
 
 [1{/usr/local/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 
 ]
+Underfull \hbox (badness 1484) in paragraph at lines 435--454
+|   []   |   []   [][]|   []   []\OT1/ptm/m/n/10 our work is []|   []   |   [] 
+  |   []   |   []
+ []
+
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.477 for understanding the intricacies of }
-                                            \DIFdelend \DIFaddbegin \DIFadd{...
+l.513 the }
+           \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.513 the }
+           \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.513 the }
+           \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.513 the }
+           \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.513 the }
+           \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.513 the }
+           \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.513 the }
+           \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.513 the }
+           \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.515 presents }
+                \DIFaddend PDF\DIFdelbegin \DIFdel{format and its processors...
 
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.477 for understanding the intricacies of }
-                                            \DIFdelend \DIFaddbegin \DIFadd{...
+l.515 presents }
+                \DIFaddend PDF\DIFdelbegin \DIFdel{format and its processors...
 
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.477 for understanding the intricacies of }
-                                            \DIFdelend \DIFaddbegin \DIFadd{...
+l.515 presents }
+                \DIFaddend PDF\DIFdelbegin \DIFdel{format and its processors...
 
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.477 for understanding the intricacies of }
-                                            \DIFdelend \DIFaddbegin \DIFadd{...
+l.515 presents }
+                \DIFaddend PDF\DIFdelbegin \DIFdel{format and its processors...
 
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.479 explains the }
-                    \DIFaddend PDF \DIFdelbegin \DIFdel{pre-DOM parsing;
+l.519 presents }
+                \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.479 explains the }
-                    \DIFaddend PDF \DIFdelbegin \DIFdel{pre-DOM parsing;
+l.519 presents }
+                \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.479 explains the }
-                    \DIFaddend PDF \DIFdelbegin \DIFdel{pre-DOM parsing;
+l.519 presents }
+                \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.479 explains the }
-                    \DIFaddend PDF \DIFdelbegin \DIFdel{pre-DOM parsing;
+l.519 presents }
+                \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.486 the PDF format and its processors}
-                                        \DIFdelend \DIFaddbegin \DIFadd{\mbo...
-
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.486 the PDF format and its processors}
-                                        \DIFdelend \DIFaddbegin \DIFadd{\mbo...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.486 the PDF format and its processors}
-                                        \DIFdelend \DIFaddbegin \DIFadd{\mbo...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.486 the PDF format and its processors}
-                                        \DIFdelend \DIFaddbegin \DIFadd{\mbo...
-
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.489 complexities of actually }
-                                \emph{\DIFadd{parsing}} \DIFadd{the PDF form...
+l.522 complexities of actually }
+                                \emph{\DIFadd{parsing}} \DIFadd{the PDF format;
 
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.489 complexities of actually }
-                                \emph{\DIFadd{parsing}} \DIFadd{the PDF form...
+l.522 complexities of actually }
+                                \emph{\DIFadd{parsing}} \DIFadd{the PDF format;
 
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.489 complexities of actually }
-                                \emph{\DIFadd{parsing}} \DIFadd{the PDF form...
+l.522 complexities of actually }
+                                \emph{\DIFadd{parsing}} \DIFadd{the PDF format;
 
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.489 complexities of actually }
-                                \emph{\DIFadd{parsing}} \DIFadd{the PDF form...
+l.522 complexities of actually }
+                                \emph{\DIFadd{parsing}} \DIFadd{the PDF format;
 
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.497 }
-       \DIFaddend \Cref{sec:assessing} assesses our approach;
+l.526 present and analyze }
+                           \DIFaddend our
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.497 }
-       \DIFaddend \Cref{sec:assessing} assesses our approach;
+l.526 present and analyze }
+                           \DIFaddend our
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.497 }
-       \DIFaddend \Cref{sec:assessing} assesses our approach;
+l.526 present and analyze }
+                           \DIFaddend our
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.497 }
-       \DIFaddend \Cref{sec:assessing} assesses our approach;
+l.526 present and analyze }
+                           \DIFaddend our
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.531 assesses our approach}
+                            \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.531 assesses our approach}
+                            \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.531 assesses our approach}
+                            \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.531 assesses our approach}
+                            \DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.533 discusses our implementation}
+                                   \DIFaddend ;
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.533 discusses our implementation}
+                                   \DIFaddend ;
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.533 discusses our implementation}
+                                   \DIFaddend ;
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.533 discusses our implementation}
+                                   \DIFaddend ;
 ? 
 
-Underfull \hbox (badness 2035) in paragraph at lines 470--501
- []\OT1/ptm/m/it/10 Organization: [] \OT1/ptm/m/n/10 The rest of this pa-per is
- or-ga-nized
+Underfull \hbox (badness 2035) in paragraph at lines 504--537
+ []\OT1/ptm/m/it/10 Organization: [] |   []   |   []   |   []   |   []   |   []
+   |   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 470--501
-\OT1/ptm/m/n/10 as fol-lows[]|   []   [][]|   []   [][]|   []   |   []   |   []
-   |   []
+Underfull \hbox (badness 10000) in paragraph at lines 504--537
+|   []   |   []   [][]|   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 470--501
-|   []   [][]|   []   |   []   []\OT1/ptm/m/n/10 PDF []|   []   |   []
+Underfull \hbox (badness 2111) in paragraph at lines 504--537
+|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 7796) in paragraph at lines 470--501
-[][]|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
+Underfull \hbox (badness 4543) in paragraph at lines 504--537
+|   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 470--501
-|   []   [][]|   []   |   []   |   []
+Underfull \hbox (badness 2150) in paragraph at lines 504--537
+|   []   |   []   |   [][][]|   []   |   []   |   []   |   []   |   [][]\OT1/pt
+m/m/n/10 ;
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 470--501
-|   []   |   []   |   []   |   []   |   []   |   []   |   []
+Underfull \hbox (badness 10000) in paragraph at lines 504--537
+[]|   []   [][]|   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 3078) in paragraph at lines 470--501
-|   [][][]|   []   |   []   |   []   |   []   |   []
+Underfull \hbox (badness 8151) in paragraph at lines 504--537
+|   []   |   []   |   []   |   []   [][]|   [][] []|   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 470--501
-|   []   |   []   |   []   [][]|   [][] []|   []   |   []   |   [][]\OT1/ptm/m/
-n/10 ;
+Underfull \hbox (badness 10000) in paragraph at lines 504--537
+|   []   |   []   |   []   |   []   []\OT1/ptm/m/n/10 our
  []
 
 
-Underfull \hbox (badness 4366) in paragraph at lines 470--501
-\OT1/ptm/m/n/10 Sec-tion []IV[] presents our spec-i-fi-ca-tion of ref-er-ence i
-n
+Underfull \hbox (badness 2111) in paragraph at lines 504--537
+\OT1/ptm/m/n/10 spec-i-fi-ca-tion of ref-er-ence in de-tail; []|   []   |   []
+ []
+
+
+Underfull \hbox (badness 3657) in paragraph at lines 504--537
+|   [][][]|   []   |   []   |   [][]\OT1/ptm/m/n/10 ; Sec. []VII[]
  []
 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.573 }
+l.609 }
        %DIFDELCMD <
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.573 }
+l.609 }
        %DIFDELCMD <
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.573 }
+l.609 }
        %DIFDELCMD <
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.573 }
+l.609 }
        %DIFDELCMD <
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.605 }
+l.641 }
        %DIFDELCMD < \item %%%
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.605 }
+l.641 }
        %DIFDELCMD < \item %%%
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.605 }
+l.641 }
        %DIFDELCMD < \item %%%
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.605 }
+l.641 }
        %DIFDELCMD < \item %%%
 ? 
 [2pdfTeX warning (ext4): destination with the same identifier (name{subsection.
 1.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   
-l.614 \DIFdel
-             {Stage 6: Render the validated DOM. Here the validated DOM, or ...
+l.643 \DIFdel
+             {Stage 5: Validate candidate DOM.  This stage takes the candida...
 ]
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.650 }
+l.686 }
        %DIFDELCMD <
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.650 }
+l.686 }
        %DIFDELCMD <
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.650 }
+l.686 }
        %DIFDELCMD <
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.650 }
+l.686 }
        %DIFDELCMD <
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.689 }
+l.725 }
        %DIFDELCMD <
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.689 }
+l.725 }
        %DIFDELCMD <
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.689 }
+l.725 }
        %DIFDELCMD <
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.689 }
+l.725 }
        %DIFDELCMD <
 ? 
 pdfTeX warning (ext4): destination with the same identifier (name{section.2}) h
 as been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.702 ...: Structure, Complexity, Vulnerabilities}
+l.738 ...: Structure, Complexity, Vulnerabilities}
                                                   
-<figures/pdf-structure.png, id=182, 333.3884pt x 468.89464pt>
+<figures/pdf-structure.png, id=189, 333.3884pt x 468.89464pt>
 File: figures/pdf-structure.png Graphic file (type png)
 <use figures/pdf-structure.png>
-Package pdftex.def Info: figures/pdf-structure.png  used on input line 710.
+Package pdftex.def Info: figures/pdf-structure.png  used on input line 746.
 (pdftex.def)             Requested size: 163.79846pt x 230.38284pt.
  [3 <./figures/pdf-structure.png>]
-<figures/pdf-structure-incremental.png, id=194, 339.41089pt x 669.78804pt>
+<figures/pdf-structure-incremental.png, id=201, 339.41089pt x 669.78804pt>
 File: figures/pdf-structure-incremental.png Graphic file (type png)
 <use figures/pdf-structure-incremental.png>
 Package pdftex.def Info: figures/pdf-structure-incremental.png  used on input l
-ine 789.
+ine 830.
 (pdftex.def)             Requested size: 163.79846pt x 323.23203pt.
-<figures/xrefstm.png, id=196, 419.85428pt x 263.26929pt>
+
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.838 normally append }
+                       \DIFdelend \DIFaddbegin \DIFadd{Each incremental upda...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.838 normally append }
+                       \DIFdelend \DIFaddbegin \DIFadd{Each incremental upda...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.838 normally append }
+                       \DIFdelend \DIFaddbegin \DIFadd{Each incremental upda...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.838 normally append }
+                       \DIFdelend \DIFaddbegin \DIFadd{Each incremental upda...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.844 }
+       \DIFaddend The newly added incremental update trailer dictionary \DIF...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.844 }
+       \DIFaddend The newly added incremental update trailer dictionary \DIF...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.844 }
+       \DIFaddend The newly added incremental update trailer dictionary \DIF...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.844 }
+       \DIFaddend The newly added incremental update trailer dictionary \DIF...
+
+? 
+<figures/xrefstm.png, id=204, 419.85428pt x 263.26929pt>
 File: figures/xrefstm.png Graphic file (type png)
 <use figures/xrefstm.png>
-Package pdftex.def Info: figures/xrefstm.png  used on input line 807.
+Package pdftex.def Info: figures/xrefstm.png  used on input line 857.
 (pdftex.def)             Requested size: 163.79846pt x 102.71075pt.
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.873 Like }
+            \DIFdelend \DIFaddbegin \DIFadd{(see \mbox{%DIFAUXCMD
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.873 Like }
+            \DIFdelend \DIFaddbegin \DIFadd{(see \mbox{%DIFAUXCMD
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.873 Like }
+            \DIFdelend \DIFaddbegin \DIFadd{(see \mbox{%DIFAUXCMD
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.873 Like }
+            \DIFdelend \DIFaddbegin \DIFadd{(see \mbox{%DIFAUXCMD
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.877 As with }
+               \DIFaddend all streams in PDF, cross-reference streams may \D...
 
-Underfull \hbox (badness 2326) in paragraph at lines 812--821
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.877 As with }
+               \DIFaddend all streams in PDF, cross-reference streams may \D...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.877 As with }
+               \DIFaddend all streams in PDF, cross-reference streams may \D...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.877 As with }
+               \DIFaddend all streams in PDF, cross-reference streams may \D...
+
+? 
+
+Underfull \hbox (badness 2326) in paragraph at lines 862--887
 []\OT1/ptm/m/n/10 As pre-vi-ously men-tioned, PDF 1.5 in-tro-duced cross-
  []
 
-[4 <./figures/pdf-structure-incremental.png> <./figures/xrefstm.png>]
-<figures/ObjStm.png, id=206, 440.07268pt x 462.87215pt>
+[4 <./figures/pdf-structure-incremental.png>]
+<figures/ObjStm.png, id=213, 440.07268pt x 462.87215pt>
 File: figures/ObjStm.png Graphic file (type png)
 <use figures/ObjStm.png>
-Package pdftex.def Info: figures/ObjStm.png  used on input line 824.
+Package pdftex.def Info: figures/ObjStm.png  used on input line 890.
 (pdftex.def)             Requested size: 163.79846pt x 172.28412pt.
 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.910 }
-       %DIFDELCMD <
+l.900 undoubtedly have }
+                        \DIFdelend \DIFaddbegin \DIFadd{enabled further opti...
+
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.910 }
-       %DIFDELCMD <
+l.900 undoubtedly have }
+                        \DIFdelend \DIFaddbegin \DIFadd{enabled further opti...
+
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.910 }
-       %DIFDELCMD <
+l.900 undoubtedly have }
+                        \DIFdelend \DIFaddbegin \DIFadd{enabled further opti...
+
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.910 }
-       %DIFDELCMD <
+l.900 undoubtedly have }
+                        \DIFdelend \DIFaddbegin \DIFadd{enabled further opti...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.905 ...ical large PDF's will typically contain }
+                                                  \DIFaddend many indirect o...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.905 ...ical large PDF's will typically contain }
+                                                  \DIFaddend many indirect o...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.905 ...ical large PDF's will typically contain }
+                                                  \DIFaddend many indirect o...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.905 ...ical large PDF's will typically contain }
+                                                  \DIFaddend many indirect o...
+
+? 
+[5 <./figures/xrefstm.png> <./figures/ObjStm.png>]
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1021 }
+        %DIFDELCMD <
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1021 }
+        %DIFDELCMD <
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1021 }
+        %DIFDELCMD <
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1021 }
+        %DIFDELCMD <
 ? 
 
-Underfull \hbox (badness 1924) in paragraph at lines 898--911
+Underfull \hbox (badness 1924) in paragraph at lines 1009--1022
 []|   []   |   []   |   []   |   []   |   []   |   []   |   []   [][]|   []   |
    []
  []
 
-[5 <./figures/ObjStm.png>]pdfTeX warning (ext4): destination with the same iden
-tifier (name{subsection.2.2}) has been already used, duplicate ignored
+pdfTeX warning (ext4): destination with the same identifier (name{subsection.2.
+2}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.959 ...subsection{Root Causes of PDF Complexity}
+l.1070 ...ubsection{Root Causes of PDF Complexity}
                                                    [6]
-<figures/Stages.png, id=235, 397.485pt x 543.31554pt>
-File: figures/Stages.png Graphic file (type png)
-<use figures/Stages.png>
-Package pdftex.def Info: figures/Stages.png  used on input line 1099.
-(pdftex.def)             Requested size: 201.60077pt x 275.57013pt.
-
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.1110 }
-        
+l.1141 whereby }
+                \DIFdelend \DIFaddbegin \emph{\DIFadd{Supply Chain attacks}}...
+
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.1110 }
-        
+l.1141 whereby }
+                \DIFdelend \DIFaddbegin \emph{\DIFadd{Supply Chain attacks}}...
+
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1110 }
-        
+l.1141 whereby }
+                \DIFdelend \DIFaddbegin \emph{\DIFadd{Supply Chain attacks}}...
+
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1110 }
-        
+l.1141 whereby }
+                \DIFdelend \DIFaddbegin \emph{\DIFadd{Supply Chain attacks}}...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1144 , wherein }
+                  \DIFaddend an attacker
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1144 , wherein }
+                  \DIFaddend an attacker
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1144 , wherein }
+                  \DIFaddend an attacker
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1144 , wherein }
+                  \DIFaddend an attacker
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1181 }
+        \DIFaddend .
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1181 }
+        \DIFaddend .
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1181 }
+        \DIFaddend .
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1181 }
+        \DIFaddend .
 ? 
 
-Underfull \hbox (badness 3407) in paragraph at lines 1119--1126
-|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
+Underfull \hbox (badness 1590) in paragraph at lines 1166--1182
+[][]|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
+
+Underfull \hbox (badness 1472) in paragraph at lines 1166--1182
+|   []   |   []   |   []   |   []   |   []   |   []   |   [][][]|   []   |   []
+
+ []
+
+
+Underfull \hbox (badness 2644) in paragraph at lines 1166--1182
+|   []   []\OT1/ptm/m/n/10 pre-DOM []|   []   |   []   |   []   |   []   |   []
+   |   []   |   []
+ []
+
+<figures/Stages.png, id=243, 397.485pt x 543.31554pt>
+File: figures/Stages.png Graphic file (type png)
+<use figures/Stages.png>
+Package pdftex.def Info: figures/Stages.png  used on input line 1262.
+(pdftex.def)             Requested size: 201.60077pt x 275.57013pt.
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.1132 }
-        \item \textbf{\DIFadd{Stage 5}}\DIFadd{: Validate candidate DOM.  Th...
-
+l.1273 }
+        \DIFaddend %
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.1132 }
-        \item \textbf{\DIFadd{Stage 5}}\DIFadd{: Validate candidate DOM.  Th...
-
+l.1273 }
+        \DIFaddend %
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1132 }
-        \item \textbf{\DIFadd{Stage 5}}\DIFadd{: Validate candidate DOM.  Th...
-
+l.1273 }
+        \DIFaddend %
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1132 }
-        \item \textbf{\DIFadd{Stage 5}}\DIFadd{: Validate candidate DOM.  Th...
-
+l.1273 }
+        \DIFaddend %
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1280 ) }
+          \DIFdelend \DIFaddbegin \begin{itemize}
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1280 ) }
+          \DIFdelend \DIFaddbegin \begin{itemize}
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1280 ) }
+          \DIFdelend \DIFaddbegin \begin{itemize}
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1280 ) }
+          \DIFdelend \DIFaddbegin \begin{itemize}
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1280 ) }
+          \DIFdelend \DIFaddbegin \begin{itemize}
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1280 ) }
+          \DIFdelend \DIFaddbegin \begin{itemize}
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1280 ) }
+          \DIFdelend \DIFaddbegin \begin{itemize}
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1280 ) }
+          \DIFdelend \DIFaddbegin \begin{itemize}
 ? 
 [7 <./figures/Stages.png>]
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.1138 ) }
-          \DIFdelend \DIFaddbegin \DIFadd{The candidate DOM consists of a ma...
+l.1301  }
+         \item \textbf{\DIFadd{Stage 5}}\DIFadd{: Validate that the candidat...
 
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.1138 ) }
-          \DIFdelend \DIFaddbegin \DIFadd{The candidate DOM consists of a ma...
+l.1301  }
+         \item \textbf{\DIFadd{Stage 5}}\DIFadd{: Validate that the candidat...
 
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1138 ) }
-          \DIFdelend \DIFaddbegin \DIFadd{The candidate DOM consists of a ma...
+l.1301  }
+         \item \textbf{\DIFadd{Stage 5}}\DIFadd{: Validate that the candidat...
 
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1138 ) }
-          \DIFdelend \DIFaddbegin \DIFadd{The candidate DOM consists of a ma...
+l.1301  }
+         \item \textbf{\DIFadd{Stage 5}}\DIFadd{: Validate that the candidat...
 
 ? 
 
-Underfull \hbox (badness 2582) in paragraph at lines 1132--1146
-|   []   [][]|   []   |   []   |   []   |   []   |   []   |   []
- []
-
-
-Underfull \hbox (badness 4518) in paragraph at lines 1132--1146
-|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
- []
-
-
-Underfull \hbox (badness 3375) in paragraph at lines 1132--1146
-|   []   [][]|   []   |   []   |   []   |   []   |   []   |   []
+Underfull \hbox (badness 2671) in paragraph at lines 1315--1317
+[][]|   []   |   [][][]|   []   |   []   |   []   |   []   |   []   |   []   | 
+  []
  []
 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.1158 )}
-         \DIFdelend \DIFaddbegin
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1158 )}
-         \DIFdelend \DIFaddbegin
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1158 )}
-         \DIFdelend \DIFaddbegin
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1158 )}
-         \DIFdelend \DIFaddbegin
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1172 }
+l.1343 }
         
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.1172 }
+l.1343 }
         
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1172 }
+l.1343 }
         
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1172 }
-        
-? 
-! Misplaced alignment tab character &.
-<argument> ... we don't need to address stages 5 &
-                                                   6. If we remove I suspect...
-l.1174 ... say why aren't stages 5 & 6 important!}
-                                                  
-? 
-! Misplaced alignment tab character &.
-<argument> ...ople would say why aren't stages 5 &
-                                                   6 important!]]
-l.1174 ... say why aren't stages 5 & 6 important!}
-                                                  
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1188 }
-        \emph{\DIFadd{Render DOM}} \DIFadd{(stage 6) also has many complicat...
-
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1188 }
-        \emph{\DIFadd{Render DOM}} \DIFadd{(stage 6) also has many complicat...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1188 }
-        \emph{\DIFadd{Render DOM}} \DIFadd{(stage 6) also has many complicat...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1188 }
-        \emph{\DIFadd{Render DOM}} \DIFadd{(stage 6) also has many complicat...
-
-? 
-
-Underfull \hbox (badness 2261) in paragraph at lines 1207--1216
-|   []   |   []   |   []   [][]|   []   |   [][][]|   []   |   []   |   []
- []
-
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1235 ) }
-          \DIFdelend \DIFaddbegin \DIFadd{2) it highlights the importance of...
-
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1235 ) }
-          \DIFdelend \DIFaddbegin \DIFadd{2) it highlights the importance of...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1235 ) }
-          \DIFdelend \DIFaddbegin \DIFadd{2) it highlights the importance of...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1235 ) }
-          \DIFdelend \DIFaddbegin \DIFadd{2) it highlights the importance of...
-
-? 
-
-Underfull \hbox (badness 1546) in paragraph at lines 1225--1243
-|   []   |   []   |   []   [][]|   [][] []|   []   |   []   |   []   |   []   |
-   []
- []
-
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1254 }
-        
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1254 }
-        
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1254 }
-        
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1254 }
+l.1343 }
         
 ? 
 
-Underfull \hbox (badness 1377) in paragraph at lines 1254--1255
+Underfull \hbox (badness 2173) in paragraph at lines 1343--1344
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1370 }
+        \emph{\DIFadd{Render DOM}} \DIFadd{(stage 6) contains its own comple...
 
-Underfull \hbox (badness 4792) in paragraph at lines 1263--1268
-[]|   []   |   []   |   []   |   []   |   []   |   []   |   []   [][]|   [][] [
-][][]
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1370 }
+        \emph{\DIFadd{Render DOM}} \DIFadd{(stage 6) contains its own comple...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1370 }
+        \emph{\DIFadd{Render DOM}} \DIFadd{(stage 6) contains its own comple...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1370 }
+        \emph{\DIFadd{Render DOM}} \DIFadd{(stage 6) contains its own comple...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1389 ) }
+          \DIFdelend \DIFaddbegin \DIFadd{'' to refer to the sequence of dep...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1389 ) }
+          \DIFdelend \DIFaddbegin \DIFadd{'' to refer to the sequence of dep...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1389 ) }
+          \DIFdelend \DIFaddbegin \DIFadd{'' to refer to the sequence of dep...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1389 ) }
+          \DIFdelend \DIFaddbegin \DIFadd{'' to refer to the sequence of dep...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1393 the term }
+                 \emph{\DIFadd{Trust Chain}} \DIFadd{(or ``Chain of Trust'') is
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1393 the term }
+                 \emph{\DIFadd{Trust Chain}} \DIFadd{(or ``Chain of Trust'') is
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1393 the term }
+                 \emph{\DIFadd{Trust Chain}} \DIFadd{(or ``Chain of Trust'') is
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1393 the term }
+                 \emph{\DIFadd{Trust Chain}} \DIFadd{(or ``Chain of Trust'') is
+
+? 
+
+Underfull \hbox (badness 2158) in paragraph at lines 1387--1409
+|   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1438 }
+        
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1438 }
+        
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1438 }
+        
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1438 }
+        
+? 
 [8]
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.1283 }
+l.1476 }
         
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.1283 }
+l.1476 }
         
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1283 }
+l.1476 }
         
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1283 }
+l.1476 }
         
 ? 
-<figures/validator.pdf, id=256, 580.67451pt x 300.11763pt>
+pdfTeX warning (ext4): destination with the same identifier (name{subsection.3.
+3}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1517 ...g a Parser, not Specifying a Validator}}
+                                                  
+<figures/validator.pdf, id=271, 580.67451pt x 300.11763pt>
 File: figures/validator.pdf Graphic file (type pdf)
 <use figures/validator.pdf>
-Package pdftex.def Info: figures/validator.pdf  used on input line 1329.
+Package pdftex.def Info: figures/validator.pdf  used on input line 1522.
 (pdftex.def)             Requested size: 126.0pt x 65.11935pt.
-<figures/parser.pdf, id=257, 583.05971pt x 300.51273pt>
+<figures/parser.pdf, id=272, 583.05971pt x 300.51273pt>
 File: figures/parser.pdf Graphic file (type pdf)
 <use figures/parser.pdf>
-Package pdftex.def Info: figures/parser.pdf  used on input line 1333.
+Package pdftex.def Info: figures/parser.pdf  used on input line 1526.
 (pdftex.def)             Requested size: 126.0pt x 64.93912pt.
 
-Underfull \hbox (badness 2903) in paragraph at lines 1338--1346
-|   []   |   []   |   []   |   []   |   []   [][]|   [][] []|   []
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1543 where we show a validator (or a format }
+                                               \emph{\DIFadd{recognizer}}\DI...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1543 where we show a validator (or a format }
+                                               \emph{\DIFadd{recognizer}}\DI...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1543 where we show a validator (or a format }
+                                               \emph{\DIFadd{recognizer}}\DI...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1543 where we show a validator (or a format }
+                                               \emph{\DIFadd{recognizer}}\DI...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1548 which has a }
+                    {\bf{completely different requirement}}\DIFadd{: to effi...
+
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1548 which has a }
+                    {\bf{completely different requirement}}\DIFadd{: to effi...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1548 which has a }
+                    {\bf{completely different requirement}}\DIFadd{: to effi...
+
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1548 which has a }
+                    {\bf{completely different requirement}}\DIFadd{: to effi...
+
+? 
+
+Underfull \hbox (badness 1939) in paragraph at lines 1543--1555
+[]|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   [
+]
  []
 
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1349 where we show a validator (or a format }
-                                               \emph{\DIFadd{recognizer}}\DI...
 
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1349 where we show a validator (or a format }
-                                               \emph{\DIFadd{recognizer}}\DI...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1349 where we show a validator (or a format }
-                                               \emph{\DIFadd{recognizer}}\DI...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1349 where we show a validator (or a format }
-                                               \emph{\DIFadd{recognizer}}\DI...
-
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1354 which has a }
-                    {\bf{completely different requirement}}\DIFadd{: to effi...
-
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1354 which has a }
-                    {\bf{completely different requirement}}\DIFadd{: to effi...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1354 which has a }
-                    {\bf{completely different requirement}}\DIFadd{: to effi...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1354 which has a }
-                    {\bf{completely different requirement}}\DIFadd{: to effi...
-
-? 
-
-Underfull \hbox (badness 1688) in paragraph at lines 1366--1371
+Underfull \hbox (badness 1688) in paragraph at lines 1560--1565
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 2042) in paragraph at lines 1377--1382
+Underfull \hbox (badness 2042) in paragraph at lines 1571--1576
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
 [9 <./figures/validator.pdf> <./figures/parser.pdf>]
-Underfull \hbox (badness 1616) in paragraph at lines 1421--1445
+Underfull \hbox (badness 1616) in paragraph at lines 1619--1641
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1460 )}
-         \DIFaddend .
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1460 )}
-         \DIFaddend .
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1460 )}
-         \DIFaddend .
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1460 )}
-         \DIFaddend .
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1460 )}
-         \DIFaddend .
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1460 )}
-         \DIFaddend .
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1460 )}
-         \DIFaddend .
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1460 )}
-         \DIFaddend .
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
-                                                  \egroup \UL@putbox \fi \if...
-l.1460 )}
-         \DIFaddend .
-? 
-! Extra }, or forgotten \endgroup.
-\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
-                                                  \UL@putbox \fi \ifnum \UL@...
-l.1460 )}
-         \DIFaddend .
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1460 )}
-         \DIFaddend .
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.1460 )}
-         \DIFaddend .
-? 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1460--1461
-[]|   []   |   []   |   []   |   []   |   []   |   []
+Underfull \hbox (badness 1565) in paragraph at lines 1650--1675
+|   []   [][]|   []   |   []   |   []   []\OT1/ptm/m/n/10 def-i-ni-tion that is
+ []|   []   |   []
  []
 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.1496 }
+l.1685 }
         \DIFaddend %
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.1496 }
+l.1685 }
         \DIFaddend %
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1496 }
+l.1685 }
         \DIFaddend %
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.1496 }
+l.1685 }
         \DIFaddend %
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1693 ...rguably better specified in formalisms }
+                                                  \DIFaddend such as
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1693 ...rguably better specified in formalisms }
+                                                  \DIFaddend such as
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1693 ...rguably better specified in formalisms }
+                                                  \DIFaddend such as
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1693 ...rguably better specified in formalisms }
+                                                  \DIFaddend such as
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.1702 }
+        \DIFdelend \DIFaddbegin \DIFadd{.
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.1702 }
+        \DIFdelend \DIFaddbegin \DIFadd{.
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1702 }
+        \DIFdelend \DIFaddbegin \DIFadd{.
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.1702 }
+        \DIFdelend \DIFaddbegin \DIFadd{.
 ? 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1488--1505
+Underfull \hbox (badness 10000) in paragraph at lines 1677--1704
 |   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 4279) in paragraph at lines 1488--1505
+Underfull \hbox (badness 4279) in paragraph at lines 1677--1704
 |   []   |   []   |   []   |   []   |   []   |   []
  []
 
 LaTeX Font Info:    Trying to load font information for TS1+pcr on input line 1
-572.
+773.
 (/usr/local/texlive/2021/texmf-dist/tex/latex/psnfss/ts1pcr.fd
 File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
 )
 LaTeX Font Info:    Font shape `OT1/pcr/m/it' in size <7> not available
-(Font)              Font shape `OT1/pcr/m/sl' tried instead on input line 1589.
-
-LaTeX Font Info:    Font shape `TS1/pcr/m/it' in size <7> not available
-(Font)              Font shape `TS1/pcr/m/sl' tried instead on input line 1623.
+(Font)              Font shape `OT1/pcr/m/sl' tried instead on input line 1790.
 
  [10]
-Underfull \hbox (badness 10000) in paragraph at lines 1650--1651
+LaTeX Font Info:    Font shape `TS1/pcr/m/it' in size <7> not available
+(Font)              Font shape `TS1/pcr/m/sl' tried instead on input line 1824.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1851--1852
 [][][][][][][][][][][][][][][][][][][][]
  []
 
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family pcr in TS1 encoding.
-(textcomp)             Default family used instead on input line 1733.
+(textcomp)             Default family used instead on input line 1934.
 LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 
-1733.
+1934.
 (/usr/local/texlive/2021/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family pcr in TS1 encoding.
-(textcomp)             Default family used instead on input line 1733.
+(textcomp)             Default family used instead on input line 1934.
  [11] [12]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family pcr in TS1 encoding.
-(textcomp)             Default family used instead on input line 1944.
+(textcomp)             Default family used instead on input line 2145.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family pcr in TS1 encoding.
-(textcomp)             Default family used instead on input line 1944.
+(textcomp)             Default family used instead on input line 2145.
 
 [13] [14]
-<figures/icc.png, id=624, 554.50018pt x 431.03893pt>
-File: figures/icc.png Graphic file (type png)
-<use figures/icc.png>
-Package pdftex.def Info: figures/icc.png  used on input line 2264.
-(pdftex.def)             Requested size: 214.20154pt x 166.51283pt.
-
-Underfull \hbox (badness 2418) in paragraph at lines 2313--2314
-|   []   |   []   |   []   |   []   |   []   |   []   |   []
- []
-
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.2328 }
+l.2471 }
         
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.2328 }
+l.2471 }
         
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.2328 }
+l.2471 }
         
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.2328 }
+l.2471 }
         
 ? 
+<figures/icc.png, id=635, 554.50018pt x 431.03893pt>
+File: figures/icc.png Graphic file (type png)
+<use figures/icc.png>
+Package pdftex.def Info: figures/icc.png  used on input line 2490.
+(pdftex.def)             Requested size: 214.20154pt x 166.51283pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 2544--2545
+|   []   |   []   |   []   |   []   |   []   |   []   |   []
+ []
+
 [15 <./figures/icc.png>]
 ! Extra }, or forgotten \endgroup.
 \UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
                                                   \egroup \UL@putbox \fi \if...
-l.2344 }
+l.2561 }
         
 ? 
 ! Extra }, or forgotten \endgroup.
 \UL@stop ... \UL@putbox \fi \else \egroup \egroup 
                                                   \UL@putbox \fi \ifnum \UL@...
-l.2344 }
+l.2561 }
         
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.2344 }
+l.2561 }
         
 ? 
 ! Missing } inserted.
 <inserted text> 
                 }
-l.2344 }
+l.2561 }
         
 ? 
 
-Underfull \hbox (badness 2302) in paragraph at lines 2344--2345
-[]|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   [
-]   |   []
+Underfull \hbox (badness 10000) in paragraph at lines 2561--2562
+[]|   []   |   []   |   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2495--2497
+Underfull \hbox (badness 4328) in paragraph at lines 2561--2562
+|   []   |   []   |   []   |   []   |   []   |   []
+ []
+
+
+Underfull \hbox (badness 3029) in paragraph at lines 2561--2562
+|   []   |   []   |   []   |   []   |   []   |   []   |   []
+ []
+
+
+Underfull \hbox (badness 2229) in paragraph at lines 2561--2562
+|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
+ []
+
+! Extra }, or forgotten \endgroup.
+\UL@stop ...z@ \else \UL@putbox \fi \else \egroup 
+                                                  \egroup \UL@putbox \fi \if...
+l.2577 }
+        
+? 
+! Extra }, or forgotten \endgroup.
+\UL@stop ... \UL@putbox \fi \else \egroup \egroup 
+                                                  \UL@putbox \fi \ifnum \UL@...
+l.2577 }
+        
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.2577 }
+        
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.2577 }
+        
+? 
+
+Underfull \hbox (badness 10000) in paragraph at lines 2738--2740
 []\OT1/ptm/m/n/10 This re-search was sup-ported by DARPA awards
  []
 
 [16]
-Underfull \hbox (badness 1917) in paragraph at lines 2525--2528
+Underfull \hbox (badness 10000) in paragraph at lines 2767--2771
+\OT1/ptm/m/n/10 main / Miscellaneous % 20Targeted % 20Test % 20PDFs #
+ []
+
+
+Underfull \hbox (badness 1917) in paragraph at lines 2775--2778
 []|   []   |   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 4819) in paragraph at lines 2530--2534
+Underfull \hbox (badness 4819) in paragraph at lines 2780--2784
 []|   [][] []|   []   [] []|   [][][]|   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2530--2534
+Underfull \hbox (badness 10000) in paragraph at lines 2780--2784
 [] []$\OT1/ptm/m/n/10 https : / / cve . mitre . org / cgi-[]bin / cvename . cgi
  ? name =
  []
 
 
-Underfull \hbox (badness 1728) in paragraph at lines 2558--2563
+Underfull \hbox (badness 2990) in paragraph at lines 2786--2790
+[]|   [][] []|   []   [] []|   [][][]|   []   |   []   |   []
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2786--2790
+[] []$\OT1/ptm/m/n/10 https : / / cve . mitre . org / cgi-[]bin / cvename . cgi
+ ? name =
+ []
+
+
+Underfull \hbox (badness 1728) in paragraph at lines 2814--2819
 |   []   [][]|   [][][]|   []   [][]|   [][] []|   []   |   []   |   []   |   [
 ]
  []
 
 
-Underfull \hbox (badness 1917) in paragraph at lines 2558--2563
+Underfull \hbox (badness 1917) in paragraph at lines 2814--2819
 [][]|   [][] []|   []   |   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 1715) in paragraph at lines 2565--2573
+Underfull \hbox (badness 1715) in paragraph at lines 2821--2829
 []|   []   |   []   |   []   |   []   |   [][][]|   []   [] []|   [][] []|   []
    [][]|   [][]
  []
 
 
-Underfull \hbox (badness 1990) in paragraph at lines 2582--2588
-[]|   [][][]|   []   [] []|   []   |   []   |   []   |   []   |   []
+Underfull \hbox (badness 10000) in paragraph at lines 2838--2844
+[][]|   [][] []|   []   |   []   [][]|   [][] []|   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2582--2588
-|   []   |   []   |   []   |   []   |   []   |   []   |   []
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 2582--2588
+Underfull \hbox (badness 10000) in paragraph at lines 2838--2844
 |   []   [] []$\OT1/ptm/m/n/10 https : / / itextpdf . com / en / blog / technic
 al-[]notes /
  []
 
 
-Overfull \hbox (59.9868pt too wide) in paragraph at lines 2582--2588
+Overfull \hbox (59.9868pt too wide) in paragraph at lines 2838--2844
 \OT1/ptm/m/n/10 investigating-[]pdf-[]shadow-[]attacks-[]depth-[]pdf-[]security
 -[]using-[]itext-[]part-[]3$[][]|   []
  []
 
 
-Underfull \hbox (badness 2582) in paragraph at lines 2620--2625
+Underfull \hbox (badness 2582) in paragraph at lines 2876--2881
 []|   []   |   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 1917) in paragraph at lines 2629--2635
+Underfull \hbox (badness 1917) in paragraph at lines 2885--2891
 []|   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 6380) in paragraph at lines 2629--2635
+Underfull \hbox (badness 6380) in paragraph at lines 2885--2891
 []|   [][][]|   []   [] []|   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 5681) in paragraph at lines 2629--2635
+Underfull \hbox (badness 5681) in paragraph at lines 2885--2891
 |   []   |   []   |   []   |   []   [] []|   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2639--2645
+Underfull \hbox (badness 10000) in paragraph at lines 2895--2901
 []|   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 2828) in paragraph at lines 2649--2653
+Underfull \hbox (badness 2828) in paragraph at lines 2905--2909
 []|   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 2326) in paragraph at lines 2685--2690
-|   []   |   []   [] []$\OT1/ptm/m/n/10 https : / / github . com / pdf-[]associ
-ation /
- []
-
-
-Underfull \hbox (badness 5077) in paragraph at lines 2692--2696
-[]|   []   |   [][][]|   []   [] []|   []   |   []   |   []
- []
-
-
-Underfull \hbox (badness 4518) in paragraph at lines 2692--2696
-|   []   |   []   |   []   |   []   [] []$\OT1/ptm/m/n/10 https : / / github . 
-com /
- []
-
-
-Underfull \hbox (badness 7631) in paragraph at lines 2698--2703
-[]|   []   |   [][][]|   []   [] []|   []   |   []   |   []
- []
-
-
-Underfull \hbox (badness 2229) in paragraph at lines 2712--2717
-|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
- []
-
-
-Underfull \hbox (badness 5388) in paragraph at lines 2712--2717
+Underfull \hbox (badness 2326) in paragraph at lines 2941--2946
 |   []   |   []   [] []$\OT1/ptm/m/n/10 https : / / github . com / pdf-[]associ
 ation /
  []
 
 [17]
-Underfull \hbox (badness 10000) in paragraph at lines 2740--2743
+Underfull \hbox (badness 5077) in paragraph at lines 2948--2952
+[]|   []   |   [][][]|   []   [] []|   []   |   []   |   []
+ []
+
+
+Underfull \hbox (badness 4518) in paragraph at lines 2948--2952
+|   []   |   []   |   []   |   []   [] []$\OT1/ptm/m/n/10 https : / / github . 
+com /
+ []
+
+
+Underfull \hbox (badness 7631) in paragraph at lines 2954--2959
+[]|   []   |   [][][]|   []   [] []|   []   |   []   |   []
+ []
+
+
+Underfull \hbox (badness 2229) in paragraph at lines 2968--2973
+|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
+ []
+
+
+Underfull \hbox (badness 5388) in paragraph at lines 2968--2973
+|   []   |   []   [] []$\OT1/ptm/m/n/10 https : / / github . com / pdf-[]associ
+ation /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2996--2999
 []|   []   |   []   |   []   |   []   |   []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2762--2769
+Underfull \hbox (badness 10000) in paragraph at lines 3018--3025
 []|   [][] []|   [][][]|   []   [][]|   [][] []|   [][] []|   [][] []|   [][] [
 ]|   [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2762--2769
+Underfull \hbox (badness 10000) in paragraph at lines 3018--3025
 []|   [][] []|   [][][]|   []   |   []   [][]|   [][] []|   [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2762--2769
+Underfull \hbox (badness 10000) in paragraph at lines 3018--3025
 []|   [][][]|   [][][]|   [][][]|   [][][]|   [][][]|   []   |   []   |   []   
 |   []
  []
 
 consecutive:
 
-Underfull \hbox (badness 10000) in paragraph at lines 2841--2843
+Underfull \hbox (badness 10000) in paragraph at lines 3097--3099
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
  []
 
 consecutive:
 [18]
-Overfull \hbox (21.0pt too wide) in paragraph at lines 3028--3029
+Overfull \hbox (21.0pt too wide) in paragraph at lines 3284--3285
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
  []
 
@@ -2254,16 +2626,16 @@ Before submitting the final camera ready copy, remember to:
 
 ] (./TCPaperDiffs.aux)
 Package rerunfilecheck Info: File `TCPaperDiffs.out' has not changed.
-(rerunfilecheck)             Checksum: 9D0553EFAE048BD3C7445E10C8B84046;6008.
+(rerunfilecheck)             Checksum: 828FA5588F35B0A0F9AF9EE8CAA78C35;6035.
  ) 
 Here is how much of TeX's memory you used:
- 31979 strings out of 478994
- 612715 string characters out of 5858183
- 1170200 words of memory out of 5000000
- 48516 multiletter control sequences out of 15000+600000
+ 31992 strings out of 478994
+ 612927 string characters out of 5858183
+ 1184239 words of memory out of 5000000
+ 48524 multiletter control sequences out of 15000+600000
  448196 words of font info for 117 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 113i,16n,116p,532b,2394s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 113i,16n,116p,532b,2358s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 }{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/te
 xlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/tex
@@ -2282,10 +2654,10 @@ ts/type1/urw/courier/ucrro8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type
 1/urw/times/utmb8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/time
 s/utmbi8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmr8a.
 pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on TCPaperDiffs.pdf (19 pages, 1214217 bytes).
+Output written on TCPaperDiffs.pdf (19 pages, 1235522 bytes).
 PDF statistics:
- 964 PDF objects out of 1000 (max. 8388607)
- 877 compressed objects within 9 object streams
- 433 named destinations out of 1000 (max. 500000)
- 309 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 982 PDF objects out of 1000 (max. 8388607)
+ 895 compressed objects within 9 object streams
+ 435 named destinations out of 1000 (max. 500000)
+ 317 words of extra memory for PDF output out of 10000 (max. 10000000)
 

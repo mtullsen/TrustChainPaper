@@ -102,13 +102,10 @@ generation can significantly reduce the tediousness.
 rendering a PDF page as pixels for display or extracting text,
 depending on context.
 
-\todo{I think the above para is worthwhile, but here say what is the
-  aspect of pre-DOM parsing (interaction of computation on values and
-  parsing serialized text?) that made it a sensible thing to focus on}
-%
 This paper does not further discuss stages 5 and 6, focusing instead
 on stages 1 to 4, referred to as \emph{pre-DOM} parsing or
-computation.
+computation.  We chose to focus on Stages 1 to 4 as they have been given
+little emphasis and are the source of multiple vulnerabilities.
 %
 Errors in these stages can compromise the correctness of the complete
 format definition, even if later stages are defined as intended when
@@ -116,14 +113,10 @@ viewed in isolation.
 
 %%%%%%%%%%%%%
 
-\todo{abrupt transition, add subsection?}
-
-The term \emph{Trust Chain} (or ``Chain of Trust'') is
-overloaded with similar meanings in different contexts
-%
-\todo{why the quote environment?}
-%
-\begin{quote}
+We have been using ``PDF Trust Chain'' to refer to the sequence of dependent
+parsers in \cref{fig:pdf-trust-chain}, although
+the term \emph{Trust Chain} (or ``Chain of Trust'') is
+overloaded with similar meanings in different contexts:
 e.g.,
 \emph{digital certificates}: a sequence of certificates signing certificates,
 starting with a root certificate;
@@ -133,9 +126,8 @@ outsourced components;
 there can be no possibility of the operating system being the same;
 \emph{software stacks}: upper layers are dependent upon lower layers (such as
 system libraries) and vulnerabilities at the lower layers affect all higher
-layers,
-\end{quote}
-but the common idea is that we have layers (or components) that rely
+layers.
+The common idea is that we have layers (or components) that rely
 on lower layers (sub-components) for their validity.  In other words,
 {\textbf{a flaw in one layer of the trust chain causes every higher
     layer to be untrustworthy!}}
@@ -245,7 +237,8 @@ streams this can be pre-determined.
     \label{fig:parser}
 \end{figure}
 
-A \emph{key} idea in ``SafeDocs'' is that we are trying to understand and
+A \emph{key} idea in the DARPA-funded ``SafeDocs'' program is to
+understand and
 capture extant---used in the wild---PDF parsers.  Creating an implementation
 that perfectly matches the PDF specification is not particularly useful
 and would only parse a small fraction of extant PDF files.
@@ -282,7 +275,9 @@ write a single piece of code from which we could extract
 both a \emph{parser} as well as a \emph{validator}.
 % our solution:
 To resolve this conflict, we have %
-\textbf{(1)} specified an implementation to be as \emph{lazy} as possible, in the sense that it minimizes the data read and validated whenever possible; and %
+\textbf{(1)} specified an implementation to be \emph{lazy} whenever possible;
+in other words, whenever possible it defers the reading, parsing, and validation
+of data; and %
 \textbf{(2)} extended this specification
 with separate \lstcd{validate} predicates that, when executed,
 would extend our implementation to form a complete validator.

@@ -10,19 +10,20 @@ language~\cite{jones2003haskell}.
 %
 A detailed presentation of Haskell's features is beyond the scope of
 this paper, so we note only that it is a statically typed, pure,
-functional programming language with lazy semantics;
+functional programming language with lazy semantics.
 %
-we review Haskell's other features throughout the paper when they are
-relevant.
+% we review Haskell's other features throughout the paper when they are
+% relevant.
 % benefits:
-In addition to the above general benefits of formal definitions, Haskell is
+% In addition to the above general benefits of formal definitions,
+Haskell is
 well-suited among \emph{general-purpose} languages for
 declaratively expressing computation.
 % limitations:
 % the definition of Haskell itself is certainly not small,
 Although Haskell may not be ideal for communicating with non-programmers,
-we view the current definition as a significant first step toward a
-definition that is both clear and executable.
+having a definition that is unambiguous and executable has shown itself
+to be a useful artifact.
 
 % say more about the spec's scope:
 The specification formalizes Pre-DOM processing, stages 1 to 4
@@ -30,9 +31,9 @@ The specification formalizes Pre-DOM processing, stages 1 to 4
 %
 it is defined in terms of several primitive parsers (see
 \cref{sec:appendix1} for a comprehensive list, with types) whose
-definitions we are not included.
+definitions are not included.
 %
-Such primitives are arguably better specified in a formalisms such as
+Such primitives are arguably better specified in formalisms such as
 the publicly available \emph{DaeDaLus Data Description
   Language}~\cite{daedalusrepo}.
 
@@ -67,9 +68,9 @@ import           Streams
 \fi
 %%%% end: Hs code not in paper %%%%
 
-\lstcd{pPDFDom} (\cref{fig:spec}) implements stages 1 through 4 (illustrated in \cref{fig:pdf-trust-chain}).
+The function \lstcd{pPDFDom} (\cref{fig:spec}) implements stages 1 through 4 (illustrated in \cref{fig:pdf-trust-chain}),
 % 
-\lstcd{pPDFDom}'s type (line 1) denotes that it
+its type (line 1) indicates that it
 is a \emph{monadic} parser \lstcd{P} that returns a value of type
 \lstcd{DOM}.
 %
@@ -758,15 +759,6 @@ Our specification owes its concision to multiple factors:
    messages, recovery, etc.), and
 \item omitting code for some of the simple, tedious functions.
 \end{enumerate}
-The current specification could be extended to form a complete
-\emph{reference implementation} by extending it to include
-%
-\textbf{(1)} implementations of relatively minor features that were
-not the focus of the current work;
-%
-\textbf{(2)} implementations of all parsers referenced as primitives; and
-%
-\textbf{(3)} computation that generates the document's DOM.
 
 % future work:
 Future work might also involve adding further validation checks,
@@ -777,3 +769,8 @@ with the non-linearized DOM; %
 some form of consistency between pre 1.5 readers and 1.5+ readers; %
 \textbf{(3)} adding signature validation, see
 \cref{sec:updates-and-signatures}.
+
+See \Cref{sec:implementation} for details of the transition from specification
+to implementation.
+
+
