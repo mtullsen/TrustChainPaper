@@ -89,9 +89,11 @@ Such cavities are a powerful mechanism for creating \emph{polyglot
 which themselves have been used in recent critical system security
 exploits~\cite{psychicPaper}.
 
+Thus, even the \emph{pre-DOM} parsing and computation
+is surprisingly complex (as described in \Cref{sec:pdf,sec:parsing}).
 % potential solutions and why they fail:
-Context-free grammars and weaker formalisms are not suitable to define 
-such formats in full detail.
+Fully defining this pre-DOM computation cannot be done
+with context-free grammars and weaker formalisms.
 %
 In the conventional setting, a parser returns a semantic value that is
 then potentially transformed by further computation, which itself be
@@ -109,12 +111,28 @@ This paper explores a more powerful alternative: monadic parsers equipped
 with actions for explicitly capturing and setting the parser's input, run 
 in a well-founded sequence of staged computations over semantic values.
 %
+Using parser combinators is not a new idea: they are available in the
+distributions of modern industrial strength
+languages~\cite{leijen2001parsec,couprie2015nom,mundkurResearchReportParsley2020,bratus2017curing,willis2020staged}.
+%
 This approach is explored within an industrial strength case study:
 validating and parsing the reference tables that are needed to create 
 an unambiguous and trustworthy PDF DOM.
-%
-However, our work is unique in that, to our knowledge, it constitutes
-the first attempt to use such combinators to formalize a comprehensive
+
+In \Cref{sec:specifying,sec:assessing}, we formalize the pre-DOM processing using
+monadic parsers, with Haskell as our ``computable specification language.''
+There we show executable, correct code that formalizes the subtle parts of
+pre-DOM parsing.  However, the specification shown is not yet in itself a
+complete reference implementation as it excludes showing the primitive parsers
+as well as excludes some of the more tedious code.
+
+In \Cref{sec:implementation}, we describe our \emph{implementation} in which we
+have refined our specification to procedural code and integrated this with
+the primitive parsers and other required components to create a
+complete (but less manifestly correct) PDF parser.
+
+Our work is unique in that, to our knowledge, it constitutes
+the first attempt to use a declarative approach to formalize a comprehensive
 set of features and integrity relationships in PDF pre-DOM processing
 that define referential context, specifically cross reference tables,
 incremental updates, and cross reference table compression within
@@ -124,34 +142,7 @@ efforts that rely on a trustworthy formalization of reference in order
 to validate properties of higher-level document abstraction defined in
 terms of a DOM.
 
-% background on parser combinators
-Using parser combinators is not a new idea: they are available in the
-distributions of modern industrial strength
-languages~\cite{leijen2001parsec,couprie2015nom,mundkurResearchReportParsley2020,bratus2017curing,willis2020staged}.
-%
-Moreover, with the recent interest in formalizing practical formats
-and generating high-assurance parsers, such combinators have
-specifically been applied to formalize components of the
-PDF standard related to referential context.
-%
-PDF is a random-access binary file format
-that must be processed from the most recent (latest) incremental
-update through earlier edits back to the original document.
-%
-PDF cross-reference data defines byte offsets from the start of the
-file to the start byte for each PDF object. PDF object identifiers may
-also not be unique, as incremental updates may redefine existing
-objects, or reinstate objects that were previously marked as free
-(unused).
-%
-Thus, in order to correctly establish a final PDF DOM graph, it is
-necessary to parse each appended incremental update in reverse
-order.
-
-% results
-Our case study shows that such features can by formalized effectively.
-%
-The resulting definition is more subtle than what may be often be
+Our pre-DOM formalization is more subtle than what may be often be
 implemented by inspecting the PDF standard or many extant documents:
 in the process of producing our definition, we raised several issues
 with the current PDF standard which have been acknowledged and
