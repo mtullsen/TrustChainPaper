@@ -122,14 +122,18 @@ an unambiguous and trustworthy PDF DOM.
 In \Cref{sec:specifying,sec:assessing}, we formalize the pre-DOM processing using
 monadic parsers, with Haskell as our ``computable specification language.''
 There we show executable, correct code that formalizes the subtle parts of
-pre-DOM parsing.  However, the specification shown is not yet in itself a
-complete reference implementation as it excludes showing the primitive parsers
-as well as excludes some of the more tedious code.
+pre-DOM parsing.
+% nikhil's tweak:
+However, the specification is not yet in itself a complete
+reference implementation as it excludes the primitive
+parsers as well as excludes some of the more tedious code.
 
-In \Cref{sec:implementation}, we describe our \emph{implementation} in which we
-have refined our specification to procedural code and integrated this with
-the primitive parsers and other required components to create a
-complete (but less manifestly correct) PDF parser.
+In \Cref{sec:implementation}, we describe our \emph{implementation} in which we,
+% nikhil's tweak:
+informed by our specification, separately wrote procedural code and
+integrated this with the primitive parsers and other required
+components to create a complete (but less manifestly correct)
+PDF parser.
 
 Our work is unique in that, to our knowledge, it constitutes
 the first attempt to use a declarative approach to formalize a comprehensive
