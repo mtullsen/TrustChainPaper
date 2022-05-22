@@ -1,0 +1,136 @@
+* Settings                                                         :noexport:
+
+#+TITLE: Strengthening Weak Links in the PDF Trust Chain
+#+AUTHOR: Mark Tullsen, William Harris, Peter Wyatt
+#+Email: tullsen@galois.com, wrharris@galois.com, peter.wyatt@pdfa.org
+
+#+LaTeX_CLASS: beamer
+% #+LATEX_CLASS_OPTIONS: [presentation,t]
+% #+LATEX_CLASS_OPTIONS: [presentation,10pt]
+% #+LATEX_CLASS_OPTIONS: [draft]
+#+LATEX_CLASS_OPTIONS: [t,9pt,xcolor={dvipsnames}]
+#+BEAMER_THEME: Madrid
+#+BEAMER_FRAME_LEVEL: 1
+
+#+COLUMNS: %45ITEM %10BEAMER_ENV(Env) %10BEAMER_ACT(Act) %4BEAMER_COL(Col) %8BEAMER_OPT(Opt)
+
+#+OPTIONS: with-todo-keywords:t
+% #+OPTIONS: H:1 toc:nil num:t tags:nil
+#+OPTIONS:   H:1 num:t toc:nil \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:nil pri:nil tags:nil
+#+OPTIONS:   author:t inline:t
+
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+% #+STARTUP: fninline
+
+#+LATEX_HEADER: \AtBeginSection[]{\begin{frame}<beamer>\frametitle{}\tableofcontents[currentsection]\end{frame}}
+#+LATEX_HEADER: \definecolor{Orange}{rgb}{1,0.5,0}
+#+LATEX_HEADER: \include{prelude-slides}
+#+LATEX_HEADER: \newcommand{\boruvka}{Bor\r{u}vka\xspace}
+
+% having no luck: !
+% #+LATEX_HEADER: \usepackage{pgfpages}
+% #+LATEX_HEADER: \setbeameroption{show notes}
+% #+LATEX_HEADER: \setbeameroption{hide notes} % Only slides
+% #+LATEX_HEADER: \setbeameroption{show only notes} % Only notes
+% #+LATEX_HEADER: \setbeameroption{show notes on second screen=left} % Both
+
+* TODO items/meta                                                  :noexport:
+
+- NOTE
+  - 10 mins (Research reports: the total is 15 mins including Q&A)
+  - around 10 slides!
+
+- determine what's in/out  
+  - parser/validator slides
+    - BTW: the standard is effectively defining a validator
+      - no guidance as to how to write a robust parser
+  - shotgun and APIs!  *A*
+  - examples/why for some phases:
+    - the code
+    - pdf example
+    - malform/attack
+  - haskell code/types??
+
+- orphans/say
+  - with daedalus ddl: spoiled, but you have *lots* of computation!   
+  - our paper describes
+    - an efficient and purely functional approach
+      
+# A     
+- [ ] bring in diagrams
+    
+# B 
+- [ ] emails on title page
+- [ ] spell check
+
+* TODO example/motivation                                          :noexport:
+
+
+
+* TODO PDF Trust Chain
+# as before
+
+* TODO PDF Components
+# as before
+
+* DONE Vulnerabilities Occurring Primarily at the Pre-DOM levels
+
+- Schizophrenic files
+- Polyglot files
+- Shadow attacks: possible because of ability to sign
+  *dead objects* and *cavities*
+- Multiple places for hidden/unused/malicious data in PDF
+  - non-obvious places, unnoticed when "simply parsing"
+  - e.g., shadow-attacks
+  - dead bytes, dead objects, dead updates, dead linearization sections, etc.
+
+* DONE Challenges to Creating Correct and Trustworthy Pre-DOM 'Code'
+
+- Lack of formality in standard. Thus, implementations:
+  - are more effort
+  - over implement, under implement, wrongly implement
+- No definition of acceptable, reasonable error recovery
+- Less than ideal design that reflects 27 years of an evolving standard
+- Pre-DOM processing
+  - is where many parsing errors & recovery occur
+  - is non-trivial
+  - involves multiple interdependent features
+  - involves multiple redundant features
+    - schizophrenic if these features aren't mutually consistent
+      
+* TODO [#C] Shotgun Parsers: Inevitable with Complex Formats?
+
+“Shotgun parser”, the deadliest of patterns: "Input data checking, handling
+interspersed with processing logic"
+
+Seem needed when
+ - dependent parsers
+ - choices
+ - the format consumer does not *demand* all of the input
+
+This shoe no longer fits:
+: parseAll :: FileData -> Maybe AbstractSyntaxTree
+
+A shotgun parser: where the following is interspersed through
+code and the relation between these is *not specified*:
+  : parseA :: IO A
+  : parseB :: IO B
+  : parseC :: IO C
+  : validateA :: IO ()
+  : ...
+
+Alternative, the API-based parser:
+
+
+# https://darkbazaar.wordpress.com/category/researchers/bratus-sergey/
+# 
+#   Sadly, a lot of actual input handling code is a mixture of data processing
+#   and recognition, scattered throughout a codebase. Its “sanity checking” is
+#   neither strong enough to verify all the implicit assumptions, nor written
+#   with these assumptions in mind. We call such input handling code “shotgun
+#   parsers” and argue that it’s the number 1 reason for the ubiquitous
+#   insecurity of programs facing the internet.
+
+* TODO Conclusion
