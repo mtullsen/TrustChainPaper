@@ -1,4 +1,4 @@
-% Created 2022-05-24 Tue 20:45
+% Created 2022-05-24 Tue 22:40
 % Intended LaTeX compiler: pdflatex
 \documentclass[t,10pt,xcolor={dvipsnames}]{beamer}
 \usepackage[utf8]{inputenc}
@@ -31,13 +31,13 @@
 \begin{document}
 
 \maketitle
-\begin{frame}[label={sec:orgafa8ba8}]{PDF Trust Chain}
-\begin{center}
-\includegraphics[width=0.47\linewidth]{../figures/Stages.png}
-\end{center}
+\begin{frame}{Outline}
+\tableofcontents
 \end{frame}
 
-\begin{frame}[label={sec:org352c407}]{PDF Components}
+\section{Pre-DOM: "What Lies Beneath" is a Concern}
+\label{sec:org5ebe766}
+\begin{frame}[label={sec:org9db55db}]{PDF Complexity?}
 \begin{center}
  { \hspace{5pt}
    \includegraphics[width=0.4\linewidth]{../figures/pdf-structure.png}
@@ -47,12 +47,27 @@
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:orgc0f1eab}]{Vulnerabilities Occurring Primarily at the Pre-DOM levels}
+\begin{frame}[label={sec:org18f577c}]{PDF Trust Chain}
+\begin{center}
+\includegraphics[width=0.47\linewidth]{../figures/Stages.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[label={sec:org06b9cb6}]{Vulnerabilities Occurring Primarily at the Pre-DOM levels}
 \begin{itemize}
-\item Schizophrenic files
-\item Polyglot files
-\item Shadow attacks: possible because of ability to sign
-\alert{dead objects} and \alert{cavities}
+\item Schizophrenic files (different tools, different renderings)
+\item Polyglot files (file being in 2+ formats)
+\item Shadow attacks
+\begin{itemize}
+\item i.e., attacker can add "shadow content" that is PDF-signed, then reveal
+at will without giving clear warnings to user.
+\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+\item possible because of ability to sign \alert{dead objects} and \alert{cavities}
+\end{itemize}
+\begin{itemize}
 \item Multiple places for hidden/unused/malicious data in PDF
 \begin{itemize}
 \item non-obvious places, unnoticed when "simply parsing"
@@ -62,7 +77,7 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orge402734}]{Challenges to Creating Correct and Trustworthy Pre-DOM 'Code'}
+\begin{frame}[label={sec:org9723a3d}]{Challenges to Creating Correct and Trustworthy Pre-DOM 'Code'}
 \begin{itemize}
 \item Lack of formality in standard. Thus, implementations:
 \begin{itemize}
@@ -84,7 +99,9 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org9f2cffa},fragile]{Stage 4: Transform XRef Map to Object Map}
+\section{Modeling Pre-DOM: Highlights}
+\label{sec:org61ad029}
+\begin{frame}[label={sec:orge14246b},fragile]{Stage 4: Transform XRef Map to Object Map}
  \begin{center}
 \includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
 \end{center}
@@ -111,9 +128,81 @@
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}[label={sec:orge59bba2}]{Parser vs Validator}
+\begin{frame}[label={sec:orga37e513}]{Parser NEQ Validator}
+Validator: only valid PDFs can produce DOM (must Fail otherwise)
+
+\vspace{10pt}
+\includegraphics[width=0.90\linewidth]{images/pNEQv-1.png}
 \end{frame}
-\begin{frame}[label={sec:orgd879f32},fragile]{Implementation?}
+
+\begin{frame}[label={sec:org772ba0b}]{Parser NEQ Validator}
+Parser: efficiently, construct the correct DOM when a valid PDF
+\vspace{10pt}
+\includegraphics[width=0.90\linewidth]{images/pNEQv-2.png}
+\end{frame}
+
+\begin{frame}[label={sec:org0f2fa0b}]{Parser NEQ Validator}
+\vspace{20pt}
+\includegraphics[width=0.90\linewidth]{images/pNEQv-3.png}
+\end{frame}
+
+\begin{frame}[label={sec:org7d2dbef},fragile]{Turning Parser into Validator}
+ Parser specification is designed to be
+\begin{itemize}
+\item understandable: clear, pure Haskell
+\item phased, clearly terminating (get parallelizability for free)
+\item very lazy "Parser" (big input cloud)
+\end{itemize}
+
+We can extend spec into a validator, orthogonally, via “validate” constructs
+(turning on/off on with command-line flag).  E.g.,
+\lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
+\begin{lstlisting}
+do
+  (xrefRaw, xrefEndOff) <- pXrefRaw
+  validate $
+     verifyXrefRaw xrefRaw -- ensures no duplicates
+\end{lstlisting}
+\end{frame}
+
+\section{Looking Forward}
+\label{sec:org23bf629}
+\begin{frame}[label={sec:org06880f5}]{Accomplishments}
+\begin{itemize}
+\item A specification for pre-DOM parsing/computation
+\begin{itemize}
+\item Clarifies some subtle issues in PDF Standard
+\item A growing list of PDF Association “issues” that we have contributed to
+creating [23,24,\ldots{},30]
+\end{itemize}
+\item Have a unique tool for displaying updates \& cavities
+\item A semantics that \ldots{} [FIXME]
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:org37dd046}]{Future [FIXME: TOO MUCH]}
+\begin{itemize}
+\item Expand spec (uninteresting parts are unimplemented)
+\item Turn spec into reference implementation (of pre-DOM)
+\begin{itemize}
+\item integrate with primitive parsers (implemented of course with Daedalus)
+\item Thus, can test other tools’ conformance with our reference implementation
+\end{itemize}
+\item Extend specification
+\begin{itemize}
+\item support more PDF features (hybrids, compression, …)
+\item add support for commonly allowed “exuberances”
+\item add more “validate”s to get closer to a Validator
+\end{itemize}
+\item Our "pre-DOM inspection/validation tool"
+\begin{itemize}
+\item update semantics (as learned from writing spec)
+\item further extensions
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:org5cfe6ee},fragile]{Implementation?}
  *[TODO: in the paper we note that we have, from scratch,
 specified the hard parts but have not linked to our [daedalus generated]
 primitive parsers]*
@@ -134,7 +223,7 @@ parsePDF :: FileData -> Maybe PDFAbstractSyntax
 is not going to be used in practice!     
 \end{frame}
 
-\begin{frame}[label={sec:orgd251042},fragile]{One Solution \ldots{}}
+\begin{frame}[label={sec:org4613b39},fragile]{One Solution \ldots{}}
  \begin{itemize}
 \item For complex formats,
 \begin{itemize}
@@ -160,7 +249,7 @@ validateB :: A -> B -> IO ()
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orgaff7287},fragile]{Better Solution, Parser as API}
+\begin{frame}[label={sec:orgda8222a},fragile]{Better Solution, Parser as API}
  We provide four interdependent calls (not \emph{entry points}):
 \lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
 \begin{lstlisting}
@@ -179,8 +268,5 @@ getInitialUpdate :: FileData -> IO XRef
 getRootValue     :: HdrTrailer -> XRef -> PdfValue
 getPageTree      :: XRef -> Tree PdfValue
 \end{lstlisting}
-\end{frame}
-
-\begin{frame}[label={sec:orgde466bd}]{Conclusion}
 \end{frame}
 \end{document}

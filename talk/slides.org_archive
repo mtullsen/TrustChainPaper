@@ -1,0 +1,55 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /Users/tullsen/src/TrustChainPaper/talk/slides.org
+
+
+* DONE example/motivation                                          :noexport:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2022-05-24 Tue 21:25
+  :ARCHIVE_FILE: ~/src/TrustChainPaper/talk/slides.org
+  :ARCHIVE_CATEGORY: slides
+  :ARCHIVE_TODO: DONE
+  :END:
+
+- [x] how to create the diagram?
+  - inkscape
+    - bite the bullet: kinda tedious!
+  - keynote  *YES*
+  - ppt (install ms office!)
+  - google doc and
+    
+- 
+  | ObjId | XRef    | 4.1 result             | 4.2 result     | 4.3 |
+  |-------+---------+------------------------+----------------+-----|
+  | 3 0   | Ty1 100 | Ty1: IntObj 99         |                |     |
+  | 4 0   | Ty2 5 1 | Ty2: 5 1               |                |  V2 |
+  | 5 0   | Ty1 151 | ObjStm p-DICT u-STREAM | ObjStm [V1,V2] |     |
+
+      ...
+100   3 0 obj 99 endobj
+123   % object 4 is not here
+151   5 0 obj
+      <<
+      /Type /ObjStm
+      /Length 3 0 R   % indirect!
+      /N 2            % 2 objects; (potentially indirect)
+      /First 10       % offset to 1st object (potentially indirect)
+      >>
+      stream
+      4 0 6 100
+      V1 % PDF-Value here, R 4 0, [fake comment] 
+      V2 % PDF-Value here, R 6 0, [fake comment]
+      endstream
+      endobj
+409   7 0 obj ... endobj
+      ...
+
+# ------------
+
+5 0 obj
+  << /Length 96 /Filter /FlateDecode >>
+  stream
+  endstream
+  endobj  
+
