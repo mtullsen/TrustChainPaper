@@ -91,13 +91,14 @@
 - Shadow attacks
   - i.e., attacker can add "shadow content" that is PDF-signed, then reveal
     at will without giving clear warnings to user.
-# FIXME    
-  - possible because of ability to sign *dead objects* and *cavities*
+  - possible because of ability to sign /dead objects/ and /cavities/
 - Multiple places for hidden/unused/malicious data in PDF
   - non-obvious places, unnoticed when "simply parsing"
   - e.g., shadow-attacks
   - dead bytes, dead objects, dead updates, dead linearization sections, etc.
 
+# FIXME: describing shadow-attacks
+    
 ** DONE PDF, and Pre-DOM, Challenges
 
 - Lack of formality in standard. Thus, implementations:
@@ -120,7 +121,7 @@
 \includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
 \end{center}
 #+end_export
-#+begin_src bash
+#+begin_src
       ...
 100   3 0 obj 99 endobj
 123   % object 4 is not here
@@ -150,7 +151,6 @@ Validator: only valid PDFs can produce DOM (must Fail otherwise)
 \vspace{10pt}
 \includegraphics[width=0.90\linewidth]{images/pNEQv-1.png}
 #+end_export
-
 
 ** DONE Parser NEQ Validator
 
@@ -183,7 +183,7 @@ do
      verifyXrefRaw xrefRaw -- ensures no duplicates
 #+end_src
 
-* Looking Forward
+* Conclusion
 ** TODO [#A] Accomplishments                                          
 
 - A specification for pre-DOM parsing/computation
@@ -207,11 +207,8 @@ do
   - update semantics (as learned from writing spec)
   - further extensions
 
+* Preview: A Next Step
 ** DONE Implementation?
-
-*[TODO: in the paper we note that we have, from scratch,
-specified the hard parts but have not linked to our [daedalus generated]
-primitive parsers]*
 
 Tools & renderers rarely need (/demand/) the whole PDF
  - reading?

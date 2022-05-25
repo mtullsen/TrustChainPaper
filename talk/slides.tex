@@ -1,4 +1,4 @@
-% Created 2022-05-24 Tue 22:44
+% Created 2022-05-25 Wed 12:18
 % Intended LaTeX compiler: pdflatex
 \documentclass[t,10pt,xcolor={dvipsnames}]{beamer}
 \usepackage[utf8]{inputenc}
@@ -36,8 +36,8 @@
 \end{frame}
 
 \section{Pre-DOM: "What Lies Beneath" is a Concern}
-\label{sec:orgde9a251}
-\begin{frame}[label={sec:orgb63bfd2}]{PDF Complexity?}
+\label{sec:orgcb4f31c}
+\begin{frame}[label={sec:org183eb0c}]{PDF Complexity?}
 \begin{center}
  { \hspace{5pt}
    \includegraphics[width=0.4\linewidth]{../figures/pdf-structure.png}
@@ -47,13 +47,13 @@
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:org3daab85}]{PDF Trust Chain}
+\begin{frame}[label={sec:org0144db3}]{PDF Trust Chain}
 \begin{center}
 \includegraphics[width=0.47\linewidth]{../figures/Stages.png}
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:orgc8262a8}]{Vulnerabilities Occurring Primarily Pre-DOM}
+\begin{frame}[label={sec:org728a087}]{Vulnerabilities Occurring Primarily Pre-DOM}
 \begin{itemize}
 \item Schizophrenic files (different tools, different renderings)
 \item Polyglot files (file being in 2+ formats)
@@ -61,13 +61,8 @@
 \begin{itemize}
 \item i.e., attacker can add "shadow content" that is PDF-signed, then reveal
 at will without giving clear warnings to user.
+\item possible because of ability to sign \emph{dead objects} and \emph{cavities}
 \end{itemize}
-\end{itemize}
-
-\begin{itemize}
-\item possible because of ability to sign \alert{dead objects} and \alert{cavities}
-\end{itemize}
-\begin{itemize}
 \item Multiple places for hidden/unused/malicious data in PDF
 \begin{itemize}
 \item non-obvious places, unnoticed when "simply parsing"
@@ -77,7 +72,7 @@ at will without giving clear warnings to user.
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orge1630f0}]{PDF, and Pre-DOM, Challenges}
+\begin{frame}[label={sec:orgaae2d4e}]{PDF, and Pre-DOM, Challenges}
 \begin{itemize}
 \item Lack of formality in standard. Thus, implementations:
 \begin{itemize}
@@ -100,13 +95,12 @@ at will without giving clear warnings to user.
 \end{frame}
 
 \section{Modeling Pre-DOM: Highlights}
-\label{sec:org6478eeb}
-\begin{frame}[label={sec:org75237ea},fragile]{Stage 4: Transform XRef Map to Object Map}
+\label{sec:org99f1197}
+\begin{frame}[label={sec:org173bc68},fragile]{Stage 4: Transform XRef Map to Object Map}
  \begin{center}
 \includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
 \end{center}
-\lstset{language=bash,label= ,caption= ,captionpos=b,numbers=none}
-\begin{lstlisting}
+\begin{verbatim}
       ...
 100   3 0 obj 99 endobj
 123   % object 4 is not here
@@ -125,29 +119,28 @@ at will without giving clear warnings to user.
       endobj
 409   7 0 obj ... endobj
       ...
-\end{lstlisting}
+\end{verbatim}
 \end{frame}
 
-\begin{frame}[label={sec:orgba88b4d}]{Parser NEQ Validator}
+\begin{frame}[label={sec:org5d5419a}]{Parser NEQ Validator}
 Validator: only valid PDFs can produce DOM (must Fail otherwise)
 
 \vspace{10pt}
 \includegraphics[width=0.90\linewidth]{images/pNEQv-1.png}
 \end{frame}
 
-
-\begin{frame}[label={sec:org772cdd4}]{Parser NEQ Validator}
+\begin{frame}[label={sec:orgbbff79f}]{Parser NEQ Validator}
 Parser: efficiently, construct the correct DOM when a valid PDF
 \vspace{10pt}
 \includegraphics[width=0.90\linewidth]{images/pNEQv-2.png}
 \end{frame}
 
-\begin{frame}[label={sec:orgbc1f356}]{Parser NEQ Validator}
+\begin{frame}[label={sec:org44c92a9}]{Parser NEQ Validator}
 \vspace{20pt}
 \includegraphics[width=0.90\linewidth]{images/pNEQv-3.png}
 \end{frame}
 
-\begin{frame}[label={sec:orga2eecdb},fragile]{Turning Parser into Validator}
+\begin{frame}[label={sec:org9b54fc5},fragile]{Turning Parser into Validator}
  Parser specification is designed to be
 \begin{itemize}
 \item understandable: clear, pure Haskell
@@ -166,9 +159,9 @@ do
 \end{lstlisting}
 \end{frame}
 
-\section{Looking Forward}
-\label{sec:org83b8887}
-\begin{frame}[label={sec:org8472c7e}]{Accomplishments}
+\section{Conclusion}
+\label{sec:orgc84a54b}
+\begin{frame}[label={sec:org9238346}]{Accomplishments}
 \begin{itemize}
 \item A specification for pre-DOM parsing/computation
 \begin{itemize}
@@ -181,7 +174,7 @@ creating [23,24,\ldots{},30]
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org900ec76}]{Future [FIXME: TOO MUCH]}
+\begin{frame}[label={sec:org01e5006}]{Future [FIXME: TOO MUCH]}
 \begin{itemize}
 \item Expand spec (uninteresting parts are unimplemented)
 \item Turn spec into reference implementation (of pre-DOM)
@@ -203,12 +196,10 @@ creating [23,24,\ldots{},30]
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orgda070e2},fragile]{Implementation?}
- *[TODO: in the paper we note that we have, from scratch,
-specified the hard parts but have not linked to our [daedalus generated]
-primitive parsers]*
-
-Tools \& renderers rarely need (\emph{demand}) the whole PDF
+\section{Preview: A Next Step}
+\label{sec:orgeb95292}
+\begin{frame}[label={sec:org2fcd0ee},fragile]{Implementation?}
+ Tools \& renderers rarely need (\emph{demand}) the whole PDF
 \begin{itemize}
 \item reading?
 \item parsing??
@@ -224,7 +215,7 @@ parsePDF :: FileData -> Maybe PDFAbstractSyntax
 is not going to be used in practice!     
 \end{frame}
 
-\begin{frame}[label={sec:org95eafd6},fragile]{One Solution \ldots{}}
+\begin{frame}[label={sec:org8794b6f},fragile]{One Solution \ldots{}}
  \begin{itemize}
 \item For complex formats,
 \begin{itemize}
@@ -250,7 +241,7 @@ validateB :: A -> B -> IO ()
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orgdd212ae},fragile]{Better Solution, Parser as API}
+\begin{frame}[label={sec:org2de9633},fragile]{Better Solution, Parser as API}
  We provide four interdependent calls (not \emph{entry points}):
 \lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
 \begin{lstlisting}
