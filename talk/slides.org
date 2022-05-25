@@ -8,7 +8,7 @@
 % #+LATEX_CLASS_OPTIONS: [presentation,t]
 % #+LATEX_CLASS_OPTIONS: [presentation,10pt]
 % #+LATEX_CLASS_OPTIONS: [draft]
-#+LATEX_CLASS_OPTIONS: [t,9pt,xcolor={dvipsnames}]
+#+LATEX_CLASS_OPTIONS: [t,10pt,xcolor={dvipsnames}]
 #+BEAMER_THEME: Madrid
 #+BEAMER_FRAME_LEVEL: 1
 
@@ -26,8 +26,8 @@
 
 #+LATEX_HEADER: \AtBeginSection[]{\begin{frame}<beamer>\frametitle{}\tableofcontents[currentsection]\end{frame}}
 #+LATEX_HEADER: \definecolor{Orange}{rgb}{1,0.5,0}
-#+LATEX_HEADER: \include{prelude-slides}
-#+LATEX_HEADER: \newcommand{\boruvka}{Bor\r{u}vka\xspace}
+%  #+LATEX_HEADER: \include{prelude-slides}
+#+LATEX_HEADER: \usepackage{listings}
 
 % having no luck: !
 % #+LATEX_HEADER: \usepackage{pgfpages}
@@ -47,11 +47,8 @@
     - BTW: the standard is effectively defining a validator
       - no guidance as to how to write a robust parser
   - shotgun and APIs!  *A*
-  - examples/why for some phases:
-    - the code
-    - pdf example
-    - malform/attack
-  - haskell code/types??
+  - stage 4 Explanation.
+  - [-] haskell code/types? no
 
 - orphans/say
   - with daedalus ddl: spoiled, but you have *lots* of computation!   
@@ -59,21 +56,77 @@
     - an efficient and purely functional approach
       
 # A     
-- [ ] bring in diagrams
-    
+- [ ] code listings: stage 4 and elsewhere
+- [ ] bring in text/notes from other instantiations of talk
+
 # B 
 - [ ] emails on title page
 - [ ] spell check
+- [ ] practice 3x
+  - some you've never given: Stage 4
+      
+* DONE example/motivation                                          :noexport:
 
-* TODO example/motivation                                          :noexport:
+- [x] how to create the diagram?
+  - inkscape
+    - bite the bullet: kinda tedious!
+  - keynote  *YES*
+  - ppt (install ms office!)
+  - google doc and
+    
+- 
+  | ObjId | XRef    | 4.1 result             | 4.2 result     | 4.3 |
+  |-------+---------+------------------------+----------------+-----|
+  | 3 0   | Ty1 100 | Ty1: IntObj 99         |                |     |
+  | 4 0   | Ty2 5 1 | Ty2: 5 1               |                |  V2 |
+  | 5 0   | Ty1 151 | ObjStm p-DICT u-STREAM | ObjStm [V1,V2] |     |
 
+      ...
+100   3 0 obj 99 endobj
+123   % object 4 is not here
+151   5 0 obj
+      <<
+      /Type /ObjStm
+      /Length 3 0 R   % indirect!
+      /N 2            % 2 objects; (potentially indirect)
+      /First 10       % offset to 1st object (potentially indirect)
+      >>
+      stream
+      4 0 6 100
+      V1 % PDF-Value here, R 4 0, [fake comment] 
+      V2 % PDF-Value here, R 6 0, [fake comment]
+      endstream
+      endobj
+409   7 0 obj ... endobj
+      ...
 
+# ------------
 
-* TODO PDF Trust Chain
-# as before
+5 0 obj
+  << /Length 96 /Filter /FlateDecode >>
+  stream
+  endstream
+  endobj  
 
-* TODO PDF Components
-# as before
+* DONE PDF Complexity?
+
+#+begin_export latex
+\begin{center}
+ { \hspace{5pt}
+   \includegraphics[width=0.4\linewidth]{../figures/pdf-structure.png}
+ } \hspace{30pt}
+ \raisebox{-1\baselineskip}
+          {\includegraphics[width=0.30\linewidth]{../figures/pdf-structure-incremental.png}}
+\end{center}
+#+end_export
+
+* DONE PDF Trust Chain
+
+#+begin_export latex
+\begin{center}
+\includegraphics[width=0.47\linewidth]{../figures/Stages.png}
+\end{center}
+#+end_export
 
 * DONE Vulnerabilities Occurring Primarily at the Pre-DOM levels
 
@@ -100,29 +153,93 @@
   - involves multiple redundant features
     - schizophrenic if these features aren't mutually consistent
       
-* TODO [#C] Shotgun Parsers: Inevitable with Complex Formats?
+* DONE Stage 4: Transform XRef Map to Object Map
 
-“Shotgun parser”, the deadliest of patterns: "Input data checking, handling
-interspersed with processing logic"
+#+begin_export latex
+\begin{center}
+\includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
+\end{center}
+#+end_export
+#+begin_src bash
+      ...
+100   3 0 obj 99 endobj
+123   % object 4 is not here
+151   5 0 obj
+      <<
+      /Type /ObjStm
+      /Length 3 0 R   % indirect!
+      /N 2            % 2 objects; (potentially indirect)
+      /First 10       % offset to 1st object (potentially indirect)
+      >>
+      stream
+      4 0 6 100
+      V1 % PDF-Value here, 4 0 R, [fake comment] 
+      V2 % PDF-Value here, 6 0 R, [fake comment]
+      endstream
+      endobj
+409   7 0 obj ... endobj
+      ...
+#+end_src
 
-Seem needed when
- - dependent parsers
- - choices
- - the format consumer does not *demand* all of the input
+* TODO [#D] Specification Issue [Update the above]
+* TODO [#C] Parser vs Validator
+* TODO [#C] Implementation?
 
-This shoe no longer fits:
-: parseAll :: FileData -> Maybe AbstractSyntaxTree
+*[TODO: in the paper we note that we have, from scratch,
+specified the hard parts but have not linked to our [daedalus generated]
+primitive parsers]*
 
-A shotgun parser: where the following is interspersed through
-code and the relation between these is *not specified*:
-  : parseA :: IO A
-  : parseB :: IO B
-  : parseC :: IO C
-  : validateA :: IO ()
-  : ...
+Tools & renderers rarely need (/demand/) the whole PDF
+ - reading?
+ - parsing??
+ - semantic checks???
+#+latex: \vspace{12pt}
+   
+Thus, this
+#+begin_src haskell
+  parsePDF :: FileData -> Maybe PDFAbstractSyntax
+#+end_src
+is not going to be used in practice!     
 
-Alternative, the API-based parser:
+# Alternatives?
 
+* TODO [#C] One Solution ...
+
+- For complex formats,
+  - tools are "projections": rarely to parse/validate all.
+  - may have alternate "parsing paths" we want to take
+
+- Shotgun Parsers?
+  - ... the deadliest of patterns: "Input data checking, handling interspersed
+    with processing logic"
+- I.e., we provide multiple parsers where the following is interspersed through
+  code and the relation between these is *not specified*:
+  #+begin_src haskell
+    parseA :: Offset -> IO A
+    parseB :: Offset -> IO B
+    parseC :: Offset -> IO C
+    validateA :: A -> IO ()
+    validateB :: A -> B -> IO ()
+  #+end_src
+
+* TODO [#C] Better Solution, Parser as API
+
+We provide four interdependent calls (not /entry points/):
+#+begin_src haskell
+  parseHdrTrlr :: FileData -> IO HdrTrlr
+  parseUpdates :: HdrTrlr -> IO [Updates]
+  createXRef   :: [Updates] -> IO XRef
+  derefObjId   :: ObjId -> XRef -> IO PdfValue
+#+end_src
+(Types can be as abstract as we wish.)
+
+#+latex: \vspace{18pt}
+Using this, we write abstractions on the above:
+#+begin_src haskell
+  getInitialUpdate :: FileData -> IO XRef
+  getRootValue     :: HdrTrailer -> XRef -> PdfValue
+  getPageTree      :: XRef -> Tree PdfValue
+#+end_src
 
 # https://darkbazaar.wordpress.com/category/researchers/bratus-sergey/
 # 

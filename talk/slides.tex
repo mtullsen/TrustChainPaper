@@ -1,0 +1,186 @@
+% Created 2022-05-24 Tue 20:45
+% Intended LaTeX compiler: pdflatex
+\documentclass[t,10pt,xcolor={dvipsnames}]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\AtBeginSection[]{\begin{frame}<beamer>\frametitle{}\tableofcontents[currentsection]\end{frame}}
+\definecolor{Orange}{rgb}{1,0.5,0}
+\usepackage{listings}
+\usetheme{Madrid}
+\author{Mark Tullsen, William Harris, Peter Wyatt}
+\date{\today}
+\title{Strengthening Weak Links in the PDF Trust Chain}
+\hypersetup{
+ pdfauthor={Mark Tullsen, William Harris, Peter Wyatt},
+ pdftitle={Strengthening Weak Links in the PDF Trust Chain},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 27.2 (Org mode 9.4.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\begin{frame}[label={sec:orgafa8ba8}]{PDF Trust Chain}
+\begin{center}
+\includegraphics[width=0.47\linewidth]{../figures/Stages.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[label={sec:org352c407}]{PDF Components}
+\begin{center}
+ { \hspace{5pt}
+   \includegraphics[width=0.4\linewidth]{../figures/pdf-structure.png}
+ } \hspace{30pt}
+ \raisebox{-1\baselineskip}
+          {\includegraphics[width=0.30\linewidth]{../figures/pdf-structure-incremental.png}}
+\end{center}
+\end{frame}
+
+\begin{frame}[label={sec:orgc0f1eab}]{Vulnerabilities Occurring Primarily at the Pre-DOM levels}
+\begin{itemize}
+\item Schizophrenic files
+\item Polyglot files
+\item Shadow attacks: possible because of ability to sign
+\alert{dead objects} and \alert{cavities}
+\item Multiple places for hidden/unused/malicious data in PDF
+\begin{itemize}
+\item non-obvious places, unnoticed when "simply parsing"
+\item e.g., shadow-attacks
+\item dead bytes, dead objects, dead updates, dead linearization sections, etc.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:orge402734}]{Challenges to Creating Correct and Trustworthy Pre-DOM 'Code'}
+\begin{itemize}
+\item Lack of formality in standard. Thus, implementations:
+\begin{itemize}
+\item are more effort
+\item over implement, under implement, wrongly implement
+\end{itemize}
+\item No definition of acceptable, reasonable error recovery
+\item Less than ideal design that reflects 27 years of an evolving standard
+\item Pre-DOM processing
+\begin{itemize}
+\item is where many parsing errors \& recovery occur
+\item is non-trivial
+\item involves multiple interdependent features
+\item involves multiple redundant features
+\begin{itemize}
+\item schizophrenic if these features aren't mutually consistent
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:org9f2cffa},fragile]{Stage 4: Transform XRef Map to Object Map}
+ \begin{center}
+\includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
+\end{center}
+\lstset{language=bash,label= ,caption= ,captionpos=b,numbers=none}
+\begin{lstlisting}
+      ...
+100   3 0 obj 99 endobj
+123   % object 4 is not here
+151   5 0 obj
+      <<
+      /Type /ObjStm
+      /Length 3 0 R   % indirect!
+      /N 2            % 2 objects; (potentially indirect)
+      /First 10       % offset to 1st object (potentially indirect)
+      >>
+      stream
+      4 0 6 100
+      V1 % PDF-Value here, 4 0 R, [fake comment] 
+      V2 % PDF-Value here, 6 0 R, [fake comment]
+      endstream
+      endobj
+409   7 0 obj ... endobj
+      ...
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[label={sec:orge59bba2}]{Parser vs Validator}
+\end{frame}
+\begin{frame}[label={sec:orgd879f32},fragile]{Implementation?}
+ *[TODO: in the paper we note that we have, from scratch,
+specified the hard parts but have not linked to our [daedalus generated]
+primitive parsers]*
+
+Tools \& renderers rarely need (\emph{demand}) the whole PDF
+\begin{itemize}
+\item reading?
+\item parsing??
+\item semantic checks???
+\end{itemize}
+\vspace{12pt}
+
+Thus, this
+\lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
+\begin{lstlisting}
+parsePDF :: FileData -> Maybe PDFAbstractSyntax
+\end{lstlisting}
+is not going to be used in practice!     
+\end{frame}
+
+\begin{frame}[label={sec:orgd251042},fragile]{One Solution \ldots{}}
+ \begin{itemize}
+\item For complex formats,
+\begin{itemize}
+\item tools are "projections": rarely to parse/validate all.
+\item may have alternate "parsing paths" we want to take
+\end{itemize}
+
+\item Shotgun Parsers?
+\begin{itemize}
+\item \ldots{} the deadliest of patterns: "Input data checking, handling interspersed
+with processing logic"
+\end{itemize}
+\item I.e., we provide multiple parsers where the following is interspersed through
+code and the relation between these is \alert{not specified}:
+\lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
+\begin{lstlisting}
+parseA :: Offset -> IO A
+parseB :: Offset -> IO B
+parseC :: Offset -> IO C
+validateA :: A -> IO ()
+validateB :: A -> B -> IO ()
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:orgaff7287},fragile]{Better Solution, Parser as API}
+ We provide four interdependent calls (not \emph{entry points}):
+\lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
+\begin{lstlisting}
+parseHdrTrlr :: FileData -> IO HdrTrlr
+parseUpdates :: HdrTrlr -> IO [Updates]
+createXRef   :: [Updates] -> IO XRef
+derefObjId   :: ObjId -> XRef -> IO PdfValue
+\end{lstlisting}
+(Types can be as abstract as we wish.)
+
+\vspace{18pt}
+Using this, we write abstractions on the above:
+\lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
+\begin{lstlisting}
+getInitialUpdate :: FileData -> IO XRef
+getRootValue     :: HdrTrailer -> XRef -> PdfValue
+getPageTree      :: XRef -> Tree PdfValue
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[label={sec:orgde466bd}]{Conclusion}
+\end{frame}
+\end{document}
