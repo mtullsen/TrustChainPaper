@@ -68,7 +68,7 @@
 - [ ] spell check
 - [ ] bring in text/notes from other instantiations of talk
       
-* Pre-DOM: What? Vulnerabilities
+* Pre-DOM (Pre Document Object Model)
 ** DONE PDF Complexity?
 
 #+begin_export latex
@@ -81,14 +81,20 @@
 \end{center}
 #+end_export
 
-** TODO PDF Trust Chain
+** TODO PDF Trust Chain: Pre-DOM and Post-DOM
 
 #+begin_export latex
 \begin{center}
-\includegraphics[width=0.47\linewidth]{../figures/Stages.png}
+\includegraphics[width=0.63\linewidth]{images/trustchain-with-braces.png}
 \end{center}
 #+end_export
 
+# - Pre-DOM = ...
+#     - stage 5 & 6: quite complex
+#     - stages 1-4: very not trivial
+#       - and can undermine everything subsequent
+#         - which is done in practice!
+           
 ** DONE Vulnerabilities Occurring Primarily Pre-DOM
 
 - Schizophrenic files (different tools, different renderings)
@@ -151,6 +157,8 @@
 
 ** TODO [#C] Specification Issue [Update the above]               :noexport:
 ** DONE Parser $\neq$ Validator
+- A surprising source of mis-communication.
+- ...
 ** DONE A Validator (Parser $\neq$ Validator)
 
 #+begin_export latex
@@ -171,7 +179,7 @@ VALIDATOR: only valid PDFs can produce DOM (must Fail otherwise)
 
 PARSER: efficiently, construct the correct DOM when a valid PDF
 
-** DONE An Accepting Parser (Parser $\neq$ Validator)
+** DONE A Very Accepting Parser (Parser $\neq$ Validator)
 
 #+begin_export latex
 \vspace{10pt}
@@ -194,7 +202,7 @@ We can extend spec into a validator, orthogonally, via “validate” constructs
      verifyXrefRaw xrefRaw -- ensures no duplicates
 #+end_src
 
-* Conclusion
+* Conclusions
 ** DONE Accomplishments                                          
 
 - A specification for pre-DOM parsing/computation

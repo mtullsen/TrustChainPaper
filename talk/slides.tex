@@ -1,4 +1,4 @@
-% Created 2022-05-25 Wed 18:14
+% Created 2022-05-25 Wed 19:56
 % Intended LaTeX compiler: pdflatex
 \documentclass[t,10pt,xcolor={dvipsnames}]{beamer}
 \usepackage[utf8]{inputenc}
@@ -36,9 +36,9 @@
 \tableofcontents
 \end{frame}
 
-\section{Pre-DOM: What? Vulnerabilities}
-\label{sec:orgb106b3d}
-\begin{frame}[label={sec:org4a01047}]{PDF Complexity?}
+\section{Pre-DOM (Pre Document Object Model)}
+\label{sec:org8ea8c0f}
+\begin{frame}[label={sec:org97b3cac}]{PDF Complexity?}
 \begin{center}
  { \hspace{5pt}
    \includegraphics[width=0.4\linewidth]{../figures/pdf-structure.png}
@@ -48,13 +48,13 @@
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:orgea88b1d}]{PDF Trust Chain}
+\begin{frame}[label={sec:org204a650}]{PDF Trust Chain: Pre-DOM and Post-DOM}
 \begin{center}
-\includegraphics[width=0.47\linewidth]{../figures/Stages.png}
+\includegraphics[width=0.63\linewidth]{images/trustchain-with-braces.png}
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:org342d0d1}]{Vulnerabilities Occurring Primarily Pre-DOM}
+\begin{frame}[label={sec:orgb79df4e}]{Vulnerabilities Occurring Primarily Pre-DOM}
 \begin{itemize}
 \item Schizophrenic files (different tools, different renderings)
 \item Polyglot files (file being in 2+ formats)
@@ -77,7 +77,7 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org740ec19}]{PDF, and Pre-DOM, Challenges}
+\begin{frame}[label={sec:org87b1799}]{PDF, and Pre-DOM, Challenges}
 \begin{itemize}
 \item Lack of formality in standard. Thus, implementations:
 \begin{itemize}
@@ -100,8 +100,8 @@
 \end{frame}
 
 \section{Modeling Pre-DOM: Highlights}
-\label{sec:org0f0d6bd}
-\begin{frame}[label={sec:orga75f20a},fragile]{Stage 4 Sub-Stages: Transform XRef Map to Object Map}
+\label{sec:orgc7ee4f0}
+\begin{frame}[label={sec:orgd87b963},fragile]{Stage 4 Sub-Stages: Transform XRef Map to Object Map}
  \begin{center}
 \includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
 \end{center}
@@ -127,9 +127,13 @@
 \end{verbatim}
 \end{frame}
 
-\begin{frame}[label={sec:org663ad2b}]{Parser \(\neq\) Validator}
+\begin{frame}[label={sec:orga20a984}]{Parser \(\neq\) Validator}
+\begin{itemize}
+\item A surprising source of mis-communication.
+\item \ldots{}
+\end{itemize}
 \end{frame}
-\begin{frame}[label={sec:org20fa4d1}]{A Validator (Parser \(\neq\) Validator)}
+\begin{frame}[label={sec:org48df86c}]{A Validator (Parser \(\neq\) Validator)}
 \vspace{10pt}
 \includegraphics[width=0.80\linewidth]{images/pNEQv-1.png}
 \vfill
@@ -137,7 +141,7 @@
 VALIDATOR: only valid PDFs can produce DOM (must Fail otherwise)
 \end{frame}
 
-\begin{frame}[label={sec:orgf65a879}]{A Parser (Parser \(\neq\) Validator)}
+\begin{frame}[label={sec:orgeb6e62b}]{A Parser (Parser \(\neq\) Validator)}
 \vspace{10pt}
 \includegraphics[width=0.80\linewidth]{images/pNEQv-2.png}
 \vfill
@@ -145,12 +149,12 @@ VALIDATOR: only valid PDFs can produce DOM (must Fail otherwise)
 PARSER: efficiently, construct the correct DOM when a valid PDF
 \end{frame}
 
-\begin{frame}[label={sec:orge235717}]{An Accepting Parser (Parser \(\neq\) Validator)}
+\begin{frame}[label={sec:org762384e}]{A Very Accepting Parser (Parser \(\neq\) Validator)}
 \vspace{10pt}
 \includegraphics[width=0.95\linewidth]{images/pNEQv-3.png}
 \end{frame}
 
-\begin{frame}[label={sec:org6399689},fragile]{Turning Parser into Validator}
+\begin{frame}[label={sec:org8cccb32},fragile]{Turning Parser into Validator}
  Parser specification is designed to be
 \begin{itemize}
 \item understandable: clear, pure Haskell
@@ -170,8 +174,8 @@ validate $
 \end{frame}
 
 \section{Conclusion}
-\label{sec:org7f4e75d}
-\begin{frame}[label={sec:orgc3ae318}]{Accomplishments}
+\label{sec:org8e8533a}
+\begin{frame}[label={sec:org9974e49}]{Accomplishments}
 \begin{itemize}
 \item A specification for pre-DOM parsing/computation
 \begin{itemize}
@@ -186,7 +190,7 @@ creating [23,24,\ldots{},30]
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org23a9f3d}]{Future}
+\begin{frame}[label={sec:org380bc9e}]{Future}
 \begin{itemize}
 \item Not accomplished yet
 \begin{itemize}
@@ -205,8 +209,8 @@ a  tool.
 \end{frame}
 
 \section{Preview: A Next Step}
-\label{sec:orgd9ab731}
-\begin{frame}[label={sec:org38acb3e},fragile]{Implementation?}
+\label{sec:org9c5f297}
+\begin{frame}[label={sec:orgeb14077},fragile]{Implementation?}
  Tools \& renderers rarely need (\emph{demand}) the whole PDF
 \begin{itemize}
 \item reading?
@@ -223,7 +227,7 @@ parsePDF :: FileData -> Maybe PDFAbstractSyntax
 is not going to be used in practice!     
 \end{frame}
 
-\begin{frame}[label={sec:org5300fab},fragile]{One Solution \ldots{}}
+\begin{frame}[label={sec:org101f523},fragile]{One Solution \ldots{}}
  \begin{itemize}
 \item For complex formats,
 \begin{itemize}
@@ -253,7 +257,7 @@ validateB :: A -> B -> IO ()
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org88ea615},fragile]{Better Solution, Parser as API}
+\begin{frame}[label={sec:orge1fd0b9},fragile]{Better Solution, Parser as API}
  We provide four inter-dependent calls (not \emph{entry points}):
 \lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
 \begin{lstlisting}
