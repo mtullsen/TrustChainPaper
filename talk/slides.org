@@ -126,32 +126,37 @@
       
 * Modeling Pre-DOM: Highlights
 ** DONE Stage 4 Sub-Stages: Transform XRef Map to Object Map
+:PROPERTIES:
+:BEAMER_OPT: fragile
+:END:
 
 #+begin_export latex
+\vspace*{-15pt}
 \begin{center}
-\includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
+\includegraphics[width=0.75\linewidth]{images/diagram1/cropped-diagram1.001.png}
 \end{center}
+\vspace*{-15pt}
+\begin{lstlisting}[style=pdfcode]
+        ... 
+  100   3 0 obj 99 endobj
+  123   % object 4 is not here
+  151   5 0 obj
+        <<
+        /Type /ObjStm
+        /Length 3 0 R   % indirect!
+        /N 2            % 2 objects; (potentially indirect)
+        /First 10       % offset to 1st object (potentially indirect)
+        >>
+        stream
+        4 0 6 100
+        V1 % PDF-Value here, 4 0 R, [fake comment] 
+        V2 % PDF-Value here, 6 0 R, [fake comment]
+        endstream
+        endobj
+  409   7 0 obj ... endobj
+        ...
+\end{lstlisting}
 #+end_export
-#+begin_src
-      ...
-100   3 0 obj 99 endobj
-123   % object 4 is not here
-151   5 0 obj
-      <<
-      /Type /ObjStm
-      /Length 3 0 R   % indirect!
-      /N 2            % 2 objects; (potentially indirect)
-      /First 10       % offset to 1st object (potentially indirect)
-      >>
-      stream
-      4 0 6 100
-      V1 % PDF-Value here, 4 0 R, [fake comment] 
-      V2 % PDF-Value here, 6 0 R, [fake comment]
-      endstream
-      endobj
-409   7 0 obj ... endobj
-      ...
-#+end_src
 
 ** TODO [#C] Specification Issue [Update the above]               :noexport:
 ** DONE Parser $\neq$ Validator

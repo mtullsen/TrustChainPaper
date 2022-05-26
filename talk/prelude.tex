@@ -21,6 +21,12 @@
   }
   % TODO this inherited or not from other lstnewenvironment
   
+\lstdefinestyle{pdfcode}{xleftmargin=50pt,
+        xrightmargin=10pt,
+        framexleftmargin=15pt,
+        framexrightmargin=15pt,
+        linewidth={0.80\linewidth},numbers=left,frame=single,basicstyle=\tiny\ttfamily}
+
 \newcommand{\lstcd}[1]{\lstinline[basicstyle=\ttfamily\footnotesize]{#1}}
 
 % this style is used for long/verbatim notes (not text) in the paper
