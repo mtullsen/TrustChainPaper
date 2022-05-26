@@ -23,11 +23,10 @@
 #+EXPORT_EXCLUDE_TAGS: noexport
 % #+STARTUP: fninline
 
-#+LATEX_HEADER: \AtBeginSection[]{\begin{frame}<beamer>\frametitle{}\tableofcontents[currentsection]\end{frame}}
+% #+LATEX_HEADER: \AtBeginSection[]{\begin{frame}<beamer>\frametitle{}\tableofcontents[currentsection]\end{frame}}
 #+LATEX_HEADER: \definecolor{Orange}{rgb}{1,0.5,0}
-%  #+LATEX_HEADER: \include{prelude-slides}
 #+LATEX_HEADER: \usepackage{listings}
-  % no-op at the moment
+#+latex_header: \input{prelude}
   
 % having no luck: !
 % #+LATEX_HEADER: \usepackage{pgfpages}
@@ -56,13 +55,12 @@
 
 - POST-PROCESS
   - fixup author
-          
+
 # A
-- [ ] lost your pre-DOM notes!! p5.
-- [ ] talk through your Stage4 slide
-- [ ] practice 3x
-  - some you've never given: Stage 4
 - [ ] code listings: indent, and make stage 4 smaller/two wide.
+- [ ] talk through your Stage4 slide
+- [ ] practice 1x
+- [ ] add the bug/spec issue slide
 
 # B 
 - [ ] spell check
@@ -112,7 +110,7 @@
 
 # FIXME: describing shadow-attacks
     
-** DONE [#C] PDF, and Pre-DOM, Challenges
+** DONE PDF, and Pre-DOM, Challenges                              :noexport:
 
 - Lack of formality in standard. Thus, implementations:
   - are more effort
@@ -224,7 +222,7 @@ We can extend spec into a validator, orthogonally, via “validate” constructs
   - add support for commonly allowed “exuberances”
   - add more “validate”s to get closer to a /validator/.
 
-* Preview: A Next Step
+* Preview: Parser as API
 ** DONE Implementation?
 
 Tools & renderers rarely need (/demand/) the whole PDF

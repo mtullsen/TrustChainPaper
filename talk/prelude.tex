@@ -1,0 +1,73 @@
+%%%% listings pkg: %%%%
+
+% \lstloadlanguages{Haskell}
+
+\lstset{
+  basicstyle=\scriptsize\ttfamily,
+  %mathescape=true,
+  %numbers=left,
+  mathescape=false,
+  aboveskip=\medskipamount,
+  belowskip=\smallskipamount,
+  showspaces=false,
+  keywordstyle=,
+  numberstyle=\tiny,
+  numbersep=0pt,
+  %stepnumber=2,
+  tabsize=2,
+  %extendedchars=true,
+  breaklines=false,
+  %keywordstyle=\color{black}
+  }
+  % TODO this inherited or not from other lstnewenvironment
+  
+\newcommand{\lstcd}[1]{\lstinline[basicstyle=\ttfamily\footnotesize]{#1}}
+
+% this style is used for long/verbatim notes (not text) in the paper
+\lstdefinestyle{meta}
+  {basicstyle=\scriptsize\ttfamily\color{magenta}}
+
+\lstnewenvironment{myc}
+    {\lstset{}%
+      \csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname}
+    \lstset{
+      basicstyle=\scriptsize\ttfamily,
+      mathescape=false,
+      language=C,
+      lineskip=1pt,
+      showspaces=false,
+      keywordstyle=,
+      flexiblecolumns=false,
+      basewidth={0.5em,0.45em}
+    }
+
+\lstnewenvironment{code}
+    {\lstset{}%
+      \csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname}
+    \lstset{
+      mathescape=false,
+      language=Haskell,
+      lineskip=1pt,
+      showspaces=false,
+      numbersep=0pt,
+      keywordstyle=,
+      basicstyle=\scriptsize\ttfamily,
+      flexiblecolumns=false,
+      basewidth={0.5em,0.45em},
+      literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+               {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+               {\\\\}{{\char`\\\char`\\}}1
+               {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+               {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2 
+          %     {\ .\ }{{$\circ$}}2
+               {>>}{{>>}}2 {>>=}{{>>=}}2
+               {|}{{$\mid$}}1               
+    }
+    % literate haskell assumes \begin{code}
+
+\newcommand{\haskellnote}[1]{#1}
+  % ever add formatting to? Just used to indicate notes to non-Haskellers
+\newcommand{\keypoint}[1]{{\bf{#1}}}
+  % TODO: boxed frame maybe?

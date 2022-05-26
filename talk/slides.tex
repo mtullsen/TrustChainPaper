@@ -1,4 +1,4 @@
-% Created 2022-05-25 Wed 19:56
+% Created 2022-05-25 Wed 22:11
 % Intended LaTeX compiler: pdflatex
 \documentclass[t,10pt,xcolor={dvipsnames}]{beamer}
 \usepackage[utf8]{inputenc}
@@ -14,9 +14,9 @@
 \usepackage{amssymb}
 \usepackage{capt-of}
 \usepackage{hyperref}
-\AtBeginSection[]{\begin{frame}<beamer>\frametitle{}\tableofcontents[currentsection]\end{frame}}
 \definecolor{Orange}{rgb}{1,0.5,0}
 \usepackage{listings}
+\input{prelude}
 \author{Mark Tullsen, William Harris, Peter Wyatt \\ \\ {tullsen,wrharris}@galois.com \\ peter.wyatt@pdfa.org }
 \usetheme{Madrid}
 \author{Mark Tullsen, William Harris, Peter Wyatt}
@@ -37,8 +37,8 @@
 \end{frame}
 
 \section{Pre-DOM (Pre Document Object Model)}
-\label{sec:org8ea8c0f}
-\begin{frame}[label={sec:org97b3cac}]{PDF Complexity?}
+\label{sec:org7fec4ff}
+\begin{frame}[label={sec:orgfb9052d}]{PDF Complexity?}
 \begin{center}
  { \hspace{5pt}
    \includegraphics[width=0.4\linewidth]{../figures/pdf-structure.png}
@@ -48,13 +48,13 @@
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:org204a650}]{PDF Trust Chain: Pre-DOM and Post-DOM}
+\begin{frame}[label={sec:orgf0183d4}]{PDF Trust Chain: Pre-DOM and Post-DOM}
 \begin{center}
 \includegraphics[width=0.63\linewidth]{images/trustchain-with-braces.png}
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:orgb79df4e}]{Vulnerabilities Occurring Primarily Pre-DOM}
+\begin{frame}[label={sec:org10dc1ed}]{Vulnerabilities Occurring Primarily Pre-DOM}
 \begin{itemize}
 \item Schizophrenic files (different tools, different renderings)
 \item Polyglot files (file being in 2+ formats)
@@ -77,31 +77,9 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org87b1799}]{PDF, and Pre-DOM, Challenges}
-\begin{itemize}
-\item Lack of formality in standard. Thus, implementations:
-\begin{itemize}
-\item are more effort
-\item over implement, under implement, wrongly implement
-\end{itemize}
-\item No definition of acceptable, reasonable error recovery
-\item Less than ideal design that reflects 27 years of an evolving standard
-\item Pre-DOM processing
-\begin{itemize}
-\item is where many parsing errors \& recovery occur
-\item is non-trivial
-\item involves multiple interdependent features
-\item involves multiple redundant features
-\begin{itemize}
-\item schizophrenic if these features aren't mutually consistent
-\end{itemize}
-\end{itemize}
-\end{itemize}
-\end{frame}
-
 \section{Modeling Pre-DOM: Highlights}
-\label{sec:orgc7ee4f0}
-\begin{frame}[label={sec:orgd87b963},fragile]{Stage 4 Sub-Stages: Transform XRef Map to Object Map}
+\label{sec:org30bfeda}
+\begin{frame}[label={sec:orgbc3a193},fragile]{Stage 4 Sub-Stages: Transform XRef Map to Object Map}
  \begin{center}
 \includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
 \end{center}
@@ -127,13 +105,13 @@
 \end{verbatim}
 \end{frame}
 
-\begin{frame}[label={sec:orga20a984}]{Parser \(\neq\) Validator}
+\begin{frame}[label={sec:org104b349}]{Parser \(\neq\) Validator}
 \begin{itemize}
 \item A surprising source of mis-communication.
 \item \ldots{}
 \end{itemize}
 \end{frame}
-\begin{frame}[label={sec:org48df86c}]{A Validator (Parser \(\neq\) Validator)}
+\begin{frame}[label={sec:orgf45e751}]{A Validator (Parser \(\neq\) Validator)}
 \vspace{10pt}
 \includegraphics[width=0.80\linewidth]{images/pNEQv-1.png}
 \vfill
@@ -141,7 +119,7 @@
 VALIDATOR: only valid PDFs can produce DOM (must Fail otherwise)
 \end{frame}
 
-\begin{frame}[label={sec:orgeb6e62b}]{A Parser (Parser \(\neq\) Validator)}
+\begin{frame}[label={sec:org3a0ac1e}]{A Parser (Parser \(\neq\) Validator)}
 \vspace{10pt}
 \includegraphics[width=0.80\linewidth]{images/pNEQv-2.png}
 \vfill
@@ -149,12 +127,12 @@ VALIDATOR: only valid PDFs can produce DOM (must Fail otherwise)
 PARSER: efficiently, construct the correct DOM when a valid PDF
 \end{frame}
 
-\begin{frame}[label={sec:org762384e}]{A Very Accepting Parser (Parser \(\neq\) Validator)}
+\begin{frame}[label={sec:org1a9eeef}]{A Very Accepting Parser (Parser \(\neq\) Validator)}
 \vspace{10pt}
 \includegraphics[width=0.95\linewidth]{images/pNEQv-3.png}
 \end{frame}
 
-\begin{frame}[label={sec:org8cccb32},fragile]{Turning Parser into Validator}
+\begin{frame}[label={sec:org5f3f0ef},fragile]{Turning Parser into Validator}
  Parser specification is designed to be
 \begin{itemize}
 \item understandable: clear, pure Haskell
@@ -173,9 +151,9 @@ validate $
 \end{lstlisting}
 \end{frame}
 
-\section{Conclusion}
-\label{sec:org8e8533a}
-\begin{frame}[label={sec:org9974e49}]{Accomplishments}
+\section{Conclusions}
+\label{sec:org74c753c}
+\begin{frame}[label={sec:org6669ae1}]{Accomplishments}
 \begin{itemize}
 \item A specification for pre-DOM parsing/computation
 \begin{itemize}
@@ -190,7 +168,7 @@ creating [23,24,\ldots{},30]
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org380bc9e}]{Future}
+\begin{frame}[label={sec:org2944a2b}]{Future}
 \begin{itemize}
 \item Not accomplished yet
 \begin{itemize}
@@ -208,9 +186,9 @@ a  tool.
 \end{itemize}
 \end{frame}
 
-\section{Preview: A Next Step}
-\label{sec:org9c5f297}
-\begin{frame}[label={sec:orgeb14077},fragile]{Implementation?}
+\section{Preview: Parser as API}
+\label{sec:org740d0d9}
+\begin{frame}[label={sec:org5b65951},fragile]{Implementation?}
  Tools \& renderers rarely need (\emph{demand}) the whole PDF
 \begin{itemize}
 \item reading?
@@ -227,7 +205,7 @@ parsePDF :: FileData -> Maybe PDFAbstractSyntax
 is not going to be used in practice!     
 \end{frame}
 
-\begin{frame}[label={sec:org101f523},fragile]{One Solution \ldots{}}
+\begin{frame}[label={sec:org998e8f0},fragile]{One Solution \ldots{}}
  \begin{itemize}
 \item For complex formats,
 \begin{itemize}
@@ -257,7 +235,7 @@ validateB :: A -> B -> IO ()
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orge1fd0b9},fragile]{Better Solution, Parser as API}
+\begin{frame}[label={sec:org5c3c2e5},fragile]{Better Solution, Parser as API}
  We provide four inter-dependent calls (not \emph{entry points}):
 \lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
 \begin{lstlisting}
