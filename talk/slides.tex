@@ -1,4 +1,4 @@
-% Created 2022-05-25 Wed 12:18
+% Created 2022-05-25 Wed 18:14
 % Intended LaTeX compiler: pdflatex
 \documentclass[t,10pt,xcolor={dvipsnames}]{beamer}
 \usepackage[utf8]{inputenc}
@@ -17,9 +17,10 @@
 \AtBeginSection[]{\begin{frame}<beamer>\frametitle{}\tableofcontents[currentsection]\end{frame}}
 \definecolor{Orange}{rgb}{1,0.5,0}
 \usepackage{listings}
+\author{Mark Tullsen, William Harris, Peter Wyatt \\ \\ {tullsen,wrharris}@galois.com \\ peter.wyatt@pdfa.org }
 \usetheme{Madrid}
 \author{Mark Tullsen, William Harris, Peter Wyatt}
-\date{\today}
+\date{May 26, 2022}
 \title{Strengthening Weak Links in the PDF Trust Chain}
 \hypersetup{
  pdfauthor={Mark Tullsen, William Harris, Peter Wyatt},
@@ -35,9 +36,9 @@
 \tableofcontents
 \end{frame}
 
-\section{Pre-DOM: "What Lies Beneath" is a Concern}
-\label{sec:orgcb4f31c}
-\begin{frame}[label={sec:org183eb0c}]{PDF Complexity?}
+\section{Pre-DOM: What? Vulnerabilities}
+\label{sec:orgb106b3d}
+\begin{frame}[label={sec:org4a01047}]{PDF Complexity?}
 \begin{center}
  { \hspace{5pt}
    \includegraphics[width=0.4\linewidth]{../figures/pdf-structure.png}
@@ -47,20 +48,24 @@
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:org0144db3}]{PDF Trust Chain}
+\begin{frame}[label={sec:orgea88b1d}]{PDF Trust Chain}
 \begin{center}
 \includegraphics[width=0.47\linewidth]{../figures/Stages.png}
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:org728a087}]{Vulnerabilities Occurring Primarily Pre-DOM}
+\begin{frame}[label={sec:org342d0d1}]{Vulnerabilities Occurring Primarily Pre-DOM}
 \begin{itemize}
 \item Schizophrenic files (different tools, different renderings)
 \item Polyglot files (file being in 2+ formats)
 \item Shadow attacks
 \begin{itemize}
-\item i.e., attacker can add "shadow content" that is PDF-signed, then reveal
-at will without giving clear warnings to user.
+\item i.e., attacker can
+\begin{itemize}
+\item add "shadow content" that is PDF-signed,
+\item after signing, can update-at-will (revealing shadow content)
+\item without giving clear warnings to user.
+\end{itemize}
 \item possible because of ability to sign \emph{dead objects} and \emph{cavities}
 \end{itemize}
 \item Multiple places for hidden/unused/malicious data in PDF
@@ -72,7 +77,7 @@ at will without giving clear warnings to user.
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orgaae2d4e}]{PDF, and Pre-DOM, Challenges}
+\begin{frame}[label={sec:org740ec19}]{PDF, and Pre-DOM, Challenges}
 \begin{itemize}
 \item Lack of formality in standard. Thus, implementations:
 \begin{itemize}
@@ -95,8 +100,8 @@ at will without giving clear warnings to user.
 \end{frame}
 
 \section{Modeling Pre-DOM: Highlights}
-\label{sec:org99f1197}
-\begin{frame}[label={sec:org173bc68},fragile]{Stage 4: Transform XRef Map to Object Map}
+\label{sec:org0f0d6bd}
+\begin{frame}[label={sec:orga75f20a},fragile]{Stage 4 Sub-Stages: Transform XRef Map to Object Map}
  \begin{center}
 \includegraphics[width=0.8\linewidth]{images/diagram1/cropped-diagram1.001.png}
 \end{center}
@@ -122,25 +127,30 @@ at will without giving clear warnings to user.
 \end{verbatim}
 \end{frame}
 
-\begin{frame}[label={sec:org5d5419a}]{Parser NEQ Validator}
-Validator: only valid PDFs can produce DOM (must Fail otherwise)
-
+\begin{frame}[label={sec:org663ad2b}]{Parser \(\neq\) Validator}
+\end{frame}
+\begin{frame}[label={sec:org20fa4d1}]{A Validator (Parser \(\neq\) Validator)}
 \vspace{10pt}
-\includegraphics[width=0.90\linewidth]{images/pNEQv-1.png}
+\includegraphics[width=0.80\linewidth]{images/pNEQv-1.png}
+\vfill
+
+VALIDATOR: only valid PDFs can produce DOM (must Fail otherwise)
 \end{frame}
 
-\begin{frame}[label={sec:orgbbff79f}]{Parser NEQ Validator}
-Parser: efficiently, construct the correct DOM when a valid PDF
+\begin{frame}[label={sec:orgf65a879}]{A Parser (Parser \(\neq\) Validator)}
 \vspace{10pt}
-\includegraphics[width=0.90\linewidth]{images/pNEQv-2.png}
+\includegraphics[width=0.80\linewidth]{images/pNEQv-2.png}
+\vfill
+
+PARSER: efficiently, construct the correct DOM when a valid PDF
 \end{frame}
 
-\begin{frame}[label={sec:org44c92a9}]{Parser NEQ Validator}
-\vspace{20pt}
-\includegraphics[width=0.90\linewidth]{images/pNEQv-3.png}
+\begin{frame}[label={sec:orge235717}]{An Accepting Parser (Parser \(\neq\) Validator)}
+\vspace{10pt}
+\includegraphics[width=0.95\linewidth]{images/pNEQv-3.png}
 \end{frame}
 
-\begin{frame}[label={sec:org9b54fc5},fragile]{Turning Parser into Validator}
+\begin{frame}[label={sec:org6399689},fragile]{Turning Parser into Validator}
  Parser specification is designed to be
 \begin{itemize}
 \item understandable: clear, pure Haskell
@@ -153,15 +163,15 @@ We can extend spec into a validator, orthogonally, via “validate” constructs
 \lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
 \begin{lstlisting}
 do
-  (xrefRaw, xrefEndOff) <- pXrefRaw
-  validate $
-     verifyXrefRaw xrefRaw -- ensures no duplicates
+(xrefRaw, xrefEndOff) <- pXrefRaw
+validate $
+   verifyXrefRaw xrefRaw -- ensures no duplicates
 \end{lstlisting}
 \end{frame}
 
 \section{Conclusion}
-\label{sec:orgc84a54b}
-\begin{frame}[label={sec:org9238346}]{Accomplishments}
+\label{sec:org7f4e75d}
+\begin{frame}[label={sec:orgc3ae318}]{Accomplishments}
 \begin{itemize}
 \item A specification for pre-DOM parsing/computation
 \begin{itemize}
@@ -169,36 +179,34 @@ do
 \item A growing list of PDF Association “issues” that we have contributed to
 creating [23,24,\ldots{},30]
 \end{itemize}
-\item Have a unique tool for displaying updates \& cavities
-\item A semantics that \ldots{} [FIXME]
+\item Cause \emph{and} effect of
+\begin{itemize}
+\item unique tool for displaying updates \& cavities
+\end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org01e5006}]{Future [FIXME: TOO MUCH]}
+\begin{frame}[label={sec:org23a9f3d}]{Future}
 \begin{itemize}
-\item Expand spec (uninteresting parts are unimplemented)
-\item Turn spec into reference implementation (of pre-DOM)
+\item Not accomplished yet
 \begin{itemize}
-\item integrate with primitive parsers (implemented of course with Daedalus)
-\item Thus, can test other tools’ conformance with our reference implementation
+\item the less interesting/subtle parts specified/implemented
+\item integrated with our primitive, daedalus-generated parsers to create
+a  tool.
 \end{itemize}
-\item Extend specification
+
+\item Create a full pre-DOM tool that
 \begin{itemize}
-\item support more PDF features (hybrids, compression, …)
+\item supports further PDF features (hybrids, compression, …)
 \item add support for commonly allowed “exuberances”
-\item add more “validate”s to get closer to a Validator
-\end{itemize}
-\item Our "pre-DOM inspection/validation tool"
-\begin{itemize}
-\item update semantics (as learned from writing spec)
-\item further extensions
+\item add more “validate”s to get closer to a \emph{validator}.
 \end{itemize}
 \end{itemize}
 \end{frame}
 
 \section{Preview: A Next Step}
-\label{sec:orgeb95292}
-\begin{frame}[label={sec:org2fcd0ee},fragile]{Implementation?}
+\label{sec:orgd9ab731}
+\begin{frame}[label={sec:org38acb3e},fragile]{Implementation?}
  Tools \& renderers rarely need (\emph{demand}) the whole PDF
 \begin{itemize}
 \item reading?
@@ -215,12 +223,15 @@ parsePDF :: FileData -> Maybe PDFAbstractSyntax
 is not going to be used in practice!     
 \end{frame}
 
-\begin{frame}[label={sec:org8794b6f},fragile]{One Solution \ldots{}}
+\begin{frame}[label={sec:org5300fab},fragile]{One Solution \ldots{}}
  \begin{itemize}
 \item For complex formats,
 \begin{itemize}
-\item tools are "projections": rarely to parse/validate all.
+\item tools are "projections": rarely used parse/validate all.
 \item may have alternate "parsing paths" we want to take
+\begin{itemize}
+\item e.g., metadata, page 1, text-only
+\end{itemize}
 \end{itemize}
 
 \item Shotgun Parsers?
@@ -228,6 +239,7 @@ is not going to be used in practice!
 \item \ldots{} the deadliest of patterns: "Input data checking, handling interspersed
 with processing logic"
 \end{itemize}
+
 \item I.e., we provide multiple parsers where the following is interspersed through
 code and the relation between these is \alert{not specified}:
 \lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
@@ -241,8 +253,8 @@ validateB :: A -> B -> IO ()
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org2de9633},fragile]{Better Solution, Parser as API}
- We provide four interdependent calls (not \emph{entry points}):
+\begin{frame}[label={sec:org88ea615},fragile]{Better Solution, Parser as API}
+ We provide four inter-dependent calls (not \emph{entry points}):
 \lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
 \begin{lstlisting}
 parseHdrTrlr :: FileData -> IO HdrTrlr
@@ -250,9 +262,10 @@ parseUpdates :: HdrTrlr -> IO [Updates]
 createXRef   :: [Updates] -> IO XRef
 derefObjId   :: ObjId -> XRef -> IO PdfValue
 \end{lstlisting}
-(Types can be as abstract as we wish.)
+(The returned types can be as abstract as we wish.)
 
 \vspace{18pt}
+
 Using this, we write abstractions on the above:
 \lstset{language=haskell,label= ,caption= ,captionpos=b,numbers=none}
 \begin{lstlisting}

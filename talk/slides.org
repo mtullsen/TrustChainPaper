@@ -2,7 +2,8 @@
 
 #+TITLE: Strengthening Weak Links in the PDF Trust Chain
 #+AUTHOR: Mark Tullsen, William Harris, Peter Wyatt
-#+Email: tullsen@galois.com, wrharris@galois.com, peter.wyatt@pdfa.org
+#+Email:  tullsen@galois.com, wrharris@galois.com, peter.wyatt@pdfa.org
+#+date:   May 26, 2022
 
 #+LaTeX_CLASS: beamer
 % #+LATEX_CLASS_OPTIONS: [presentation,t]
@@ -16,7 +17,7 @@
 #+OPTIONS: with-todo-keywords:t
 #+OPTIONS:   H:2 num:t toc:t \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
 #+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:nil pri:nil tags:nil
-#+OPTIONS:   author:t inline:t
+#+OPTIONS:   author:f inline:t
 
 #+EXPORT_SELECT_TAGS: export
 #+EXPORT_EXCLUDE_TAGS: noexport
@@ -26,13 +27,16 @@
 #+LATEX_HEADER: \definecolor{Orange}{rgb}{1,0.5,0}
 %  #+LATEX_HEADER: \include{prelude-slides}
 #+LATEX_HEADER: \usepackage{listings}
-
+  % no-op at the moment
+  
 % having no luck: !
 % #+LATEX_HEADER: \usepackage{pgfpages}
 % #+LATEX_HEADER: \setbeameroption{show notes}
 % #+LATEX_HEADER: \setbeameroption{hide notes} % Only slides
 % #+LATEX_HEADER: \setbeameroption{show only notes} % Only notes
 % #+LATEX_HEADER: \setbeameroption{show notes on second screen=left} % Both
+
+#+LATEX_HEADER: \author{Mark Tullsen, William Harris, Peter Wyatt \\ \\ {tullsen,wrharris}@galois.com \\ peter.wyatt@pdfa.org }
 
 * TODO items/meta                                                  :noexport:
 
@@ -44,26 +48,27 @@
   - parser/validator slides
     - BTW: the standard is effectively defining a validator
       - no guidance as to how to write a robust parser
-  - [x] stage 4 Explanation.
-  - [?] shotgun and APIs! 
-  - [-] haskell code/types? no
 
 - orphans/say
   - with daedalus ddl: spoiled, but you have *lots* of computation!   
   - our paper describes
     - an efficient and purely functional approach
-      
-# A     
-- [ ] code listings: stage 4 and elsewhere
-- [ ] bring in text/notes from other instantiations of talk
- 
-# B 
-- [ ] emails on title page
-- [ ] spell check
+
+- POST-PROCESS
+  - fixup author
+          
+# A
+- [ ] lost your pre-DOM notes!! p5.
+- [ ] talk through your Stage4 slide
 - [ ] practice 3x
   - some you've never given: Stage 4
+- [ ] code listings: indent, and make stage 4 smaller/two wide.
+
+# B 
+- [ ] spell check
+- [ ] bring in text/notes from other instantiations of talk
       
-* Pre-DOM: "What Lies Beneath" is a Concern
+* Pre-DOM: What? Vulnerabilities
 ** DONE PDF Complexity?
 
 #+begin_export latex
@@ -76,7 +81,7 @@
 \end{center}
 #+end_export
 
-** DONE PDF Trust Chain
+** TODO PDF Trust Chain
 
 #+begin_export latex
 \begin{center}
@@ -89,8 +94,10 @@
 - Schizophrenic files (different tools, different renderings)
 - Polyglot files (file being in 2+ formats)
 - Shadow attacks
-  - i.e., attacker can add "shadow content" that is PDF-signed, then reveal
-    at will without giving clear warnings to user.
+  - i.e., attacker can
+    - add "shadow content" that is PDF-signed,
+    - after signing, can update-at-will (revealing shadow content)
+    - without giving clear warnings to user.
   - possible because of ability to sign /dead objects/ and /cavities/
 - Multiple places for hidden/unused/malicious data in PDF
   - non-obvious places, unnoticed when "simply parsing"
@@ -99,7 +106,7 @@
 
 # FIXME: describing shadow-attacks
     
-** DONE PDF, and Pre-DOM, Challenges
+** DONE [#C] PDF, and Pre-DOM, Challenges
 
 - Lack of formality in standard. Thus, implementations:
   - are more effort
@@ -114,7 +121,7 @@
     - schizophrenic if these features aren't mutually consistent
       
 * Modeling Pre-DOM: Highlights
-** DONE Stage 4: Transform XRef Map to Object Map
+** DONE Stage 4 Sub-Stages: Transform XRef Map to Object Map
 
 #+begin_export latex
 \begin{center}
@@ -143,28 +150,32 @@
 #+end_src
 
 ** TODO [#C] Specification Issue [Update the above]               :noexport:
-** DONE Parser NEQ Validator
-
-Validator: only valid PDFs can produce DOM (must Fail otherwise)
+** DONE Parser $\neq$ Validator
+** DONE A Validator (Parser $\neq$ Validator)
 
 #+begin_export latex
 \vspace{10pt}
-\includegraphics[width=0.90\linewidth]{images/pNEQv-1.png}
+\includegraphics[width=0.80\linewidth]{images/pNEQv-1.png}
+\vfill
 #+end_export
 
-** DONE Parser NEQ Validator
+VALIDATOR: only valid PDFs can produce DOM (must Fail otherwise)
 
-Parser: efficiently, construct the correct DOM when a valid PDF
+** DONE A Parser (Parser $\neq$ Validator)
+
 #+begin_export latex
 \vspace{10pt}
-\includegraphics[width=0.90\linewidth]{images/pNEQv-2.png}
+\includegraphics[width=0.80\linewidth]{images/pNEQv-2.png}
+\vfill
 #+end_export
 
-** TODO [#C] Parser NEQ Validator
+PARSER: efficiently, construct the correct DOM when a valid PDF
+
+** DONE An Accepting Parser (Parser $\neq$ Validator)
 
 #+begin_export latex
-\vspace{20pt}
-\includegraphics[width=0.90\linewidth]{images/pNEQv-3.png}
+\vspace{10pt}
+\includegraphics[width=0.95\linewidth]{images/pNEQv-3.png}
 #+end_export
 
 ** DONE Turning Parser into Validator
@@ -177,35 +188,33 @@ Parser specification is designed to be
 We can extend spec into a validator, orthogonally, via “validate” constructs
 (turning on/off on with command-line flag).  E.g.,
 #+begin_src haskell
-do
+  do
   (xrefRaw, xrefEndOff) <- pXrefRaw
   validate $
      verifyXrefRaw xrefRaw -- ensures no duplicates
 #+end_src
 
 * Conclusion
-** TODO [#A] Accomplishments                                          
+** DONE Accomplishments                                          
 
 - A specification for pre-DOM parsing/computation
   - Clarifies some subtle issues in PDF Standard
   - A growing list of PDF Association “issues” that we have contributed to
     creating [23,24,...,30]
-- Have a unique tool for displaying updates & cavities
-- A semantics that ... [FIXME]
-  
-** TODO Future [FIXME: TOO MUCH]
+- Cause /and/ effect of
+  - unique tool for displaying updates & cavities
+      
+** DONE Future
 
-- Expand spec (uninteresting parts are unimplemented)
-- Turn spec into reference implementation (of pre-DOM)
-  - integrate with primitive parsers (implemented of course with Daedalus)
-  - Thus, can test other tools’ conformance with our reference implementation
-- Extend specification
-  - support more PDF features (hybrids, compression, …)
+- Not accomplished yet
+  - the less interesting/subtle parts specified/implemented 
+  - integrated with our primitive, daedalus-generated parsers to create
+    a  tool.
+
+- Create a full pre-DOM tool that
+  - supports further PDF features (hybrids, compression, …)
   - add support for commonly allowed “exuberances”
-  - add more “validate”s to get closer to a Validator
-- Our "pre-DOM inspection/validation tool"
-  - update semantics (as learned from writing spec)
-  - further extensions
+  - add more “validate”s to get closer to a /validator/.
 
 * Preview: A Next Step
 ** DONE Implementation?
@@ -227,12 +236,14 @@ is not going to be used in practice!
 ** DONE One Solution ...
 
 - For complex formats,
-  - tools are "projections": rarely to parse/validate all.
+  - tools are "projections": rarely used parse/validate all.
   - may have alternate "parsing paths" we want to take
+    - e.g., metadata, page 1, text-only
 
 - Shotgun Parsers?
   - ... the deadliest of patterns: "Input data checking, handling interspersed
     with processing logic"
+
 - I.e., we provide multiple parsers where the following is interspersed through
   code and the relation between these is *not specified*:
   #+begin_src haskell
@@ -245,16 +256,17 @@ is not going to be used in practice!
 
 ** DONE Better Solution, Parser as API
 
-We provide four interdependent calls (not /entry points/):
+We provide four inter-dependent calls (not /entry points/):
 #+begin_src haskell
   parseHdrTrlr :: FileData -> IO HdrTrlr
   parseUpdates :: HdrTrlr -> IO [Updates]
   createXRef   :: [Updates] -> IO XRef
   derefObjId   :: ObjId -> XRef -> IO PdfValue
 #+end_src
-(Types can be as abstract as we wish.)
+(The returned types can be as abstract as we wish.)
 
 #+latex: \vspace{18pt}
+
 Using this, we write abstractions on the above:
 #+begin_src haskell
   getInitialUpdate :: FileData -> IO XRef
